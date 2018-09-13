@@ -4,6 +4,7 @@
 #include "activations.h"
 #include "layer.h"
 #include "network.h"
+#include "type.h"
 
 layer make_activation_layer(int batch, int inputs, ACTIVATION activation);
 

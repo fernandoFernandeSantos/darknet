@@ -5,6 +5,7 @@
 #include "cuda.h"
 #include "layer.h"
 #include "network.h"
+#include "type.h"
 
 typedef layer avgpool_layer;
 
