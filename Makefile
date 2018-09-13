@@ -1,6 +1,6 @@
 GPU?=0
 CUDNN=0
-OPENCV=0
+OPENCV?=0
 OPENMP=0
 DEBUG=0
 REAL_TYPE?=float
@@ -118,3 +118,8 @@ results:
 clean:
 	rm -rf $(OBJS) $(SLIB) $(ALIB) $(EXEC) $(EXECOBJ) $(OBJDIR)/*
 
+detector:
+	nvprof ./darknet detector demo cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/output.avi
+
+demo:
+	nvprof ./darknet detector test cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/dog.jpg
