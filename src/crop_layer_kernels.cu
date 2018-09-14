@@ -17,7 +17,6 @@ __device__ real_t3 make_real_t3(real_t x, real_t y, real_t z) {
 	return mem;
 }
 
-
 __device__ real_t get_pixel_kernel(real_t *image, int w, int h, int x, int y,
 		int c) {
 	if (x < 0 || x >= w || y < 0 || y >= h)

@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <float.h>
+//#include <float.h>
 #include <string.h>
 #include <math.h>
 #include "box.h"

@@ -251,7 +251,7 @@ __global__ void variance_delta_kernel(real_t *x, real_t *delta, real_t *mean,
 		}
 	}
 	variance_delta[i] *= -.5f
-			* powf(variance[i] + .00001f, (real_t) (-3.f / 2.f));
+			* powf(variance[i] + .00001f, (real_t)(-3.f / 2.f));
 }
 
 __global__ void accumulate_kernel(real_t *x, int n, int groups, real_t *sum) {
@@ -324,7 +324,7 @@ __global__ void fast_variance_delta_kernel(real_t *x, real_t *delta,
 			variance_delta[filter] += local[i];
 		}
 		variance_delta[filter] *= -.5f
-				* powf(variance[filter] + .00001f, (real_t) (-3.f / 2.f));
+				* powf(variance[filter] + .00001f, (real_t)(-3.f / 2.f));
 	}
 }
 

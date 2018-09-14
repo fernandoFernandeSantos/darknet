@@ -1,9 +1,10 @@
-GPU?=0
+GPU=1
 CUDNN=0
 OPENCV?=0
 OPENMP=0
-DEBUG=0
+DEBUG?=0
 REAL_TYPE?=float
+
 
 ARCH= -gencode arch=compute_60,code=sm_60 \
       -gencode arch=compute_61,code=sm_61 \
@@ -20,13 +21,17 @@ EXEC=darknet
 OBJDIR=./obj/
 
 CC=gcc
+CXX=g++
 NVCC=nvcc 
 AR=ar
 ARFLAGS=rcs
 OPTS=-Ofast
-LDFLAGS= -lm -pthread 
+LDFLAGS= -lm -pthread -lcuda -lcublas
 COMMON= -Iinclude/ -Isrc/
-CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -fPIC -Werror
+CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -fPIC
+
+NVCCFLAGS= --disable-warnings --std=c++11
+
 
 ifeq ($(OPENMP), 1) 
 CFLAGS+= -fopenmp
@@ -34,6 +39,7 @@ endif
 
 ifeq ($(DEBUG), 1) 
 OPTS=-O0 -g
+NVCCFLAGS+= -G
 endif
 
 CFLAGS+=$(OPTS)
@@ -67,7 +73,6 @@ CFLAGS+= -DCUDNN
 LDFLAGS+= -lcudnn
 endif
 
-
 OBJ=gemm.o utils.o cuda.o deconvolutional_layer.o convolutional_layer.o list.o image.o activations.o \
 im2col.o col2im.o blas.o crop_layer.o dropout_layer.o maxpool_layer.o softmax_layer.o data.o matrix.o \
 network.o connected_layer.o cost_layer.o parser.o option_list.o detection_layer.o route_layer.o upsample_layer.o \
@@ -87,24 +92,24 @@ EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
 DEPS = $(wildcard src/*.h) Makefile include/darknet.h
 
-all: obj backup results $(SLIB) $(ALIB) $(EXEC)
-#all: obj  results $(SLIB) $(ALIB) $(EXEC)
+all: obj backup results  $(EXEC)
+#all: obj  results $(SLIB) $(ALIB) $(EXEC) $(ALIB) $(SLIB)
 
+# $(SLIB) #$(ALIB
+$(EXEC): $(EXECOBJ)
+	$(CXX) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-$(EXEC): $(EXECOBJ) $(ALIB)
-	$(CC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(ALIB)
+#$(ALIB): $(OBJS)
+#	$(AR) $(ARFLAGS) $@ $^
 
-$(ALIB): $(OBJS)
-	$(AR) $(ARFLAGS) $@ $^
-
-$(SLIB): $(OBJS)
-	$(CC) $(CFLAGS) -shared $^ -o $@ $(LDFLAGS)
+#$(SLIB): $(OBJS)
+#	$(CXX) $(CFLAGS) $^ -o $@  $(LDFLAGS)
 
 $(OBJDIR)%.o: %.c $(DEPS)
-	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
+	$(NVCC) $(COMMON)  $(NVCCFLAGS) --compiler-options "$(CFLAGS)" -c $< -o $@
 
 $(OBJDIR)%.o: %.cu $(DEPS)
-	$(NVCC) $(ARCH) $(COMMON) --compiler-options "$(CFLAGS)" -c $< -o $@
+	$(NVCC) $(ARCH) $(COMMON) $(NVCCFLAGS) --compiler-options "$(CFLAGS)" -c $< -o $@
 
 obj:
 	mkdir -p obj
@@ -119,7 +124,7 @@ clean:
 	rm -rf $(OBJS) $(SLIB) $(ALIB) $(EXEC) $(EXECOBJ) $(OBJDIR)/*
 
 detector:
-	nvprof ./darknet detector demo cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/output.avi
+	./darknet detector demo cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/output.avi
 
 demo:
 	nvprof ./darknet detector test cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/dog.jpg
