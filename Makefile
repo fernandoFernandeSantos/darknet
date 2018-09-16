@@ -27,6 +27,7 @@ AR=ar
 ARFLAGS=rcs
 OPTS=-Ofast
 LDFLAGS= -lm -pthread -lcublas
+NVCCLDFLAGS =  -L/usr/local/cuda/lib64 -lcudart -lcublas -lcurand
 COMMON= -Iinclude/ -Isrc/
 CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -fPIC
 
@@ -97,7 +98,7 @@ all: obj backup results  $(EXEC)
 
 # $(SLIB) #$(ALIB
 $(EXEC): $(EXECOBJ) $(OBJS) 
-	$(NVCC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+	$(NVCC) $(COMMON) --compiler-options "$(CFLAGS)" $^ -o $@ --compiler-options "$(LDFLAGS)" $(NVCCLDFLAGS)
 
 #$(ALIB): $(OBJS)
 #	$(AR) $(ARFLAGS) $@ $^

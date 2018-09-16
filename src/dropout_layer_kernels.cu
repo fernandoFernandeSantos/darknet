@@ -2,11 +2,11 @@
 #include "curand.h"
 #include "cublas_v2.h"
 
-extern "C" {
+//extern "C" {
 #include "dropout_layer.h"
 #include "cuda.h"
 #include "utils.h"
-}
+//}
 
 __global__ void yoloswag420blazeit360noscope(real_t *input, int size,
 		real_t *rand, real_t prob, real_t scale) {

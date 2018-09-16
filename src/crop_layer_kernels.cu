@@ -2,12 +2,12 @@
 #include "curand.h"
 #include "cublas_v2.h"
 
-extern "C" {
+//extern "C" {
 #include "crop_layer.h"
 #include "utils.h"
 #include "cuda.h"
 #include "image.h"
-}
+//}
 
 __device__ real_t3 make_real_t3(real_t x, real_t y, real_t z) {
 	real_t3 mem;
@@ -207,7 +207,8 @@ __global__ void forward_crop_layer_kernel(real_t *input, real_t *rand, int size,
 	output[count] = bilinear_interpolate_kernel(input, w, h, rx, ry, k);
 }
 
-extern "C" void forward_crop_layer_gpu(crop_layer layer, network net) {
+//extern "C"
+void forward_crop_layer_gpu(crop_layer layer, network net) {
 	cuda_random(layer.rand_gpu, layer.batch * 8);
 
 	real_t radians = layer.angle * 3.14159265f / 180.f;

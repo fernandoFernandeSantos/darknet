@@ -2,10 +2,10 @@
 #include "curand.h"
 #include "cublas_v2.h"
 
-extern "C" {
+//extern "C" {
 #include "activations.h"
 #include "cuda.h"
-}
+//}
 
 __device__ real_t lhtan_activate_kernel(real_t x) {
 	if (x < 0)
@@ -199,8 +199,10 @@ __global__ void binary_gradient_array_kernel(real_t *x, real_t *dy, int n,
 	}
 }
 
-extern "C" void binary_gradient_array_gpu(real_t *x, real_t *dx, int n,
-		int size, BINARY_ACTIVATION a, real_t *y) {
+//extern "C"
+
+void binary_gradient_array_gpu(real_t *x, real_t *dx, int n, int size,
+		BINARY_ACTIVATION a, real_t *y) {
 	binary_gradient_array_kernel<<<cuda_gridsize(n / 2), BLOCK>>>(x, dx, n / 2,
 			size, a, y);
 	check_error(cudaPeekAtLastError());
@@ -216,8 +218,9 @@ __global__ void binary_activate_array_kernel(real_t *x, int n, int s,
 		y[id] = x1 * x2;
 }
 
-extern "C" void binary_activate_array_gpu(real_t *x, int n, int size,
-		BINARY_ACTIVATION a, real_t *y) {
+//extern "C"
+void binary_activate_array_gpu(real_t *x, int n, int size, BINARY_ACTIVATION a,
+		real_t *y) {
 	binary_activate_array_kernel<<<cuda_gridsize(n / 2), BLOCK>>>(x, n / 2,
 			size, a, y);
 	check_error(cudaPeekAtLastError());
@@ -236,13 +239,14 @@ __global__ void gradient_array_kernel(real_t *x, int n, ACTIVATION a,
 		delta[i] *= gradient_kernel(x[i], a);
 }
 
-extern "C" void activate_array_gpu(real_t *x, int n, ACTIVATION a) {
+//extern "C"
+void activate_array_gpu(real_t *x, int n, ACTIVATION a) {
 	activate_array_kernel<<<cuda_gridsize(n), BLOCK>>>(x, n, a);
 	check_error(cudaPeekAtLastError());
 }
 
-extern "C" void gradient_array_gpu(real_t *x, int n, ACTIVATION a,
-		real_t *delta) {
+//extern "C"
+void gradient_array_gpu(real_t *x, int n, ACTIVATION a, real_t *delta) {
 	gradient_array_kernel<<<cuda_gridsize(n), BLOCK>>>(x, n, a, delta);
 	check_error(cudaPeekAtLastError());
 }
