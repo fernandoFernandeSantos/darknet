@@ -11,7 +11,7 @@ void train_isegmenter(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 	char *base = basecfg(cfgfile);
 	printf("%s\n", base);
 	printf("%d\n", ngpus);
-	network **nets = calloc(ngpus, sizeof(network*));
+	network **nets = (network**) calloc(ngpus, sizeof(network*));
 
 	srand(time(0));
 	int seed = rand();
@@ -90,7 +90,7 @@ void train_isegmenter(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 
 		real_t loss = 0;
 #ifdef GPU
-		if(ngpus == 1) {
+		if (ngpus == 1) {
 			loss = train_network(net, train);
 		} else {
 			loss = train_networks(nets, ngpus, train, 4);
@@ -121,7 +121,7 @@ void train_isegmenter(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 			avg_loss = loss;
 		avg_loss = avg_loss * .9 + loss * .1;
 		printf("%ld, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n",
-				get_current_batch(net), (real_t) (*net->seen) / N, loss,
+				get_current_batch(net), (real_t)(*net->seen) / N, loss,
 				avg_loss, get_current_rate(net), what_time_is_it_now() - time,
 				*net->seen);
 		free_data(train);
@@ -161,7 +161,7 @@ void predict_isegmenter(char *datafile, char *cfg, char *weights,
 			strncpy(input, filename, 256);
 		} else {
 			printf("Enter Image Path: ");
-			fflush(stdout);
+			fflush (stdout);
 			input = fgets(input, 256, stdin);
 			if (!input)
 				return;
@@ -258,7 +258,7 @@ void run_isegmenter(int argc, char **argv) {
 			if (gpu_list[i] == ',')
 				++ngpus;
 		}
-		gpus = calloc(ngpus, sizeof(int));
+		gpus = (int*) calloc(ngpus, sizeof(int));
 		for (i = 0; i < ngpus; ++i) {
 			gpus[i] = atoi(gpu_list);
 			gpu_list = strchr(gpu_list, ',') + 1;

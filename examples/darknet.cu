@@ -261,12 +261,12 @@ void reset_normalize_net(char *cfgfile, char *weightfile, char *outfile) {
 layer normalize_layer(layer l, int n) {
 	int j;
 	l.batch_normalize = 1;
-	l.scales = calloc(n, sizeof(real_t));
+	l.scales = (real_t*) calloc(n, sizeof(real_t));
 	for (j = 0; j < n; ++j) {
 		l.scales[j] = 1;
 	}
-	l.rolling_mean = calloc(n, sizeof(real_t));
-	l.rolling_variance = calloc(n, sizeof(real_t));
+	l.rolling_mean = (real_t*) calloc(n, sizeof(real_t));
+	l.rolling_variance = (real_t*) calloc(n, sizeof(real_t));
 	return l;
 }
 

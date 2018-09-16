@@ -4,7 +4,7 @@
 #include <assert.h>
 
 real_t *get_regression_values(char **labels, int n) {
-	real_t *v = calloc(n, sizeof(real_t));
+	real_t *v = (real_t*) calloc(n, sizeof(real_t));
 	int i;
 	for (i = 0; i < n; ++i) {
 		char *p = strchr(labels[i], ' ');
@@ -22,7 +22,7 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 	char *base = basecfg(cfgfile);
 	printf("%s\n", base);
 	printf("%d\n", ngpus);
-	network **nets = calloc(ngpus, sizeof(network*));
+	network **nets = (network**) calloc(ngpus, sizeof(network*));
 
 	srand(time(0));
 	int seed = rand();
@@ -261,14 +261,14 @@ void validate_classifier_10(char *datacfg, char *filename, char *weightfile) {
 
 	real_t avg_acc = 0;
 	real_t avg_topk = 0;
-	int *indexes = calloc(topk, sizeof(int));
+	int *indexes = (int*) calloc(topk, sizeof(int));
 
 	for (i = 0; i < m; ++i) {
-		int class = -1;
+		int class_ = -1;
 		char *path = paths[i];
 		for (j = 0; j < classes; ++j) {
 			if (strstr(path, labels[j])) {
-				class = j;
+				class_ = j;
 				break;
 			}
 		}
@@ -288,7 +288,7 @@ void validate_classifier_10(char *datacfg, char *filename, char *weightfile) {
 		images[7] = crop_image(im, 0, 0, w, h);
 		images[8] = crop_image(im, -shift, shift, w, h);
 		images[9] = crop_image(im, shift, shift, w, h);
-		real_t *pred = calloc(classes, sizeof(real_t));
+		real_t *pred = (real_t*) calloc(classes, sizeof(real_t));
 		for (j = 0; j < 10; ++j) {
 			real_t *p = network_predict(net, images[j].data);
 			if (net->hierarchy)
@@ -299,10 +299,10 @@ void validate_classifier_10(char *datacfg, char *filename, char *weightfile) {
 		free_image(im);
 		top_k(pred, classes, topk, indexes);
 		free(pred);
-		if (indexes[0] == class)
+		if (indexes[0] == class_)
 			avg_acc += 1;
 		for (j = 0; j < topk; ++j) {
-			if (indexes[j] == class)
+			if (indexes[j] == class_)
 				avg_topk += 1;
 		}
 
@@ -333,15 +333,15 @@ void validate_classifier_full(char *datacfg, char *filename, char *weightfile) {
 
 	real_t avg_acc = 0;
 	real_t avg_topk = 0;
-	int *indexes = calloc(topk, sizeof(int));
+	int *indexes = (int*) calloc(topk, sizeof(int));
 
 	int size = net->w;
 	for (i = 0; i < m; ++i) {
-		int class = -1;
+		int class_ = -1;
 		char *path = paths[i];
 		for (j = 0; j < classes; ++j) {
 			if (strstr(path, labels[j])) {
-				class = j;
+				class_ = j;
 				break;
 			}
 		}
@@ -359,10 +359,10 @@ void validate_classifier_full(char *datacfg, char *filename, char *weightfile) {
 		free_image(resized);
 		top_k(pred, classes, topk, indexes);
 
-		if (indexes[0] == class)
+		if (indexes[0] == class_)
 			avg_acc += 1;
 		for (j = 0; j < topk; ++j) {
-			if (indexes[j] == class)
+			if (indexes[j] == class_)
 				avg_topk += 1;
 		}
 
@@ -396,14 +396,14 @@ void validate_classifier_single(char *datacfg, char *filename, char *weightfile)
 
 	real_t avg_acc = 0;
 	real_t avg_topk = 0;
-	int *indexes = calloc(topk, sizeof(int));
+	int *indexes = (int*) calloc(topk, sizeof(int));
 
 	for (i = 0; i < m; ++i) {
-		int class = -1;
+		int class_ = -1;
 		char *path = paths[i];
 		for (j = 0; j < classes; ++j) {
 			if (strstr(path, labels[j])) {
-				class = j;
+				class_ = j;
 				break;
 			}
 		}
@@ -421,14 +421,14 @@ void validate_classifier_single(char *datacfg, char *filename, char *weightfile)
 		free_image(crop);
 		top_k(pred, classes, topk, indexes);
 
-		if (indexes[0] == class)
+		if (indexes[0] == class_)
 			avg_acc += 1;
 		for (j = 0; j < topk; ++j) {
-			if (indexes[j] == class)
+			if (indexes[j] == class_)
 				avg_topk += 1;
 		}
 
-		printf("%s, %d, %f, %f, \n", paths[i], class, pred[0], pred[1]);
+		printf("%s, %d, %f, %f, \n", paths[i], class_, pred[0], pred[1]);
 		printf("%d: top 1: %f, top %d: %f\n", i, avg_acc / (i + 1), topk,
 				avg_topk / (i + 1));
 	}
@@ -459,18 +459,18 @@ void validate_classifier_multi(char *datacfg, char *cfg, char *weights) {
 
 	real_t avg_acc = 0;
 	real_t avg_topk = 0;
-	int *indexes = calloc(topk, sizeof(int));
+	int *indexes = (int*) calloc(topk, sizeof(int));
 
 	for (i = 0; i < m; ++i) {
-		int class = -1;
+		int class_ = -1;
 		char *path = paths[i];
 		for (j = 0; j < classes; ++j) {
 			if (strstr(path, labels[j])) {
-				class = j;
+				class_ = j;
 				break;
 			}
 		}
-		real_t *pred = calloc(classes, sizeof(real_t));
+		real_t *pred = (real_t*) calloc(classes, sizeof(real_t));
 		image im = load_image_color(paths[i], 0, 0);
 		for (j = 0; j < nscales; ++j) {
 			image r = resize_max(im, scales[j]);
@@ -488,10 +488,10 @@ void validate_classifier_multi(char *datacfg, char *cfg, char *weights) {
 		free_image(im);
 		top_k(pred, classes, topk, indexes);
 		free(pred);
-		if (indexes[0] == class)
+		if (indexes[0] == class_)
 			avg_acc += 1;
 		for (j = 0; j < topk; ++j) {
-			if (indexes[j] == class)
+			if (indexes[j] == class_)
 				avg_topk += 1;
 		}
 
@@ -516,7 +516,7 @@ void try_classifier(char *datacfg, char *cfgfile, char *weightfile,
 	int i = 0;
 	char **names = get_labels(name_list);
 	clock_t time;
-	int *indexes = calloc(top, sizeof(int));
+	int *indexes = (int*) calloc(top, sizeof(int));
 	char buff[256];
 	char *input = buff;
 	while (1) {
@@ -601,7 +601,7 @@ void predict_classifier(char *datacfg, char *cfgfile, char *weightfile,
 	int i = 0;
 	char **names = get_labels(name_list);
 	clock_t time;
-	int *indexes = calloc(top, sizeof(int));
+	int *indexes = (int*) calloc(top, sizeof(int));
 	char buff[256];
 	char *input = buff;
 	while (1) {
@@ -696,7 +696,7 @@ void csv_classifier(char *datacfg, char *cfgfile, char *weightfile) {
 	char **paths = (char **) list_to_array(plist);
 	int m = plist->size;
 	free_list(plist);
-	int *indexes = calloc(top, sizeof(int));
+	int *indexes = (int*) calloc(top, sizeof(int));
 
 	for (i = 0; i < m; ++i) {
 		double time = what_time_is_it_now();

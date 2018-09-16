@@ -26,7 +26,7 @@ NVCC=nvcc
 AR=ar
 ARFLAGS=rcs
 OPTS=-Ofast
-LDFLAGS= -lm -pthread -lcuda -lcublas
+LDFLAGS= -lm -pthread -lcublas
 COMMON= -Iinclude/ -Isrc/
 CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -fPIC
 
@@ -64,7 +64,7 @@ endif
 ifeq ($(GPU), 1) 
 COMMON+= -DGPU -I/usr/local/cuda/include/
 CFLAGS+= -DGPU
-LDFLAGS+= -L/usr/local/cuda/lib64 -lcuda -lcudart -lcublas -lcurand
+LDFLAGS+= -L/usr/local/cuda/lib64 -lcudart -lcublas -lcurand
 endif
 
 ifeq ($(CUDNN), 1) 
@@ -96,8 +96,8 @@ all: obj backup results  $(EXEC)
 #all: obj  results $(SLIB) $(ALIB) $(EXEC) $(ALIB) $(SLIB)
 
 # $(SLIB) #$(ALIB
-$(EXEC): $(EXECOBJ)
-	$(CXX) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+$(EXEC): $(EXECOBJ) $(OBJS) 
+	$(NVCC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 #$(ALIB): $(OBJS)
 #	$(AR) $(ARFLAGS) $@ $^
