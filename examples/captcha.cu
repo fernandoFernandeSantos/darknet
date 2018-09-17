@@ -25,7 +25,7 @@ void fix_data_captcha(data d, int mask) {
 
 void train_captcha(char *cfgfile, char *weightfile) {
 	srand(time(0));
-	real_t avg_loss = -1;
+	real_t avg_loss = (real_t) -1;
 	char *base = basecfg(cfgfile);
 	printf("%s\n", base);
 	network *net = load_network(cfgfile, weightfile, 0);

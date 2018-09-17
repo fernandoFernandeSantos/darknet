@@ -26,9 +26,7 @@
 #define HALF_GNUC_VERSION (__GNUC__*100+__GNUC_MINOR__)
 
 //check C++11 language features
-#if defined(__clang__)										//clang#if __has_feature(cxx_static_assert) && !defined(HALF_ENABLE_CPP11_STATIC_ASSERT)
-#define HALF_ENABLE_CPP11_STATIC_ASSERT 1
-#endif
+#if defined(__clang__)										//clang#if __has_feature(cxx_static_assert) && !defined(HALF_ENABLE_CPP11_STATIC_ASSERT)#define HALF_ENABLE_CPP11_STATIC_ASSERT 1#endif
 #if __has_feature(cxx_constexpr) && !defined(HALF_ENABLE_CPP11_CONSTEXPR)
 #define HALF_ENABLE_CPP11_CONSTEXPR 1
 #endif
@@ -54,9 +52,7 @@
  #if __INTEL_COMPILER >= 1100 && !defined(HALF_ENABLE_CPP11_LONG_LONG)			????????
  #define HALF_ENABLE_CPP11_LONG_LONG 1
  #endif*/
-#elif defined(__GNUC__)										//gcc#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
-#if HALF_GNUC_VERSION >= 403 && !defined(HALF_ENABLE_CPP11_STATIC_ASSERT)
-#define HALF_ENABLE_CPP11_STATIC_ASSERT 1
+#elif defined(__GNUC__)										//gcc#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L#if HALF_GNUC_VERSION >= 403 && !defined(HALF_ENABLE_CPP11_STATIC_ASSERT)#define HALF_ENABLE_CPP11_STATIC_ASSERT 1
 #endif
 #if HALF_GNUC_VERSION >= 406 && !defined(HALF_ENABLE_CPP11_CONSTEXPR)
 #define HALF_ENABLE_CPP11_CONSTEXPR 1
@@ -71,9 +67,7 @@
 #define HALF_ENABLE_CPP11_LONG_LONG 1
 #endif
 #endif
-#elif defined(_MSC_VER)										//Visual C++#if _MSC_VER >= 1900 && !defined(HALF_ENABLE_CPP11_CONSTEXPR)
-#define HALF_ENABLE_CPP11_CONSTEXPR 1
-#endif
+#elif defined(_MSC_VER)										//Visual C++#if _MSC_VER >= 1900 && !defined(HALF_ENABLE_CPP11_CONSTEXPR)#define HALF_ENABLE_CPP11_CONSTEXPR 1#endif
 #if _MSC_VER >= 1900 && !defined(HALF_ENABLE_CPP11_NOEXCEPT)
 #define HALF_ENABLE_CPP11_NOEXCEPT 1
 #endif
@@ -92,9 +86,7 @@
 
 //check C++11 library features
 #include <utility>
-#if defined(_LIBCPP_VERSION)								//libc++#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103
-#ifndef HALF_ENABLE_CPP11_TYPE_TRAITS
-#define HALF_ENABLE_CPP11_TYPE_TRAITS 1
+#if defined(_LIBCPP_VERSION)								//libc++#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103#ifndef HALF_ENABLE_CPP11_TYPE_TRAITS#define HALF_ENABLE_CPP11_TYPE_TRAITS 1
 #endif
 #ifndef HALF_ENABLE_CPP11_CSTDINT
 #define HALF_ENABLE_CPP11_CSTDINT 1
@@ -106,9 +98,7 @@
 #define HALF_ENABLE_CPP11_HASH 1
 #endif
 #endif
-#elif defined(__GLIBCXX__)									//libstdc++#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103
-#ifdef __clang__
-#if __GLIBCXX__ >= 20080606 && !defined(HALF_ENABLE_CPP11_TYPE_TRAITS)
+#elif defined(__GLIBCXX__)									//libstdc++#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103#ifdef __clang__#if __GLIBCXX__ >= 20080606 && !defined(HALF_ENABLE_CPP11_TYPE_TRAITS)
 #define HALF_ENABLE_CPP11_TYPE_TRAITS 1
 #endif
 #if __GLIBCXX__ >= 20080606 && !defined(HALF_ENABLE_CPP11_CSTDINT)
@@ -132,9 +122,7 @@
 #endif
 #endif
 #endif
-#elif defined(_CPPLIB_VER)									//Dinkumware/Visual C++#if _CPPLIB_VER >= 520
-#ifndef HALF_ENABLE_CPP11_TYPE_TRAITS
-#define HALF_ENABLE_CPP11_TYPE_TRAITS 1
+#elif defined(_CPPLIB_VER)									//Dinkumware/Visual C++#if _CPPLIB_VER >= 520#ifndef HALF_ENABLE_CPP11_TYPE_TRAITS#define HALF_ENABLE_CPP11_TYPE_TRAITS 1
 #endif
 #ifndef HALF_ENABLE_CPP11_CSTDINT
 #define HALF_ENABLE_CPP11_CSTDINT 1
@@ -186,8 +174,8 @@
 #endif
 
 /// Default rounding mode.
-/// This specifies the rounding mode used for all conversions between [half](\ref half_float::half)s and `float`s as well as 
-/// for the half_cast() if not specifying a rounding mode explicitly. It can be redefined (before including half.hpp) to one 
+/// This specifies the rounding mode used for all conversions between [half](\ref half_float::half)s and `float`s as well as
+/// for the half_cast() if not specifying a rounding mode explicitly. It can be redefined (before including half.hpp) to one
 /// of the standard rounding modes using their respective constants or the equivalent values of `std::float_round_style`:
 ///
 /// `std::float_round_style`         | value | rounding
@@ -198,28 +186,24 @@
 /// `std::round_toward_infinity`     | 2     | toward positive infinity
 /// `std::round_toward_neg_infinity` | 3     | toward negative infinity
 ///
-/// By default this is set to `-1` (`std::round_indeterminate`), which uses truncation (round toward zero, but with overflows 
-/// set to infinity) and is the fastest rounding mode possible. It can even be set to `std::numeric_limits<float>::round_style` 
+/// By default this is set to `-1` (`std::round_indeterminate`), which uses truncation (round toward zero, but with overflows
+/// set to infinity) and is the fastest rounding mode possible. It can even be set to `std::numeric_limits<float>::round_style`
 /// to synchronize the rounding mode with that of the underlying single-precision implementation.
 #ifndef HALF_ROUND_STYLE
-#define HALF_ROUND_STYLE	-1			// = std::round_indeterminate#endif
-
-/// Tie-breaking behaviour for round to nearest.
-/// This specifies if ties in round to nearest should be resolved by rounding to the nearest even value. By default this is 
-/// defined to `0` resulting in the faster but slightly more biased behaviour of rounding away from zero in half-way cases (and 
-/// thus equal to the round() function), but can be redefined to `1` (before including half.hpp) if more IEEE-conformant 
+#define HALF_ROUND_STYLE	-1			// = std::round_indeterminate#endif/// Tie-breaking behaviour for round to nearest.
+/// This specifies if ties in round to nearest should be resolved by rounding to the nearest even value. By default this is
+/// defined to `0` resulting in the faster but slightly more biased behaviour of rounding away from zero in half-way cases (and
+/// thus equal to the round() function), but can be redefined to `1` (before including half.hpp) if more IEEE-conformant
 /// behaviour is needed.
 #ifndef HALF_ROUND_TIES_TO_EVEN
-#define HALF_ROUND_TIES_TO_EVEN	0		// ties away from zero#endif
-
-/// Value signaling overflow.
-/// In correspondence with `HUGE_VAL[F|L]` from `<cmath>` this symbol expands to a positive value signaling the overflow of an 
+#define HALF_ROUND_TIES_TO_EVEN	0		// ties away from zero#endif/// Value signaling overflow.
+/// In correspondence with `HUGE_VAL[F|L]` from `<cmath>` this symbol expands to a positive value signaling the overflow of an
 /// operation, in particular it just evaluates to positive infinity.
 #define HUGE_VALH	std::numeric_limits<half_float::half>::infinity()
 
 /// Fast half-precision fma function.
-/// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate 
-/// half-precision multiplication followed by an addition. Due to the internal single-precision implementation of all 
+/// This symbol is only defined if the fma() function generally executes as fast as, or faster than, a separate
+/// half-precision multiplication followed by an addition. Due to the internal single-precision implementation of all
 /// arithmetic operations, this is in fact always the case.
 #define FP_FAST_FMAH	1
 
@@ -374,7 +358,7 @@ private:
 };
 
 /// SFINAE helper for generic half-precision functions.
-/// This class template has to be specialized for each valid combination of argument types to provide a corresponding 
+/// This class template has to be specialized for each valid combination of argument types to provide a corresponding
 /// `type` member equivalent to \a T.
 /// \tparam T type to return
 template<typename T, typename, typename = void, typename = void> struct enable {
@@ -423,7 +407,7 @@ template<typename T> struct enable<T, expr, expr, expr> {
 };
 
 /// Return type for specialized generic 2-argument half-precision functions.
-/// This class template has to be specialized for each valid combination of argument types to provide a corresponding 
+/// This class template has to be specialized for each valid combination of argument types to provide a corresponding
 /// `type` member denoting the appropriate return type.
 /// \tparam T first argument type
 /// \tparam U first argument type
@@ -1443,24 +1427,24 @@ template<typename, typename, std::float_round_style> struct half_caster;
 }
 
 /// Half-precision floating point type.
-/// This class implements an IEEE-conformant half-precision floating point type with the usual arithmetic operators and 
-/// conversions. It is implicitly convertible to single-precision floating point, which makes artihmetic expressions and 
-/// functions with mixed-type operands to be of the most precise operand type. Additionally all arithmetic operations 
-/// (and many mathematical functions) are carried out in single-precision internally. All conversions from single- to 
-/// half-precision are done using the library's default rounding mode, but temporary results inside chained arithmetic 
+/// This class implements an IEEE-conformant half-precision floating point type with the usual arithmetic operators and
+/// conversions. It is implicitly convertible to single-precision floating point, which makes artihmetic expressions and
+/// functions with mixed-type operands to be of the most precise operand type. Additionally all arithmetic operations
+/// (and many mathematical functions) are carried out in single-precision internally. All conversions from single- to
+/// half-precision are done using the library's default rounding mode, but temporary results inside chained arithmetic
 /// expressions are kept in single-precision as long as possible (while of course still maintaining a strong half-precision type).
 ///
-/// According to the C++98/03 definition, the half type is not a POD type. But according to C++11's less strict and 
-/// extended definitions it is both a standard layout type and a trivially copyable type (even if not a POD type), which 
-/// means it can be standard-conformantly copied using raw binary copies. But in this context some more words about the 
-/// actual size of the type. Although the half is representing an IEEE 16-bit type, it does not neccessarily have to be of 
-/// exactly 16-bits size. But on any reasonable implementation the actual binary representation of this type will most 
-/// probably not ivolve any additional "magic" or padding beyond the simple binary representation of the underlying 16-bit 
-/// IEEE number, even if not strictly guaranteed by the standard. But even then it only has an actual size of 16 bits if 
-/// your C++ implementation supports an unsigned integer type of exactly 16 bits width. But this should be the case on 
+/// According to the C++98/03 definition, the half type is not a POD type. But according to C++11's less strict and
+/// extended definitions it is both a standard layout type and a trivially copyable type (even if not a POD type), which
+/// means it can be standard-conformantly copied using raw binary copies. But in this context some more words about the
+/// actual size of the type. Although the half is representing an IEEE 16-bit type, it does not neccessarily have to be of
+/// exactly 16-bits size. But on any reasonable implementation the actual binary representation of this type will most
+/// probably not ivolve any additional "magic" or padding beyond the simple binary representation of the underlying 16-bit
+/// IEEE number, even if not strictly guaranteed by the standard. But even then it only has an actual size of 16 bits if
+/// your C++ implementation supports an unsigned integer type of exactly 16 bits width. But this should be the case on
 /// nearly any reasonable platform.
 ///
-/// So if your C++ implementation is not totally exotic or imposes special alignment requirements, it is a reasonable 
+/// So if your C++ implementation is not totally exotic or imposes special alignment requirements, it is a reasonable
 /// assumption that the data of a half is just comprised of the 2 bytes of the underlying IEEE representation.
 class half {
 	friend struct detail::functions;
@@ -1477,7 +1461,7 @@ class half {
 
 public:
 	/// Default constructor.
-	/// This initializes the half to 0. Although this does not match the builtin types' default-initialization semantics 
+	/// This initializes the half to 0. Although this does not match the builtin types' default-initialization semantics
 	/// and may be less efficient than no initialization, it is needed to provide proper value-initialization semantics.
 	HALF_CONSTEXPR
 	half() HALF_NOEXCEPT : data_() {}
@@ -1582,7 +1566,7 @@ private:
 namespace literal
 {
 	/// Half literal.
-	/// While this returns an actual half-precision value, half literals can unfortunately not be constant expressions due 
+	/// While this returns an actual half-precision value, half literals can unfortunately not be constant expressions due
 	/// to rather involved conversions.
 	/// \param value literal value
 	/// \return half with given value (if representable)
@@ -2563,7 +2547,7 @@ template<> struct binary_specialized<half, half> {
 };
 
 /// Helper class for half casts.
-/// This class template has to be specialized for all valid cast argument to define an appropriate static `cast` member 
+/// This class template has to be specialized for all valid cast argument to define an appropriate static `cast` member
 /// function and a corresponding `type` member denoting its return type.
 /// \tparam T destination type
 /// \tparam U source type
@@ -3457,7 +3441,7 @@ inline half scalbn(expr arg, int exp) {
 /// Multiply by power of two.
 /// \param arg number to modify
 /// \param exp power of two to multiply with
-/// \return \a arg multplied by 2 raised to \a exp	
+/// \return \a arg multplied by 2 raised to \a exp
 //		template<typename T> typename enable<half,T>::type scalbln(T arg, long exp) { return functions::scalbln(arg, exp); }
 inline half scalbln(half arg, long exp) {
 	return functions::scalbln(arg, exp);
@@ -3740,12 +3724,12 @@ inline bool isunordered(expr x, expr y) {
 /// \{
 
 /// Cast to or from half-precision floating point number.
-/// This casts between [half](\ref half_float::half) and any built-in arithmetic type. The values are converted 
-/// directly using the given rounding mode, without any roundtrip over `float` that a `static_cast` would otherwise do. 
+/// This casts between [half](\ref half_float::half) and any built-in arithmetic type. The values are converted
+/// directly using the given rounding mode, without any roundtrip over `float` that a `static_cast` would otherwise do.
 /// It uses the default rounding mode.
 ///
-/// Using this cast with neither of the two types being a [half](\ref half_float::half) or with any of the two types 
-/// not being a built-in arithmetic type (apart from [half](\ref half_float::half), of course) results in a compiler 
+/// Using this cast with neither of the two types being a [half](\ref half_float::half) or with any of the two types
+/// not being a built-in arithmetic type (apart from [half](\ref half_float::half), of course) results in a compiler
 /// error and casting between [half](\ref half_float::half)s is just a no-op.
 /// \tparam T destination type (half or built-in arithmetic type)
 /// \tparam U source type (half or built-in arithmetic type)
@@ -3756,11 +3740,11 @@ template<typename T, typename U> T half_cast(U arg) {
 }
 
 /// Cast to or from half-precision floating point number.
-/// This casts between [half](\ref half_float::half) and any built-in arithmetic type. The values are converted 
+/// This casts between [half](\ref half_float::half) and any built-in arithmetic type. The values are converted
 /// directly using the given rounding mode, without any roundtrip over `float` that a `static_cast` would otherwise do.
 ///
-/// Using this cast with neither of the two types being a [half](\ref half_float::half) or with any of the two types 
-/// not being a built-in arithmetic type (apart from [half](\ref half_float::half), of course) results in a compiler 
+/// Using this cast with neither of the two types being a [half](\ref half_float::half) or with any of the two types
+/// not being a built-in arithmetic type (apart from [half](\ref half_float::half), of course) results in a compiler
 /// error and casting between [half](\ref half_float::half)s is just a no-op.
 /// \tparam T destination type (half or built-in arithmetic type)
 /// \tparam R rounding mode to use.
@@ -3865,7 +3849,7 @@ using detail::half_cast;
 /// Extensions to the C++ standard library.
 namespace std {
 /// Numeric limits for half-precision floats.
-/// Because of the underlying single-precision implementation of many operations, it inherits some properties from 
+/// Because of the underlying single-precision implementation of many operations, it inherits some properties from
 /// `std::numeric_limits<float>`.
 template<> class numeric_limits<half_float::half> : public numeric_limits<float> {
 public:
@@ -3891,9 +3875,9 @@ public:
 	static HALF_CONSTEXPR_CONST float_denorm_style has_denorm = denorm_present;
 
 	/// Rounding mode.
-	/// Due to the mix of internal single-precision computations (using the rounding mode of the underlying 
-	/// single-precision implementation) with the rounding mode of the single-to-half conversions, the actual rounding 
-	/// mode might be `std::round_indeterminate` if the default half-precision rounding mode doesn't match the 
+	/// Due to the mix of internal single-precision computations (using the rounding mode of the underlying
+	/// single-precision implementation) with the rounding mode of the single-to-half conversions, the actual rounding
+	/// mode might be `std::round_indeterminate` if the default half-precision rounding mode doesn't match the
 	/// single-precision rounding mode.
 	static HALF_CONSTEXPR_CONST float_round_style round_style =
 			(std::numeric_limits<float>::round_style

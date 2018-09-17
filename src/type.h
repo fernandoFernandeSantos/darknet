@@ -16,24 +16,31 @@
 #include <stdio.h>
 
 #if REAL_TYPE == HALF
-// For half precision
-#include <cuda_fp16.hpp>
 
-typedef half real_t;
+	// For half precision
+	#include <cuda_fp16.hpp>
+	#include "half.hpp"
+	#define FLT_MAX 65504 - 1
 
-#define FLT_MAX 65504 - 1
+
+	typedef half_float::half real_t;
+
+
+
+
+
 
 #elif REAL_TYPE == FLOAT
-// Single precision
-typedef float real_t;
+	// Single precision
+	typedef float real_t;
 
-#define FLT_MAX 1E+37
+	#define FLT_MAX 1E+37
 
 #elif REAL_TYPE == DOUBLE
-//Double precision
-typedef double real_t;
+	//Double precision
+	typedef double real_t;
 
-#define FLT_MAX 1E+307
+	#define FLT_MAX 1E+307
 
 #endif
 
