@@ -21,9 +21,14 @@
 #include "cuda_runtime.h"
 #include "curand.h"
 
-typedef __half real_t;
+typedef half real_t;
 
 #define FLT_MAX 65504 - 1
+
+__device__ inline bool operator==(const half& a, const half& b) {
+	return __heq(a, b);
+}
+
 
 #elif REAL_TYPE == FLOAT
 // Single precision
