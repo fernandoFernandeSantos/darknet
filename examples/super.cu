@@ -6,7 +6,7 @@ void train_super(char *cfgfile, char *weightfile, int clear) {
 	srand(time(0));
 	char *base = basecfg(cfgfile);
 	printf("%s\n", base);
-	real_t avg_loss = -1;
+	real_t avg_loss = real_t(-1);
 	network *net = load_network(cfgfile, weightfile, clear);
 	printf("Learning Rate: %g, Momentum: %g, Decay: %g\n", net->learning_rate,
 			net->momentum, net->decay);
@@ -78,7 +78,7 @@ void test_super(char *cfgfile, char *weightfile, char *filename) {
 			strncpy(input, filename, 256);
 		} else {
 			printf("Enter Image Path: ");
-			fflush(stdout);
+			fflush (stdout);
 			input = fgets(input, 256, stdin);
 			if (!input)
 				return;

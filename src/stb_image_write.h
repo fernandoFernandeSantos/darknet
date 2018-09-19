@@ -569,7 +569,7 @@ void stbiw__linear_to_rgbe(unsigned char *rgbe, real_t *linear)
 	if (maxcomp < 1e-32f) {
 		rgbe[0] = rgbe[1] = rgbe[2] = rgbe[3] = 0;
 	} else {
-		real_t normalize = (real_t) frexp(maxcomp, &exponent) * 256.0f/maxcomp;
+		real_t normalize = real_t(frexp(maxcomp, &exponent) * 256.0f/maxcomp);
 
 		rgbe[0] = (unsigned char)(linear[0] * normalize);
 		rgbe[1] = (unsigned char)(linear[1] * normalize);
@@ -1363,8 +1363,9 @@ static int stbi_write_jpg_core(stbi__write_context *s, int width, int height, in
 		37,56,68,109,103,77,24,35,55,64,81,104,113,92,49,64,78,87,103,121,120,101,72,92,95,98,112,100,103,99};
 	static const int UVQT[] = {17,18,24,47,99,99,99,99,18,21,26,66,99,99,99,99,24,26,56,99,99,99,99,99,47,66,99,99,99,99,99,99,
 		99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99};
-	static const real_t aasf[] = {1.0f * 2.828427125f, 1.387039845f * 2.828427125f, 1.306562965f * 2.828427125f, 1.175875602f * 2.828427125f,
-		1.0f * 2.828427125f, 0.785694958f * 2.828427125f, 0.541196100f * 2.828427125f, 0.275899379f * 2.828427125f};
+	static const real_t aasf[] = {real_t(1.0f * 2.828427125f), real_t(1.387039845f * 2.828427125f), real_t(1.306562965f * 2.828427125f)
+		, real_t(1.175875602f * 2.828427125f),
+		real_t(1.0f * 2.828427125f), real_t(0.785694958f * 2.828427125f), real_t(0.541196100f * 2.828427125f), real_t(0.275899379f * 2.828427125f)};
 
 	int row, col, i, k;
 	real_t fdtbl_Y[64], fdtbl_UV[64];

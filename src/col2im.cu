@@ -27,7 +27,7 @@ void col2im_cpu(real_t* data_col, int channels, int height, int width,
 				int im_row = h_offset + h * stride;
 				int im_col = w_offset + w * stride;
 				int col_index = (c * height_col + h) * width_col + w;
-				double val = data_col[col_index];
+				real_t val = data_col[col_index];
 				col2im_add_pixel(data_im, height, width, channels, im_row,
 						im_col, c_im, pad, val);
 			}

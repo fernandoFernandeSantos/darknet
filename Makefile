@@ -81,8 +81,10 @@ box.o normalization_layer.o avgpool_layer.o layer.o local_layer.o shortcut_layer
 rnn_layer.o gru_layer.o crnn_layer.o demo.o batchnorm_layer.o region_layer.o reorg_layer.o tree.o  lstm_layer.o \
 l2norm_layer.o yolo_layer.o iseg_layer.o type.o
 
-EXECOBJA=captcha.o lsd.o super.o art.o tag.o cifar.o go.o rnn.o segmenter.o regressor.o classifier.o coco.o \
-yolo.o detector.o nightmare.o instance-segmenter.o darknet.o
+# I removed those ones to save time
+# captcha.o lsd.o super.o art.o tag.o cifar.o go.o rnn.o segmenter.o regressor.o classifier.o coco.o nightmare.o instance-segmenter.o
+EXECOBJA= yolo.o detector.o  darknet.o
+
 ifeq ($(GPU), 1) 
 LDFLAGS+= -lstdc++ 
 OBJ+=convolutional_kernels.o deconvolutional_kernels.o activation_kernels.o im2col_kernels.o col2im_kernels.o \

@@ -139,7 +139,7 @@ data random_go_moves(moves m, int n) {
 void train_go(char *cfgfile, char *weightfile, char *filename, int *gpus,
 		int ngpus, int clear) {
 	int i;
-	real_t avg_loss = -1;
+	real_t avg_loss = real_t(-1);
 	char *base = basecfg(cfgfile);
 	printf("%s\n", base);
 	printf("%d\n", ngpus);
@@ -175,7 +175,7 @@ void train_go(char *cfgfile, char *weightfile, char *filename, int *gpus,
 		printf("Loaded: %lf seconds\n", what_time_is_it_now() - time);
 		time = what_time_is_it_now();
 
-		real_t loss = 0;
+		real_t loss = real_t(0);
 #ifdef GPU
 		if(ngpus == 1) {
 			loss = train_network(net, train);
@@ -336,14 +336,14 @@ real_t predict_move2(network *net, real_t *board, real_t *move, int multi) {
 				flip_image(oim);
 			rotate_image_cw(oim, -i);
 
-			axpy_cpu(19 * 19 + 1, 1, output, 1, move, 1);
+			axpy_cpu(19 * 19 + 1, real_t(1), output, 1, move, 1);
 
 			if (i >= 4)
 				flip_image(bim);
 			rotate_image_cw(bim, -i);
 		}
 		result = result / 8;
-		scal_cpu(19 * 19 + 1, 1. / 8., move, 1);
+		scal_cpu(19 * 19 + 1, real_t(1. / 8.), move, 1);
 	}
 	for (i = 0; i < 19 * 19; ++i) {
 		if (board[i] || board[i + 19 * 19])
@@ -442,12 +442,12 @@ real_t *network_predict_rotations(network *net, real_t *next) {
 			flip_image(im);
 		rotate_image_cw(im, -i);
 		if (j > 0) {
-			axpy_cpu(19 * 19 + 2, 1, im.data, 1, pred, 1);
+			axpy_cpu(19 * 19 + 2, real_t(1), im.data, 1, pred, 1);
 		}
 	}
 	free(in);
 	free(inds);
-	scal_cpu(19 * 19 + 2, 1. / n, pred, 1);
+	scal_cpu(19 * 19 + 2, real_t(1. / n), pred, 1);
 	return pred;
 }
 
@@ -464,7 +464,7 @@ mcts_tree *expand(real_t *next, real_t *ko, network *net) {
 	int i;
 	real_t *pred = network_predict_rotations(net, next);
 	copy_cpu(19 * 19 + 1, pred, 1, root->prior, 1);
-	real_t val = 2 * pred[19 * 19 + 1] - 1;
+	real_t val = real_t(2) * pred[19 * 19 + 1] - real_t(1);
 	root->result = val;
 	for (i = 0; i < 19 * 19 + 1; ++i) {
 		root->visit_count[i] = 0;
@@ -490,7 +490,7 @@ real_t select_mcts(mcts_tree *root, network *net, real_t *prev, real_t cpuct) {
 	if (root->done)
 		return -root->result;
 	int i;
-	real_t max = -1000;
+	real_t max = real_t(-1000);
 	int max_i = 0;
 	for (i = 0; i < 19 * 19 + 1; ++i) {
 		root->prob[i] = root->mean[i]
@@ -583,8 +583,8 @@ typedef struct {
 
 move pick_move(mcts_tree *tree, real_t temp, int player) {
 	int i;
-	real_t probs[19 * 19 + 1] = { 0 };
-	move m = { 0 };
+	real_t probs[19 * 19 + 1] = { real_t(0) };
+	move m = { real_t(0) };
 	double sum = 0;
 	/*
 	 for(i = 0; i < 19*19+1; ++i){
@@ -866,7 +866,7 @@ mcts_tree *ponder(mcts_tree *tree, network *net, real_t *b, real_t *ko,
 	while (!stdin_ready()) {
 		if (what_time_is_it_now() - t > 120)
 			break;
-		tree = run_mcts(tree, net, b, ko, player, 100000, cpuct, .1);
+		tree = run_mcts(tree, net, b, ko, player, 100000, cpuct, real_t(.1));
 	}
 	fprintf(stderr, "Pondered %d moves...\n", tree->total_count - count);
 	return tree;
@@ -1284,7 +1284,7 @@ real_t score_game(real_t *board) {
 		free(fgetl(p));
 	}
 	char *l = 0;
-	real_t score = 0;
+	real_t score = real_t(0);
 	char player = 0;
 	while ((l = fgetl(p))) {
 		fprintf(stderr, "%s  \t", l);
@@ -1332,9 +1332,9 @@ void self_go(char *filename, char *weightfile, char *f2, char *w2, int multi) {
 	int p1 = 0;
 	int p2 = 0;
 	int total = 0;
-	real_t temp = .1;
+	real_t temp = real_t(.1);
 	int mcts_iters = 500;
-	real_t cpuct = 5;
+	real_t cpuct = real_t(5);
 	while (1) {
 		if (done) {
 			tree1 = move_mcts(tree1, -1);
@@ -1378,7 +1378,7 @@ void self_go(char *filename, char *weightfile, char *f2, char *w2, int multi) {
 		}
 		network *use = ((total % 2 == 0) == (player == 1)) ? net : net2;
 		mcts_tree *t = ((total % 2 == 0) == (player == 1)) ? tree1 : tree2;
-		t = run_mcts(t, use, board, two, player, mcts_iters, cpuct, 0);
+		t = run_mcts(t, use, board, two, player, mcts_iters, cpuct, real_t(0));
 		move m = pick_move(t, temp, player);
 		if (((total % 2 == 0) == (player == 1)))
 			tree1 = t;
@@ -1457,9 +1457,9 @@ void run_go(int argc, char **argv) {
 	int anon = find_arg(argc, argv, "-anon");
 	int iters = find_int_arg(argc, argv, "-iters", 500);
 	int resign = find_int_arg(argc, argv, "-resign", 175);
-	real_t cpuct = find_real_t_arg(argc, argv, "-cpuct", 5);
-	real_t temp = find_real_t_arg(argc, argv, "-temp", .1);
-	real_t time = find_real_t_arg(argc, argv, "-time", 0);
+	real_t cpuct = find_real_t_arg(argc, argv, "-cpuct", real_t(5));
+	real_t temp = find_real_t_arg(argc, argv, "-temp", real_t(.1));
+	real_t time = find_real_t_arg(argc, argv, "-time", real_t(0));
 	if (0 == strcmp(argv[2], "train"))
 		train_go(cfg, weights, c2, gpus, ngpus, clear);
 	else if (0 == strcmp(argv[2], "valid"))

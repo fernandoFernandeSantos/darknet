@@ -18,7 +18,7 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 		int ngpus, int clear) {
 	int i;
 
-	real_t avg_loss = -1;
+	real_t avg_loss = real_t(-1);
 	char *base = basecfg(cfgfile);
 	printf("%s\n", base);
 	printf("%d\n", ngpus);
@@ -130,9 +130,9 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 		printf("Loaded: %lf seconds\n", what_time_is_it_now() - time);
 		time = what_time_is_it_now();
 
-		real_t loss = 0;
+		real_t loss = real_t(0);
 #ifdef GPU
-		if(ngpus == 1) {
+		if (ngpus == 1) {
 			loss = train_network(net, train);
 		} else {
 			loss = train_networks(nets, ngpus, train, 4);
@@ -144,7 +144,7 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 			avg_loss = loss;
 		avg_loss = avg_loss * .9 + loss * .1;
 		printf("%ld, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n",
-				get_current_batch(net), (real_t) (*net->seen) / N, loss,
+				get_current_batch(net), (real_t)(*net->seen) / N, loss,
 				avg_loss, get_current_rate(net), what_time_is_it_now() - time,
 				*net->seen);
 		free_data(train);
@@ -193,8 +193,8 @@ void validate_classifier_crop(char *datacfg, char *filename, char *weightfile) {
 	free_list(plist);
 
 	clock_t time;
-	real_t avg_acc = 0;
-	real_t avg_topk = 0;
+	real_t avg_acc = real_t(0);
+	real_t avg_topk = real_t(0);
 	int splits = m / 1000;
 	int num = (i + 1) * m / splits - i * m / splits;
 
@@ -259,8 +259,8 @@ void validate_classifier_10(char *datacfg, char *filename, char *weightfile) {
 	int m = plist->size;
 	free_list(plist);
 
-	real_t avg_acc = 0;
-	real_t avg_topk = 0;
+	real_t avg_acc = real_t(0);
+	real_t avg_topk = real_t(0);
 	int *indexes = (int*) calloc(topk, sizeof(int));
 
 	for (i = 0; i < m; ++i) {
@@ -293,7 +293,7 @@ void validate_classifier_10(char *datacfg, char *filename, char *weightfile) {
 			real_t *p = network_predict(net, images[j].data);
 			if (net->hierarchy)
 				hierarchy_predictions(p, net->outputs, net->hierarchy, 1, 1);
-			axpy_cpu(classes, 1, p, 1, pred, 1);
+			axpy_cpu(classes, real_t(1), p, 1, pred, 1);
 			free_image(images[j]);
 		}
 		free_image(im);
@@ -331,8 +331,8 @@ void validate_classifier_full(char *datacfg, char *filename, char *weightfile) {
 	int m = plist->size;
 	free_list(plist);
 
-	real_t avg_acc = 0;
-	real_t avg_topk = 0;
+	real_t avg_acc = real_t(0);
+	real_t avg_topk = real_t(0);
 	int *indexes = (int*) calloc(topk, sizeof(int));
 
 	int size = net->w;
@@ -371,7 +371,8 @@ void validate_classifier_full(char *datacfg, char *filename, char *weightfile) {
 	}
 }
 
-void validate_classifier_single(char *datacfg, char *filename, char *weightfile) {
+void validate_classifier_single(char *datacfg, char *filename,
+		char *weightfile) {
 	int i, j;
 	network *net = load_network(filename, weightfile, 0);
 	set_batch_network(net, 1);
@@ -394,8 +395,8 @@ void validate_classifier_single(char *datacfg, char *filename, char *weightfile)
 	int m = plist->size;
 	free_list(plist);
 
-	real_t avg_acc = 0;
-	real_t avg_topk = 0;
+	real_t avg_acc = real_t(0);
+	real_t avg_topk = real_t(0);
 	int *indexes = (int*) calloc(topk, sizeof(int));
 
 	for (i = 0; i < m; ++i) {
@@ -457,8 +458,8 @@ void validate_classifier_multi(char *datacfg, char *cfg, char *weights) {
 	int m = plist->size;
 	free_list(plist);
 
-	real_t avg_acc = 0;
-	real_t avg_topk = 0;
+	real_t avg_acc = real_t(0);
+	real_t avg_topk = real_t(0);
 	int *indexes = (int*) calloc(topk, sizeof(int));
 
 	for (i = 0; i < m; ++i) {
@@ -478,10 +479,10 @@ void validate_classifier_multi(char *datacfg, char *cfg, char *weights) {
 			real_t *p = network_predict(net, r.data);
 			if (net->hierarchy)
 				hierarchy_predictions(p, net->outputs, net->hierarchy, 1, 1);
-			axpy_cpu(classes, 1, p, 1, pred, 1);
+			axpy_cpu(classes, real_t(1), p, 1, pred, 1);
 			flip_image(r);
 			p = network_predict(net, r.data);
-			axpy_cpu(classes, 1, p, 1, pred, 1);
+			axpy_cpu(classes, real_t(1), p, 1, pred, 1);
 			if (r.data != im.data)
 				free_image(r);
 		}
@@ -524,7 +525,7 @@ void try_classifier(char *datacfg, char *cfgfile, char *weightfile,
 			strncpy(input, filename, 256);
 		} else {
 			printf("Enter Image Path: ");
-			fflush(stdout);
+			fflush (stdout);
 			input = fgets(input, 256, stdin);
 			if (!input)
 				return;
@@ -534,8 +535,10 @@ void try_classifier(char *datacfg, char *cfgfile, char *weightfile,
 		image r = resize_min(orig, 256);
 		image im = crop_image(r, (r.w - 224 - 1) / 2 + 1,
 				(r.h - 224 - 1) / 2 + 1, 224, 224);
-		real_t mean[] = { 0.48263312050943, 0.45230225481413, 0.40099074308742 };
-		real_t std[] = { 0.22590347483426, 0.22120921437787, 0.22103996251583 };
+		real_t mean[] = { real_t(0.48263312050943), real_t(0.45230225481413),
+				real_t(0.40099074308742) };
+		real_t std[] = { real_t(0.22590347483426), real_t(0.22120921437787),
+				real_t(0.22103996251583) };
 		real_t var[3];
 		var[0] = std[0] * std[0];
 		var[1] = std[1] * std[1];
@@ -609,7 +612,7 @@ void predict_classifier(char *datacfg, char *cfgfile, char *weightfile,
 			strncpy(input, filename, 256);
 		} else {
 			printf("Enter Image Path: ");
-			fflush(stdout);
+			fflush (stdout);
 			input = fgets(input, 256, stdin);
 			if (!input)
 				return;

@@ -15,7 +15,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 	srand(time(0));
 	char *base = basecfg(cfgfile);
 	printf("%s\n", base);
-	real_t avg_loss = -1;
+	real_t avg_loss = real_t(-1);
 	network **nets = (network**) calloc(ngpus, sizeof(network));
 
 	srand(time(0));
@@ -117,7 +117,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 		printf("Loaded: %lf seconds\n", what_time_is_it_now() - time);
 
 		time = what_time_is_it_now();
-		real_t loss = 0;
+		real_t loss = real_t(0);
 #ifdef GPU
 		if(ngpus == 1) {
 			loss = train_network(net, train);
@@ -174,10 +174,10 @@ static void print_cocos(FILE *fp, char *image_path, detection *dets,
 	int i, j;
 	int image_id = get_coco_image_id(image_path);
 	for (i = 0; i < num_boxes; ++i) {
-		real_t xmin = dets[i].bbox.x - dets[i].bbox.w / 2.;
-		real_t xmax = dets[i].bbox.x + dets[i].bbox.w / 2.;
-		real_t ymin = dets[i].bbox.y - dets[i].bbox.h / 2.;
-		real_t ymax = dets[i].bbox.y + dets[i].bbox.h / 2.;
+		real_t xmin = real_t(dets[i].bbox.x - dets[i].bbox.w / 2.);
+		real_t xmax = real_t(dets[i].bbox.x + dets[i].bbox.w / 2.);
+		real_t ymin = real_t(dets[i].bbox.y - dets[i].bbox.h / 2.);
+		real_t ymax = real_t(dets[i].bbox.y + dets[i].bbox.h / 2.);
 
 		if (xmin < 0)
 			xmin = 0;
@@ -206,10 +206,10 @@ void print_detector_detections(FILE **fps, char *id, detection *dets, int total,
 		int classes, int w, int h) {
 	int i, j;
 	for (i = 0; i < total; ++i) {
-		real_t xmin = dets[i].bbox.x - dets[i].bbox.w / 2. + 1;
-		real_t xmax = dets[i].bbox.x + dets[i].bbox.w / 2. + 1;
-		real_t ymin = dets[i].bbox.y - dets[i].bbox.h / 2. + 1;
-		real_t ymax = dets[i].bbox.y + dets[i].bbox.h / 2. + 1;
+		real_t xmin = real_t(dets[i].bbox.x - dets[i].bbox.w / 2. + 1);
+		real_t xmax = real_t(dets[i].bbox.x + dets[i].bbox.w / 2. + 1);
+		real_t ymin = real_t(dets[i].bbox.y - dets[i].bbox.h / 2. + 1);
+		real_t ymax = real_t(dets[i].bbox.y + dets[i].bbox.h / 2. + 1);
 
 		if (xmin < 1)
 			xmin = 1;
@@ -232,10 +232,10 @@ void print_imagenet_detections(FILE *fp, int id, detection *dets, int total,
 		int classes, int w, int h) {
 	int i, j;
 	for (i = 0; i < total; ++i) {
-		real_t xmin = dets[i].bbox.x - dets[i].bbox.w / 2.;
-		real_t xmax = dets[i].bbox.x + dets[i].bbox.w / 2.;
-		real_t ymin = dets[i].bbox.y - dets[i].bbox.h / 2.;
-		real_t ymax = dets[i].bbox.y + dets[i].bbox.h / 2.;
+		real_t xmin = real_t(dets[i].bbox.x - dets[i].bbox.w / 2.);
+		real_t xmax = real_t(dets[i].bbox.x + dets[i].bbox.w / 2.);
+		real_t ymin = real_t(dets[i].bbox.y - dets[i].bbox.h / 2.);
+		real_t ymax = real_t(dets[i].bbox.y + dets[i].bbox.h / 2.);
 
 		if (xmin < 0)
 			xmin = 0;
@@ -314,8 +314,8 @@ void validate_detector_flip(char *datacfg, char *cfgfile, char *weightfile,
 	int i = 0;
 	int t;
 
-	real_t thresh = .005;
-	real_t nms = .45;
+	real_t thresh = real_t(.005);
+	real_t nms = real_t(.45);
 
 	int nthreads = 4;
 	image *val = (image*) calloc(nthreads, sizeof(image));
@@ -365,7 +365,7 @@ void validate_detector_flip(char *datacfg, char *cfgfile, char *weightfile,
 			int w = val[t].w;
 			int h = val[t].h;
 			int num = 0;
-			detection *dets = get_network_boxes(net, w, h, thresh, .5, map, 0,
+			detection *dets = get_network_boxes(net, w, h, thresh, real_t(.5), map, 0,
 					&num);
 			if (nms)
 				do_nms_sort(dets, num, classes, nms);
@@ -455,8 +455,8 @@ void validate_detector(char *datacfg, char *cfgfile, char *weightfile,
 	int i = 0;
 	int t;
 
-	real_t thresh = .005;
-	real_t nms = .45;
+	real_t thresh = real_t(.005);
+	real_t nms = real_t(.45);
 
 	int nthreads = 4;
 	image *val = (image*) calloc(nthreads, sizeof(image));
@@ -499,7 +499,7 @@ void validate_detector(char *datacfg, char *cfgfile, char *weightfile,
 			int w = val[t].w;
 			int h = val[t].h;
 			int nboxes = 0;
-			detection *dets = get_network_boxes(net, w, h, thresh, .5, map, 0,
+			detection *dets = get_network_boxes(net, w, h, thresh, real_t(.5), map, 0,
 					&nboxes);
 			if (nms)
 				do_nms_sort(dets, nboxes, classes, nms);
@@ -547,14 +547,14 @@ void validate_detector_recall(char *cfgfile, char *weightfile) {
 	int m = plist->size;
 	int i = 0;
 
-	real_t thresh = .001;
-	real_t iou_thresh = .5;
-	real_t nms = .4;
+	real_t thresh = real_t(.001);
+	real_t iou_thresh = real_t(.5);
+	real_t nms = real_t(.4);
 
 	int total = 0;
 	int correct = 0;
 	int proposals = 0;
-	real_t avg_iou = 0;
+	real_t avg_iou = real_t(0);
 
 	for (i = 0; i < m; ++i) {
 		char *path = paths[i];
@@ -563,7 +563,7 @@ void validate_detector_recall(char *cfgfile, char *weightfile) {
 		char *id = basecfg(path);
 		network_predict(net, sized.data);
 		int nboxes = 0;
-		detection *dets = get_network_boxes(net, sized.w, sized.h, thresh, .5,
+		detection *dets = get_network_boxes(net, sized.w, sized.h, thresh, real_t(.5),
 				0, 1, &nboxes);
 		if (nms)
 			do_nms_obj(dets, nboxes, 1, nms);
@@ -584,7 +584,7 @@ void validate_detector_recall(char *cfgfile, char *weightfile) {
 		for (j = 0; j < num_labels; ++j) {
 			++total;
 			box t = { truth[j].x, truth[j].y, truth[j].w, truth[j].h };
-			real_t best_iou = 0;
+			real_t best_iou = real_t(0);
 			for (k = 0; k < l.w * l.h * l.n; ++k) {
 				real_t iou = box_iou(dets[k].bbox, t);
 				if (dets[k].objectness > thresh && iou > best_iou) {
@@ -621,7 +621,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile,
 	double time;
 	char buff[256];
 	char *input = buff;
-	real_t nms = .45;
+	real_t nms = real_t(.45);
 	while (1) {
 		if (filename) {
 			strncpy(input, filename, 256);
@@ -843,8 +843,8 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile,
 
 void run_detector(int argc, char **argv) {
 	char *prefix = find_char_arg(argc, argv, "-prefix", 0);
-	real_t thresh = find_real_t_arg(argc, argv, "-thresh", .5);
-	real_t hier_thresh = find_real_t_arg(argc, argv, "-hier", .5);
+	real_t thresh = find_real_t_arg(argc, argv, "-thresh", real_t(.5));
+	real_t hier_thresh = find_real_t_arg(argc, argv, "-hier", real_t(.5));
 	int cam_index = find_int_arg(argc, argv, "-c", 0);
 	int frame_skip = find_int_arg(argc, argv, "-s", 0);
 	int avg = find_int_arg(argc, argv, "-avg", 3);

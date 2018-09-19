@@ -2,7 +2,7 @@
 
 void train_cifar(char *cfgfile, char *weightfile) {
 	srand(time(0));
-	real_t avg_loss = -1;
+	real_t avg_loss = real_t(-1);
 	char *base = basecfg(cfgfile);
 	printf("%s\n", base);
 	network *net = load_network(cfgfile, weightfile, 0);
@@ -51,7 +51,7 @@ void train_cifar(char *cfgfile, char *weightfile) {
 
 void train_cifar_distill(char *cfgfile, char *weightfile) {
 	srand(time(0));
-	real_t avg_loss = -1;
+	real_t avg_loss = real_t(-1);
 	char *base = basecfg(cfgfile);
 	printf("%s\n", base);
 	network *net = load_network(cfgfile, weightfile, 0);
@@ -68,9 +68,9 @@ void train_cifar_distill(char *cfgfile, char *weightfile) {
 	data train = load_all_cifar10();
 	matrix soft = csv_to_matrix("results/ensemble.csv");
 
-	real_t weight = .9;
+	real_t weight = real_t(.9);
 	scale_matrix(soft, weight);
-	scale_matrix(train.y, 1. - weight);
+	scale_matrix(train.y, real_t(1. - weight));
 	matrix_add_matrix(soft, train.y);
 
 	while (get_current_batch(net) < net->max_batches || net->max_batches == 0) {
@@ -111,7 +111,7 @@ void test_cifar_multi(char *filename, char *weightfile) {
 	set_batch_network(net, 1);
 	srand(time(0));
 
-	real_t avg_acc = 0;
+	real_t avg_acc = real_t(0);
 	data test = load_cifar10_data(
 			"data/cifar/cifar-10-batches-bin/test_batch.bin");
 
@@ -119,13 +119,13 @@ void test_cifar_multi(char *filename, char *weightfile) {
 	for (i = 0; i < test.X.rows; ++i) {
 		image im = real_t_to_image(32, 32, 3, test.X.vals[i]);
 
-		real_t pred[10] = { 0 };
+		real_t pred[10] = { real_t(0) };
 
 		real_t *p = network_predict(net, im.data);
-		axpy_cpu(10, 1, p, 1, pred, 1);
+		axpy_cpu(10, real_t(1), p, 1, pred, 1);
 		flip_image(im);
 		p = network_predict(net, im.data);
-		axpy_cpu(10, 1, p, 1, pred, 1);
+		axpy_cpu(10, real_t(1), p, 1, pred, 1);
 
 		int index = max_index(pred, 10);
 		int class_ = max_index(test.y.vals[i], 10);
@@ -141,8 +141,8 @@ void test_cifar(char *filename, char *weightfile) {
 	srand(time(0));
 
 	clock_t time;
-	real_t avg_acc = 0;
-	real_t avg_top5 = 0;
+	real_t avg_acc = real_t(0);
+	real_t avg_top5 = real_t(0);
 	data test = load_cifar10_data(
 			"data/cifar/cifar-10-batches-bin/test_batch.bin");
 
@@ -194,8 +194,8 @@ void test_cifar_csv(char *filename, char *weightfile) {
 		flip_image(im);
 	}
 	matrix pred2 = network_predict_data(net, test);
-	scale_matrix(pred, .5);
-	scale_matrix(pred2, .5);
+	scale_matrix(pred, real_t(.5));
+	scale_matrix(pred2, real_t(.5));
 	matrix_add_matrix(pred2, pred);
 
 	matrix_to_csv(pred);
@@ -217,8 +217,8 @@ void test_cifar_csvtrain(char *cfg, char *weights) {
 		flip_image(im);
 	}
 	matrix pred2 = network_predict_data(net, test);
-	scale_matrix(pred, .5);
-	scale_matrix(pred2, .5);
+	scale_matrix(pred, real_t(.5));
+	scale_matrix(pred2, real_t(.5));
 	matrix_add_matrix(pred2, pred);
 
 	matrix_to_csv(pred);

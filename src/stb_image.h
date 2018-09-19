@@ -1376,13 +1376,13 @@ STBIDEF int stbi_is_hdr_from_callbacks(stbi_io_callbacks const *clbk, void *user
 }
 
 #ifndef STBI_NO_LINEAR
-static real_t stbi__l2h_gamma=2.2f, stbi__l2h_scale=1.0f;
+static real_t stbi__l2h_gamma=real_t(2.2f), stbi__l2h_scale=real_t(1.0f);
 
 STBIDEF void stbi_ldr_to_hdr_gamma(real_t gamma) {stbi__l2h_gamma = gamma;}
 STBIDEF void stbi_ldr_to_hdr_scale(real_t scale) {stbi__l2h_scale = scale;}
 #endif
 
-static real_t stbi__h2l_gamma_i=1.0f/2.2f, stbi__h2l_scale_i=1.0f;
+static real_t stbi__h2l_gamma_i=real_t(1.0f/2.2f), stbi__h2l_scale_i=real_t(1.0f);
 
 STBIDEF void stbi_hdr_to_ldr_gamma(real_t gamma) {stbi__h2l_gamma_i = 1/gamma;}
 STBIDEF void stbi_hdr_to_ldr_scale(real_t scale) {stbi__h2l_scale_i = 1/scale;}
@@ -1654,13 +1654,13 @@ static stbi_uc *stbi__hdr_to_ldr(real_t *data, int x, int y, int comp)
 	if (comp & 1) n = comp; else n = comp-1;
 	for (i=0; i < x*y; ++i) {
 		for (k=0; k < n; ++k) {
-			real_t z = (real_t) pow(data[i*comp+k]*stbi__h2l_scale_i, stbi__h2l_gamma_i) * 255 + 0.5f;
+			real_t z = real_t(pow(data[i*comp+k]*stbi__h2l_scale_i, stbi__h2l_gamma_i) * 255 + 0.5f);
 			if (z < 0) z = 0;
 			if (z > 255) z = 255;
 			output[i*comp + k] = (stbi_uc) stbi__real_t2int(z);
 		}
 		if (k < comp) {
-			real_t z = data[i*comp+k] * 255 + 0.5f;
+			real_t z = real_t(data[i*comp+k] * 255 + 0.5f);
 			if (z < 0) z = 0;
 			if (z > 255) z = 255;
 			output[i*comp + k] = (stbi_uc) stbi__real_t2int(z);
@@ -5863,9 +5863,9 @@ static void *stbi__psd_load(stbi__context *s, int *x, int *y, int *comp, int req
 			for (i=0; i < w*h; ++i) {
 				stbi__uint16 *pixel = (stbi__uint16 *) out + 4*i;
 				if (pixel[3] != 0 && pixel[3] != 65535) {
-					real_t a = pixel[3] / 65535.0f;
-					real_t ra = 1.0f / a;
-					real_t inv_a = 65535.0f * (1 - ra);
+					real_t a = real_t(pixel[3] / 65535.0f);
+					real_t ra = real_t(1.0f / a);
+					real_t inv_a = real_t(65535.0f * (1 - ra));
 					pixel[0] = (stbi__uint16) (pixel[0]*ra + inv_a);
 					pixel[1] = (stbi__uint16) (pixel[1]*ra + inv_a);
 					pixel[2] = (stbi__uint16) (pixel[2]*ra + inv_a);
@@ -5875,9 +5875,9 @@ static void *stbi__psd_load(stbi__context *s, int *x, int *y, int *comp, int req
 			for (i=0; i < w*h; ++i) {
 				unsigned char *pixel = out + 4*i;
 				if (pixel[3] != 0 && pixel[3] != 255) {
-					real_t a = pixel[3] / 255.0f;
-					real_t ra = 1.0f / a;
-					real_t inv_a = 255.0f * (1 - ra);
+					real_t a = real_t(pixel[3] / 255.0f);
+					real_t ra = real_t(1.0f / a);
+					real_t inv_a = real_t(255.0f * (1 - ra));
 					pixel[0] = (unsigned char) (pixel[0]*ra + inv_a);
 					pixel[1] = (unsigned char) (pixel[1]*ra + inv_a);
 					pixel[2] = (unsigned char) (pixel[2]*ra + inv_a);

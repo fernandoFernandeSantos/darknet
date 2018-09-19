@@ -6,7 +6,7 @@ real_t im2col_get_pixel(real_t *im, int height, int width, int channels,
 	col -= pad;
 
 	if (row < 0 || col < 0 || row >= height || col >= width)
-		return 0;
+		return real_t(0);
 	return im[col + width * (row + height * channel)];
 }
 

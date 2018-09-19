@@ -220,7 +220,7 @@ void find_replace(char *str, char *orig, char *rep, char *output) {
 }
 
 real_t sec(clock_t clocks) {
-	return (real_t) clocks / CLOCKS_PER_SEC;
+	return real_t(clocks / CLOCKS_PER_SEC);
 }
 
 void top_k(real_t *a, int n, int k, int *index) {
@@ -465,14 +465,14 @@ real_t *parse_fields(char *line, int n) {
 
 real_t sum_array(real_t *a, int n) {
 	int i;
-	real_t sum = 0;
+	real_t sum = real_t(0);
 	for (i = 0; i < n; ++i)
 		sum += a[i];
 	return sum;
 }
 
 real_t mean_array(real_t *a, int n) {
-	return sum_array(a, n) / n;
+	return sum_array(a, n) / real_t(n);
 }
 
 void mean_arrays(real_t **a, int n, int els, real_t *avg) {
@@ -497,11 +497,11 @@ void print_statistics(real_t *a, int n) {
 
 real_t variance_array(real_t *a, int n) {
 	int i;
-	real_t sum = 0;
+	real_t sum = real_t(0);
 	real_t mean = mean_array(a, n);
 	for (i = 0; i < n; ++i)
 		sum += (a[i] - mean) * (a[i] - mean);
-	real_t variance = sum / n;
+	real_t variance = sum / real_t(n);
 	return variance;
 }
 
@@ -523,7 +523,7 @@ real_t constrain(real_t min, real_t max, real_t a) {
 
 real_t dist_array(real_t *a, real_t *b, int n, int sub) {
 	int i;
-	real_t sum = 0;
+	real_t sum = real_t(0);
 	for (i = 0; i < n; i += sub)
 		sum += pow(a[i] - b[i], 2);
 	return sqrt(sum);
@@ -531,10 +531,10 @@ real_t dist_array(real_t *a, real_t *b, int n, int sub) {
 
 real_t mse_array(real_t *a, int n) {
 	int i;
-	real_t sum = 0;
+	real_t sum = real_t(0);
 	for (i = 0; i < n; ++i)
 		sum += a[i] * a[i];
-	return sqrt(sum / n);
+	return sqrt(sum / real_t(n));
 }
 
 void normalize_array(real_t *a, int n) {
@@ -557,7 +557,7 @@ void translate_array(real_t *a, int n, real_t s) {
 
 real_t mag_array(real_t *a, int n) {
 	int i;
-	real_t sum = 0;
+	real_t sum = real_t(0);
 	for (i = 0; i < n; ++i) {
 		sum += a[i] * a[i];
 	}
@@ -573,8 +573,8 @@ void scale_array(real_t *a, int n, real_t s) {
 
 int sample_array(real_t *a, int n) {
 	real_t sum = sum_array(a, n);
-	scale_array(a, n, 1. / sum);
-	real_t r = rand_uniform(0, 1);
+	scale_array(a, n, real_t(1. / sum));
+	real_t r = rand_uniform(real_t(0), real_t(1));
 	int i;
 	for (i = 0; i < n; ++i) {
 		r = r - a[i];
@@ -638,7 +638,7 @@ real_t rand_normal() {
 
 	if (haveSpare) {
 		haveSpare = 0;
-		return sqrt(rand1) * sin(rand2);
+		return real_t(sqrt(rand1) * sin(rand2));
 	}
 
 	haveSpare = 1;
@@ -649,7 +649,7 @@ real_t rand_normal() {
 	rand1 = -2 * log(rand1);
 	rand2 = (rand() / ((double) RAND_MAX)) * TWO_PI;
 
-	return sqrt(rand1) * cos(rand2);
+	return real_t(sqrt(rand1) * cos(rand2));
 }
 
 /*
@@ -676,14 +676,14 @@ real_t rand_uniform(real_t min, real_t max) {
 		min = max;
 		max = swap;
 	}
-	return ((real_t) rand() / RAND_MAX * (max - min)) + min;
+	return real_t(((real_t) rand() / RAND_MAX * (max - min)) + min);
 }
 
 real_t rand_scale(real_t s) {
-	real_t scale = rand_uniform(1, s);
+	real_t scale = rand_uniform(real_t(1), s);
 	if (rand() % 2)
 		return scale;
-	return 1. / scale;
+	return real_t(1.) / scale;
 }
 
 real_t **one_hot_encode(real_t *a, int n, int k) {

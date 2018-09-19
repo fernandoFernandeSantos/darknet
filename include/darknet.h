@@ -352,79 +352,79 @@ struct layer {
 #ifdef GPU
 	int *indexes_gpu;
 
-	real_t *z_gpu;
-	real_t *r_gpu;
-	real_t *h_gpu;
+	real_t_device *z_gpu;
+	real_t_device *r_gpu;
+	real_t_device *h_gpu;
 
-	real_t *temp_gpu;
-	real_t *temp2_gpu;
-	real_t *temp3_gpu;
+	real_t_device *temp_gpu;
+	real_t_device *temp2_gpu;
+	real_t_device *temp3_gpu;
 
-	real_t *dh_gpu;
-	real_t *hh_gpu;
-	real_t *prev_cell_gpu;
-	real_t *cell_gpu;
-	real_t *f_gpu;
-	real_t *i_gpu;
-	real_t *g_gpu;
-	real_t *o_gpu;
-	real_t *c_gpu;
-	real_t *dc_gpu;
+	real_t_device *dh_gpu;
+	real_t_device *hh_gpu;
+	real_t_device *prev_cell_gpu;
+	real_t_device *cell_gpu;
+	real_t_device *f_gpu;
+	real_t_device *i_gpu;
+	real_t_device *g_gpu;
+	real_t_device *o_gpu;
+	real_t_device *c_gpu;
+	real_t_device *dc_gpu;
 
-	real_t *m_gpu;
-	real_t *v_gpu;
-	real_t *bias_m_gpu;
-	real_t *scale_m_gpu;
-	real_t *bias_v_gpu;
-	real_t *scale_v_gpu;
+	real_t_device *m_gpu;
+	real_t_device *v_gpu;
+	real_t_device *bias_m_gpu;
+	real_t_device *scale_m_gpu;
+	real_t_device *bias_v_gpu;
+	real_t_device *scale_v_gpu;
 
-	real_t * combine_gpu;
-	real_t * combine_delta_gpu;
+	real_t_device * combine_gpu;
+	real_t_device * combine_delta_gpu;
 
-	real_t * prev_state_gpu;
-	real_t * forgot_state_gpu;
-	real_t * forgot_delta_gpu;
-	real_t * state_gpu;
-	real_t * state_delta_gpu;
-	real_t * gate_gpu;
-	real_t * gate_delta_gpu;
-	real_t * save_gpu;
-	real_t * save_delta_gpu;
-	real_t * concat_gpu;
-	real_t * concat_delta_gpu;
+	real_t_device * prev_state_gpu;
+	real_t_device * forgot_state_gpu;
+	real_t_device * forgot_delta_gpu;
+	real_t_device * state_gpu;
+	real_t_device * state_delta_gpu;
+	real_t_device * gate_gpu;
+	real_t_device * gate_delta_gpu;
+	real_t_device * save_gpu;
+	real_t_device * save_delta_gpu;
+	real_t_device * concat_gpu;
+	real_t_device * concat_delta_gpu;
 
-	real_t * binary_input_gpu;
-	real_t * binary_weights_gpu;
+	real_t_device * binary_input_gpu;
+	real_t_device * binary_weights_gpu;
 
-	real_t * mean_gpu;
-	real_t * variance_gpu;
+	real_t_device * mean_gpu;
+	real_t_device * variance_gpu;
 
-	real_t * rolling_mean_gpu;
-	real_t * rolling_variance_gpu;
+	real_t_device * rolling_mean_gpu;
+	real_t_device * rolling_variance_gpu;
 
-	real_t * variance_delta_gpu;
-	real_t * mean_delta_gpu;
+	real_t_device * variance_delta_gpu;
+	real_t_device * mean_delta_gpu;
 
-	real_t * x_gpu;
-	real_t * x_norm_gpu;
-	real_t * weights_gpu;
-	real_t * weight_updates_gpu;
-	real_t * weight_change_gpu;
+	real_t_device * x_gpu;
+	real_t_device * x_norm_gpu;
+	real_t_device * weights_gpu;
+	real_t_device * weight_updates_gpu;
+	real_t_device * weight_change_gpu;
 
-	real_t * biases_gpu;
-	real_t * bias_updates_gpu;
-	real_t * bias_change_gpu;
+	real_t_device * biases_gpu;
+	real_t_device * bias_updates_gpu;
+	real_t_device * bias_change_gpu;
 
-	real_t * scales_gpu;
-	real_t * scale_updates_gpu;
-	real_t * scale_change_gpu;
+	real_t_device * scales_gpu;
+	real_t_device * scale_updates_gpu;
+	real_t_device * scale_change_gpu;
 
-	real_t * output_gpu;
-	real_t * loss_gpu;
-	real_t * delta_gpu;
-	real_t * rand_gpu;
-	real_t * squared_gpu;
-	real_t * norms_gpu;
+	real_t_device * output_gpu;
+	real_t_device * loss_gpu;
+	real_t_device * delta_gpu;
+	real_t_device * rand_gpu;
+	real_t_device * squared_gpu;
+	real_t_device * norms_gpu;
 #ifdef CUDNN
 	cudnnTensorDescriptor_t srcTensorDesc, dstTensorDesc;
 	cudnnTensorDescriptor_t dsrcTensorDesc, ddstTensorDesc;
@@ -658,16 +658,16 @@ void softmax(real_t *input, int n, real_t temp, int stride, real_t *output);
 int best_3d_shift_r(image a, image b, int min, int max);
 #ifdef GPU
 void axpy_gpu(int N, real_t ALPHA, real_t * X, int INCX, real_t * Y, int INCY);
-void fill_gpu(int N, real_t ALPHA, real_t * X, int INCX);
+void fill_gpu(int N, real_t ALPHA, real_t_device * X, int INCX);
 void scal_gpu(int N, real_t ALPHA, real_t * X, int INCX);
 void copy_gpu(int N, real_t * X, int INCX, real_t * Y, int INCY);
 
 void cuda_set_device(int n);
-void cuda_free(real_t *x_gpu);
-real_t *cuda_make_array(real_t *x, size_t n);
-void cuda_pull_array(real_t *x_gpu, real_t *x, size_t n);
-real_t cuda_mag_array(real_t *x_gpu, size_t n);
-void cuda_push_array(real_t *x_gpu, real_t *x, size_t n);
+void cuda_free(real_t_device *x_gpu);
+real_t_device *cuda_make_array(real_t *x, size_t n);
+void cuda_pull_array(real_t_device *x_gpu, real_t *x, size_t n);
+real_t cuda_mag_array(real_t_device *x_gpu, size_t n);
+void cuda_push_array(real_t_device *x_gpu, real_t *x, size_t n);
 
 void forward_network_gpu(network *net);
 void backward_network_gpu(network *net);

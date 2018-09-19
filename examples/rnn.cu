@@ -168,7 +168,7 @@ void train_char_rnn(char *cfgfile, char *weightfile, char *filename, int clear,
 	char *backup_directory = "/home/pjreddie/backup/";
 	char *base = basecfg(cfgfile);
 	fprintf(stderr, "%s\n", base);
-	real_t avg_loss = -1;
+	real_t avg_loss = real_t(-1);
 	network *net = load_network(cfgfile, weightfile, clear);
 
 	int inputs = net->inputs;
@@ -203,7 +203,7 @@ void train_char_rnn(char *cfgfile, char *weightfile, char *filename, int clear,
 
 		copy_cpu(net->inputs * net->batch, p.x, 1, net->input, 1);
 		copy_cpu(net->truths * net->batch, p.y, 1, net->truth, 1);
-		real_t loss = train_network_datum(net) / (batch);
+		real_t loss = real_t(train_network_datum(net) / (batch));
 		free(p.x);
 		free(p.y);
 		if (avg_loss < 0)
@@ -417,9 +417,9 @@ void valid_tactic_rnn(char *cfgfile, char *weightfile, char *seed) {
 		network_predict(net, input);
 		input[(int) c] = 0;
 	}
-	real_t sum = 0;
+	real_t sum = real_t(0);
 	c = getc(stdin);
-	real_t log2 = log(2);
+	real_t log2 = real_t(log(2));
 	int in = 0;
 	while (c != EOF) {
 		int next = getc(stdin);
@@ -469,9 +469,9 @@ void valid_char_rnn(char *cfgfile, char *weightfile, char *seed) {
 		network_predict(net, input);
 		input[(int) c] = 0;
 	}
-	real_t sum = 0;
+	real_t sum = real_t(0);
 	c = getc(stdin);
-	real_t log2 = log(2);
+	real_t log2 = real_t(log(2));
 	while (c != EOF) {
 		int next = getc(stdin);
 		if (next == EOF)
@@ -547,7 +547,7 @@ void run_char_rnn(int argc, char **argv) {
 	char *filename = find_char_arg(argc, argv, "-file", "data/shakespeare.txt");
 	char *seed = find_char_arg(argc, argv, "-seed", "\n\n");
 	int len = find_int_arg(argc, argv, "-len", 1000);
-	real_t temp = find_real_t_arg(argc, argv, "-temp", .7);
+	real_t temp = find_real_t_arg(argc, argv, "-temp", real_t(.7));
 	int rseed = find_int_arg(argc, argv, "-srand", time(0));
 	int clear = find_arg(argc, argv, "-clear");
 	int tokenized = find_arg(argc, argv, "-tokenized");

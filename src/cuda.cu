@@ -81,23 +81,23 @@ cublasHandle_t blas_handle() {
 	return handle[i];
 }
 
-real_t *cuda_make_array(real_t *x, size_t n) {
-	real_t *x_gpu;
-	size_t size = sizeof(real_t) * n;
+real_t_device *cuda_make_array(real_t *x, size_t n) {
+	real_t_device *x_gpu;
+	size_t size = sizeof(real_t_device) * n;
 	cudaError_t status = cudaMalloc((void **) &x_gpu, size);
 	check_error(status);
 	if (x) {
 		status = cudaMemcpy(x_gpu, x, size, cudaMemcpyHostToDevice);
 		check_error(status);
 	} else {
-		fill_gpu(n, 0, x_gpu, 1);
+		fill_gpu(n, real_t(0), x_gpu, 1);
 	}
 	if (!x_gpu)
 		error("Cuda malloc failed\n");
 	return x_gpu;
 }
 
-void cuda_random(real_t *x_gpu, size_t n) {
+void cuda_random(real_t_device *x_gpu, size_t n) {
 	static curandGenerator_t gen[16];
 	static int init[16] = { 0 };
 	int i = cuda_get_device();
@@ -108,7 +108,15 @@ void cuda_random(real_t *x_gpu, size_t n) {
 	}
 
 #if REAL_TYPE == HALF
-	curandStatus_t status = curandGenerateUniform(gen[i], x_gpu, n);
+	float* tmp_d;
+	cudaError_t status = cudaMalloc((void **) &tmp_d, sizeof(real_t) * n);
+	check_error(status);
+
+	curandStatus_t stss = curandGenerateUniform(gen[i], tmp_d, n);
+
+	transform_float_to_half_array(x_gpu, tmp_d, n);
+	cudaFree(tmp_d);
+
 #elif REAL_TYPE == FLOAT
 	curandStatus_t status = curandGenerateUniform(gen[i], x_gpu, n);
 #elif REAL_TYPE == DOUBLE
@@ -118,12 +126,12 @@ void cuda_random(real_t *x_gpu, size_t n) {
 	check_error(cudaPeekAtLastError());
 }
 
-real_t cuda_compare(real_t *x_gpu, real_t *x, size_t n, char *s) {
+real_t cuda_compare(real_t_device *x_gpu, real_t *x, size_t n, char *s) {
 	real_t *tmp = (real_t*) calloc(n, sizeof(real_t));
 	cuda_pull_array(x_gpu, tmp, n);
 	//int i;
 	//for(i = 0; i < n; ++i) printf("%f %f\n", tmp[i], x[i]);
-	axpy_cpu(n, -1, x, 1, tmp, 1);
+	axpy_cpu(n, real_t(-1), x, 1, tmp, 1);
 	real_t err = dot_cpu(n, tmp, 1, tmp, 1);
 	printf("Error %s: %f\n", s, sqrt(err / n));
 	free(tmp);
@@ -144,24 +152,24 @@ int *cuda_make_int_array(int *x, size_t n) {
 	return x_gpu;
 }
 
-void cuda_free(real_t *x_gpu) {
+void cuda_free(real_t_device *x_gpu) {
 	cudaError_t status = cudaFree(x_gpu);
 	check_error(status);
 }
 
-void cuda_push_array(real_t *x_gpu, real_t *x, size_t n) {
+void cuda_push_array(real_t_device *x_gpu, real_t *x, size_t n) {
 	size_t size = sizeof(real_t) * n;
 	cudaError_t status = cudaMemcpy(x_gpu, x, size, cudaMemcpyHostToDevice);
 	check_error(status);
 }
 
-void cuda_pull_array(real_t *x_gpu, real_t *x, size_t n) {
+void cuda_pull_array(real_t_device *x_gpu, real_t *x, size_t n) {
 	size_t size = sizeof(real_t) * n;
 	cudaError_t status = cudaMemcpy(x, x_gpu, size, cudaMemcpyDeviceToHost);
 	check_error(status);
 }
 
-real_t cuda_mag_array(real_t *x_gpu, size_t n) {
+real_t cuda_mag_array(real_t_device *x_gpu, size_t n) {
 	real_t *temp = (real_t*) calloc(n, sizeof(real_t));
 	cuda_pull_array(x_gpu, temp, n);
 	real_t m = mag_array(temp, n);

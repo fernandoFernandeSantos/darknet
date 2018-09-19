@@ -15,7 +15,7 @@ static inline real_t distance_from_edge(int x, int max) {
 		dx = -dx;
 	dx = (max / 2) + 1 - dx;
 	dx *= 2;
-	real_t dist = (real_t) dx / max;
+	real_t dist = real_t(dx) / real_t(max);
 	if (dist > 1)
 		dist = 1;
 	return dist;

@@ -6,7 +6,7 @@ void train_segmenter(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 		int ngpus, int clear, int display) {
 	int i;
 
-	real_t avg_loss = -1;
+	real_t avg_loss = real_t(-1);
 	char *base = basecfg(cfgfile);
 	printf("%s\n", base);
 	printf("%d\n", ngpus);
@@ -82,7 +82,7 @@ void train_segmenter(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 		printf("Loaded: %lf seconds\n", what_time_is_it_now() - time);
 		time = what_time_is_it_now();
 
-		real_t loss = 0;
+		real_t loss = real_t(0);
 #ifdef GPU
 		if(ngpus == 1) {
 			loss = train_network(net, train);
