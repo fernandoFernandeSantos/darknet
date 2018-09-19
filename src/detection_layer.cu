@@ -58,17 +58,17 @@ void forward_detection_layer(const detection_layer l, network net) {
 			int index = b * l.inputs;
 			for (i = 0; i < locations; ++i) {
 				int offset = i * l.classes;
-				softmax(l.output + index + offset, l.classes, 1, 1,
+				softmax(l.output + index + offset, l.classes, real_t(1), 1,
 						l.output + index + offset);
 			}
 		}
 	}
 	if (net.train) {
-		real_t avg_iou = 0;
-		real_t avg_cat = 0;
-		real_t avg_allcat = 0;
-		real_t avg_obj = 0;
-		real_t avg_anyobj = 0;
+		real_t avg_iou = real_t(0);
+		real_t avg_cat = real_t(0);
+		real_t avg_allcat = real_t(0);
+		real_t avg_obj = real_t(0);
+		real_t avg_anyobj = real_t(0);
 		int count = 0;
 		*(l.cost) = 0;
 		int size = l.inputs * l.batch;
@@ -88,8 +88,8 @@ void forward_detection_layer(const detection_layer l, network net) {
 				}
 
 				int best_index = -1;
-				real_t best_iou = 0;
-				real_t best_rmse = 20;
+				real_t best_iou = real_t(0);
+				real_t best_rmse = real_t(20);
 
 				if (!is_obj) {
 					continue;
@@ -245,7 +245,7 @@ void forward_detection_layer(const detection_layer l, network net) {
 }
 
 void backward_detection_layer(const detection_layer l, network net) {
-	axpy_cpu(l.batch * l.inputs, 1, l.delta, 1, net.delta, 1);
+	axpy_cpu(l.batch * l.inputs, real_t(1), l.delta, 1, net.delta, 1);
 }
 
 void get_detection_detections(layer l, int w, int h, real_t thresh,
@@ -293,7 +293,7 @@ void forward_detection_layer_gpu(const detection_layer l, network net) {
 }
 
 void backward_detection_layer_gpu(detection_layer l, network net) {
-	axpy_gpu(l.batch * l.inputs, 1, l.delta_gpu, 1, net.delta_gpu, 1);
+	axpy_gpu(l.batch * l.inputs, real_t(1), l.delta_gpu, 1, net.delta_gpu, 1);
 	//copy_gpu(l.batch*l.inputs, l.delta_gpu, 1, net.delta_gpu, 1);
 }
 #endif

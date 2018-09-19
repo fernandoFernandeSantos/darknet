@@ -226,13 +226,13 @@ void binary_activate_array_gpu(real_t *x, int n, int size, BINARY_ACTIVATION a,
 	check_error(cudaPeekAtLastError());
 }
 
-__global__ void activate_array_kernel(real_t *x, int n, ACTIVATION a) {
+__global__ void activate_array_kernel(real_t_device *x, int n, ACTIVATION a) {
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < n)
 		x[i] = activate_kernel(x[i], a);
 }
 
-__global__ void gradient_array_kernel(real_t *x, int n, ACTIVATION a,
+__global__ void gradient_array_kernel(real_t_device *x, int n, ACTIVATION a,
 		real_t *delta) {
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < n)
@@ -240,13 +240,13 @@ __global__ void gradient_array_kernel(real_t *x, int n, ACTIVATION a,
 }
 
 //extern "C"
-void activate_array_gpu(real_t *x, int n, ACTIVATION a) {
+void activate_array_gpu(real_t_device *x, int n, ACTIVATION a) {
 	activate_array_kernel<<<cuda_gridsize(n), BLOCK>>>(x, n, a);
 	check_error(cudaPeekAtLastError());
 }
 
 //extern "C"
-void gradient_array_gpu(real_t *x, int n, ACTIVATION a, real_t *delta) {
+void gradient_array_gpu(real_t_device *x, int n, ACTIVATION a, real_t_device *delta) {
 	gradient_array_kernel<<<cuda_gridsize(n), BLOCK>>>(x, n, a, delta);
 	check_error(cudaPeekAtLastError());
 }

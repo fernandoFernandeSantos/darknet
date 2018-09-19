@@ -498,17 +498,22 @@ typedef struct network {
 	real_t *input;
 	real_t *truth;
 	real_t *delta;
+#ifndef GPU
 	real_t *workspace;
+#else
+	real_t_device* workspace;
+#endif
+
 	int train;
 	int index;
 	real_t *cost;
 	real_t clip;
 
 #ifdef GPU
-	real_t *input_gpu;
-	real_t *truth_gpu;
-	real_t *delta_gpu;
-	real_t *output_gpu;
+	real_t_device *input_gpu;
+	real_t_device *truth_gpu;
+	real_t_device *delta_gpu;
+	real_t_device *output_gpu;
 #endif
 
 } network;
@@ -657,10 +662,10 @@ void softmax(real_t *input, int n, real_t temp, int stride, real_t *output);
 
 int best_3d_shift_r(image a, image b, int min, int max);
 #ifdef GPU
-void axpy_gpu(int N, real_t ALPHA, real_t * X, int INCX, real_t * Y, int INCY);
+void axpy_gpu(int N, real_t ALPHA, real_t_device * X, int INCX, real_t * Y, int INCY);
 void fill_gpu(int N, real_t ALPHA, real_t_device * X, int INCX);
-void scal_gpu(int N, real_t ALPHA, real_t * X, int INCX);
-void copy_gpu(int N, real_t * X, int INCX, real_t * Y, int INCY);
+void scal_gpu(int N, real_t ALPHA, real_t_device * X, int INCX);
+void copy_gpu(int N, real_t_device * X, int INCX, real_t_device * Y, int INCY);
 
 void cuda_set_device(int n);
 void cuda_free(real_t_device *x_gpu);

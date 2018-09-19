@@ -237,12 +237,13 @@ void forward_deconvolutional_layer(const layer l, network net) {
 	for (i = 0; i < l.batch; ++i) {
 		real_t *a = l.weights;
 		real_t *b = net.input + i * l.c * l.h * l.w;
+#ifndef GPU
 		real_t *c = net.workspace;
-
 		gemm_cpu(1, 0, m, n, k, real_t(1), a, m, b, n, real_t(0), c, n);
 
 		col2im_cpu(net.workspace, l.out_c, l.out_h, l.out_w, l.size, l.stride,
 				l.pad, l.output + i * l.outputs);
+#endif
 	}
 	if (l.batch_normalize) {
 		forward_batchnorm_layer(l, net);
@@ -271,13 +272,13 @@ void backward_deconvolutional_layer(layer l, network net) {
 		int k = l.h * l.w;
 
 		real_t *a = net.input + i * m * k;
-		real_t *b = net.workspace;
 		real_t *c = l.weight_updates;
+#ifndef GPU
+		real_t *b = net.workspace;
 
 		im2col_cpu(l.delta + i * l.outputs, l.out_c, l.out_h, l.out_w, l.size,
 				l.stride, l.pad, b);
 		gemm_cpu(0, 1, m, n, k, real_t(1), a, k, b, k, real_t(1), c, n);
-
 		if (net.delta) {
 			int m = l.c;
 			int n = l.h * l.w;
@@ -289,6 +290,8 @@ void backward_deconvolutional_layer(layer l, network net) {
 
 			gemm_cpu(0, 0, m, n, k, real_t(1), a, k, b, n, real_t(1), c, n);
 		}
+#endif
+
 	}
 }
 

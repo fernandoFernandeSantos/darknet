@@ -24,7 +24,7 @@ void change_leaves(tree *t, char *leaf_list) {
 }
 
 real_t get_hierarchy_probability(real_t *x, tree *hier, int c, int stride) {
-	real_t p = 1;
+	real_t p = real_t(1);
 	while (c >= 0) {
 		p = p * x[c * stride];
 		c = hier->parent[c];
@@ -51,11 +51,11 @@ void hierarchy_predictions(real_t *predictions, int n, tree *hier,
 
 int hierarchy_top_prediction(real_t *predictions, tree *hier, real_t thresh,
 		int stride) {
-	real_t p = 1;
+	real_t p = real_t(1);
 	int group = 0;
 	int i;
 	while (1) {
-		real_t max = 0;
+		real_t max = real_t(0);
 		int max_i = 0;
 
 		for (i = 0; i < hier->group_size[group]; ++i) {

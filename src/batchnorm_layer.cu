@@ -72,7 +72,7 @@ void backward_scale_cpu(real_t *x_norm, real_t *delta, int batch, int n,
 		int size, real_t *scale_updates) {
 	int i, b, f;
 	for (f = 0; f < n; ++f) {
-		real_t sum = 0;
+		real_t sum = real_t(0);
 		for (b = 0; b < batch; ++b) {
 			for (i = 0; i < size; ++i) {
 				int index = i + size * (f + n * b);
@@ -145,10 +145,10 @@ void forward_batchnorm_layer(layer l, network net) {
 		variance_cpu(l.output, l.mean, l.batch, l.out_c, l.out_h * l.out_w,
 				l.variance);
 
-		scal_cpu(l.out_c, .99, l.rolling_mean, 1);
-		axpy_cpu(l.out_c, .01, l.mean, 1, l.rolling_mean, 1);
-		scal_cpu(l.out_c, .99, l.rolling_variance, 1);
-		axpy_cpu(l.out_c, .01, l.variance, 1, l.rolling_variance, 1);
+		scal_cpu(l.out_c, real_t(.99), l.rolling_mean, 1);
+		axpy_cpu(l.out_c, real_t(.01), l.mean, 1, l.rolling_mean, 1);
+		scal_cpu(l.out_c, real_t(.99), l.rolling_variance, 1);
+		axpy_cpu(l.out_c, real_t(.01), l.variance, 1, l.rolling_variance, 1);
 
 		normalize_cpu(l.output, l.mean, l.variance, l.batch, l.out_c,
 				l.out_h * l.out_w);
@@ -226,10 +226,10 @@ void forward_batchnorm_layer_gpu(layer l, network net) {
 		fast_variance_gpu(l.output_gpu, l.mean_gpu, l.batch, l.out_c,
 				l.out_h * l.out_w, l.variance_gpu);
 
-		scal_gpu(l.out_c, .99, l.rolling_mean_gpu, 1);
-		axpy_gpu(l.out_c, .01, l.mean_gpu, 1, l.rolling_mean_gpu, 1);
-		scal_gpu(l.out_c, .99, l.rolling_variance_gpu, 1);
-		axpy_gpu(l.out_c, .01, l.variance_gpu, 1, l.rolling_variance_gpu, 1);
+		scal_gpu(l.out_c, real_t(.99), l.rolling_mean_gpu, 1);
+		axpy_gpu(l.out_c, real_t(.01), l.mean_gpu, 1, l.rolling_mean_gpu, 1);
+		scal_gpu(l.out_c, real_t(.99), l.rolling_variance_gpu, 1);
+		axpy_gpu(l.out_c, real_t(.01), l.variance_gpu, 1, l.rolling_variance_gpu, 1);
 
 		copy_gpu(l.outputs * l.batch, l.output_gpu, 1, l.x_gpu, 1);
 		normalize_gpu(l.output_gpu, l.mean_gpu, l.variance_gpu, l.batch,

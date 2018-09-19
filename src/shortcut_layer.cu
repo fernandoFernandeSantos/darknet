@@ -72,7 +72,7 @@ void forward_shortcut_layer(const layer l, network net) {
 void backward_shortcut_layer(const layer l, network net) {
 	gradient_array(l.output, l.outputs * l.batch, l.activation, l.delta);
 	axpy_cpu(l.outputs * l.batch, l.alpha, l.delta, 1, net.delta, 1);
-	shortcut_cpu(l.batch, l.out_w, l.out_h, l.out_c, l.delta, l.w, l.h, l.c, 1,
+	shortcut_cpu(l.batch, l.out_w, l.out_h, l.out_c, l.delta, l.w, l.h, l.c, real_t(1),
 			l.beta, net.layers[l.index].delta);
 }
 
@@ -89,6 +89,6 @@ void backward_shortcut_layer_gpu(const layer l, network net) {
 			l.delta_gpu);
 	axpy_gpu(l.outputs * l.batch, l.alpha, l.delta_gpu, 1, net.delta_gpu, 1);
 	shortcut_gpu(l.batch, l.out_w, l.out_h, l.out_c, l.delta_gpu, l.w, l.h, l.c,
-			1, l.beta, net.layers[l.index].delta_gpu);
+			real_t(1), l.beta, net.layers[l.index].delta_gpu);
 }
 #endif

@@ -109,7 +109,7 @@ void forward_iseg_layer(const layer l, network net) {
 
 		memset(l.counts, 0, 90 * sizeof(int));
 		for (i = 0; i < 90; ++i) {
-			fill_cpu(ids, 0, l.sums[i], 1);
+			fill_cpu(ids, real_t(0), l.sums[i], 1);
 
 			int c = net.truth[b * l.truths + i * (l.w * l.h + 1)];
 			if (c < 0)
@@ -120,7 +120,7 @@ void forward_iseg_layer(const layer l, network net) {
 				real_t v = net.truth[b * l.truths + i * (l.w * l.h + 1) + 1 + k];
 				if (v) {
 					l.delta[index] = v - l.output[index];
-					axpy_cpu(ids, 1,
+					axpy_cpu(ids, real_t(1),
 							l.output + b * l.outputs + l.classes * l.w * l.h
 									+ k, l.w * l.h, l.sums[i], 1);
 					++l.counts[i];
@@ -137,7 +137,7 @@ void forward_iseg_layer(const layer l, network net) {
 				real_t v = net.truth[b * l.truths + i * (l.w * l.h + 1) + 1 + k];
 				if (v) {
 					int z;
-					real_t sum = 0;
+					real_t sum = real_t(0);
 					for (z = 0; z < ids; ++z) {
 						int index = b * l.outputs + (l.classes + z) * l.w * l.h
 								+ k;
@@ -154,7 +154,7 @@ void forward_iseg_layer(const layer l, network net) {
 		for (i = 0; i < 90; ++i) {
 			if (!l.counts[i])
 				continue;
-			scal_cpu(ids, 1.f / l.counts[i], l.sums[i], 1);
+			scal_cpu(ids, real_t(1.f / l.counts[i]), l.sums[i], 1);
 			if (b == 0 && net.gpu_index == 0) {
 				printf("%4d, %6.3f, ", l.counts[i], mse[i]);
 				for (j = 0; j < ids; ++j) {
@@ -203,7 +203,7 @@ void forward_iseg_layer(const layer l, network net) {
 }
 
 void backward_iseg_layer(const layer l, network net) {
-	axpy_cpu(l.batch * l.inputs, 1, l.delta, 1, net.delta, 1);
+	axpy_cpu(l.batch * l.inputs, real_t(1), l.delta, 1, net.delta, 1);
 }
 
 #ifdef GPU
@@ -227,7 +227,7 @@ void backward_iseg_layer_gpu(const layer l, network net) {
 	for (b = 0; b < l.batch; ++b) {
 		//if(l.extra) gradient_array_gpu(l.output_gpu + b*l.outputs + l.classes*l.w*l.h, l.extra*l.w*l.h, LOGISTIC, l.delta_gpu + b*l.outputs + l.classes*l.w*l.h);
 	}
-	axpy_gpu(l.batch * l.inputs, 1, l.delta_gpu, 1, net.delta_gpu, 1);
+	axpy_gpu(l.batch * l.inputs, real_t(1), l.delta_gpu, 1, net.delta_gpu, 1);
 }
 #endif
 

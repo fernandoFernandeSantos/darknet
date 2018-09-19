@@ -70,10 +70,10 @@ void reset_network_state(network *net, int b) {
 #ifdef GPU
 		layer l = net->layers[i];
 		if (l.state_gpu) {
-			fill_gpu(l.outputs, 0, l.state_gpu + l.outputs * b, 1);
+			fill_gpu(l.outputs, real_t(0), l.state_gpu + l.outputs * b, 1);
 		}
 		if (l.h_gpu) {
-			fill_gpu(l.outputs, 0, l.h_gpu + l.outputs * b, 1);
+			fill_gpu(l.outputs, real_t(0), l.h_gpu + l.outputs * b, 1);
 		}
 #endif
 	}
@@ -88,13 +88,15 @@ real_t get_current_rate(network *net) {
 	int i;
 	real_t rate;
 	if (batch_num < net->burn_in)
-		return net->learning_rate
-				* pow((real_t) batch_num / net->burn_in, net->power);
+		return real_t(
+				net->learning_rate
+						* pow((real_t) batch_num / net->burn_in, net->power));
 	switch (net->policy) {
 	case CONSTANT:
 		return net->learning_rate;
 	case STEP:
-		return net->learning_rate * pow(net->scale, batch_num / net->step);
+		return net->learning_rate
+				* real_t(pow(net->scale, batch_num / net->step));
 	case STEPS:
 		rate = net->learning_rate;
 		for (i = 0; i < net->num_steps; ++i) {
@@ -104,15 +106,19 @@ real_t get_current_rate(network *net) {
 		}
 		return rate;
 	case EXP:
-		return net->learning_rate * pow(net->gamma, batch_num);
+		return net->learning_rate * real_t(pow(net->gamma, batch_num));
 	case POLY:
 		return net->learning_rate
-				* pow(1 - (real_t) batch_num / net->max_batches, net->power);
+				* real_t(
+						pow(1 - (real_t) batch_num / net->max_batches,
+								net->power));
 	case RANDOM:
-		return net->learning_rate * pow(rand_uniform(0, 1), net->power);
+		return net->learning_rate
+				* real_t(pow(rand_uniform(real_t(0), real_t(1)), net->power));
 	case SIG:
 		return net->learning_rate
-				* (1. / (1. + exp(net->gamma * (batch_num - net->step))));
+				* real_t(
+						(1. / (1. + exp(net->gamma * (batch_num - net->step)))));
 	default:
 		fprintf(stderr, "Policy is weird!\n");
 		return net->learning_rate;
@@ -196,7 +202,7 @@ void forward_network(network *netp) {
 		net.index = i;
 		layer l = net.layers[i];
 		if (l.delta) {
-			fill_cpu(l.outputs * l.batch, 0, l.delta, 1);
+			fill_cpu(l.outputs * l.batch, real_t(0), l.delta, 1);
 		}
 		l.forward(l, net);
 		net.input = l.output;
@@ -239,7 +245,7 @@ void update_network(network *netp) {
 void calc_network_cost(network *netp) {
 	network net = *netp;
 	int i;
-	real_t sum = 0;
+	real_t sum = real_t(0);
 	int count = 0;
 	for (i = 0; i < net.n; ++i) {
 		if (net.layers[i].cost) {
@@ -295,13 +301,13 @@ real_t train_network_sgd(network *net, data d, int n) {
 	int batch = net->batch;
 
 	int i;
-	real_t sum = 0;
+	real_t sum = real_t(0);
 	for (i = 0; i < n; ++i) {
 		get_random_batch(d, batch, net->input, net->truth);
 		real_t err = train_network_datum(net);
 		sum += err;
 	}
-	return (real_t) sum / (n * batch);
+	return real_t(sum / (n * batch));
 }
 
 real_t train_network(network *net, data d) {
@@ -310,13 +316,13 @@ real_t train_network(network *net, data d) {
 	int n = d.X.rows / batch;
 
 	int i;
-	real_t sum = 0;
+	real_t sum = real_t(0);
 	for (i = 0; i < n; ++i) {
 		get_next_batch(d, batch, i * batch, net->input, net->truth);
 		real_t err = train_network_datum(net);
 		sum += err;
 	}
-	return (real_t) sum / (n * batch);
+	return real_t(sum / (n * batch));
 }
 
 void set_temp_network(network *net, real_t t) {
@@ -420,7 +426,7 @@ int resize_network(network *net, int w, int h) {
 		}
 	} else {
 		free(net->workspace);
-		net->workspace = (real_t*) calloc(1, workspace_size);
+		net->workspace = (real_t_device*) calloc(1, workspace_size);
 	}
 #else
 	free(net->workspace);
@@ -673,8 +679,8 @@ void compare_networks(network *n1, network *n2, data test) {
 		}
 	}
 	printf("%5d %5d\n%5d %5d\n", a, b, c, d);
-	real_t num = pow((abs(b - c) - 1.), 2.);
-	real_t den = b + c;
+	real_t num = real_t(pow((abs(b - c) - 1.), 2.));
+	real_t den = real_t(b + c);
 	printf("%f\n", num / den);
 }
 
@@ -768,7 +774,7 @@ void forward_network_gpu(network *netp) {
 		net.index = i;
 		layer l = net.layers[i];
 		if (l.delta_gpu) {
-			fill_gpu(l.outputs * l.batch, 0, l.delta_gpu, 1);
+			fill_gpu(l.outputs * l.batch, real_t(0), l.delta_gpu, 1);
 		}
 		l.forward_gpu(l, net);
 		net.input_gpu = l.output_gpu;
@@ -836,11 +842,11 @@ void harmless_update_network_gpu(network *netp) {
 	for (i = 0; i < net.n; ++i) {
 		layer l = net.layers[i];
 		if (l.weight_updates_gpu)
-			fill_gpu(l.nweights, 0, l.weight_updates_gpu, 1);
+			fill_gpu(l.nweights, real_t(0), l.weight_updates_gpu, 1);
 		if (l.bias_updates_gpu)
-			fill_gpu(l.nbiases, 0, l.bias_updates_gpu, 1);
+			fill_gpu(l.nbiases, real_t(0), l.bias_updates_gpu, 1);
 		if (l.scale_updates_gpu)
-			fill_gpu(l.nbiases, 0, l.scale_updates_gpu, 1);
+			fill_gpu(l.nbiases, real_t(0), l.scale_updates_gpu, 1);
 	}
 }
 
@@ -871,14 +877,15 @@ pthread_t train_network_in_thread(network *net, data d, real_t *err) {
 
 void merge_weights(layer l, layer base) {
 	if (l.type == CONVOLUTIONAL) {
-		axpy_cpu(l.n, 1, l.bias_updates, 1, base.biases, 1);
-		axpy_cpu(l.nweights, 1, l.weight_updates, 1, base.weights, 1);
+		axpy_cpu(l.n, real_t(1), l.bias_updates, 1, base.biases, 1);
+		axpy_cpu(l.nweights, real_t(1), l.weight_updates, 1, base.weights, 1);
 		if (l.scales) {
-			axpy_cpu(l.n, 1, l.scale_updates, 1, base.scales, 1);
+			axpy_cpu(l.n, real_t(1), l.scale_updates, 1, base.scales, 1);
 		}
 	} else if (l.type == CONNECTED) {
-		axpy_cpu(l.outputs, 1, l.bias_updates, 1, base.biases, 1);
-		axpy_cpu(l.outputs * l.inputs, 1, l.weight_updates, 1, base.weights, 1);
+		axpy_cpu(l.outputs, real_t(1), l.bias_updates, 1, base.biases, 1);
+		axpy_cpu(l.outputs * l.inputs, real_t(1), l.weight_updates, 1,
+				base.weights, 1);
 	}
 }
 
@@ -1019,14 +1026,14 @@ void sync_layer(network **nets, int n, int j) {
 	int i;
 	network *net = nets[0];
 	layer base = net->layers[j];
-	scale_weights(base, 0);
+	scale_weights(base, real_t(0));
 	for (i = 0; i < n; ++i) {
 		cuda_set_device(nets[i]->gpu_index);
 		layer l = nets[i]->layers[j];
 		pull_weights(l);
 		merge_weights(l, base);
 	}
-	scale_weights(base, 1. / n);
+	scale_weights(base, real_t(1. / n));
 	for (i = 0; i < n; ++i) {
 		cuda_set_device(nets[i]->gpu_index);
 		layer l = nets[i]->layers[j];
@@ -1085,7 +1092,7 @@ real_t train_networks(network **nets, int n, data d, int interval) {
 	pthread_t *threads = (pthread_t *) calloc(n, sizeof(pthread_t));
 	real_t *errors = (real_t *) calloc(n, sizeof(real_t));
 
-	real_t sum = 0;
+	real_t sum = real_t(0);
 	for (i = 0; i < n; ++i) {
 		data p = get_data_part(d, i, n);
 		threads[i] = train_network_in_thread(nets[i], p, errors + i);
@@ -1105,7 +1112,7 @@ real_t train_networks(network **nets, int n, data d, int interval) {
 	//cudaDeviceSynchronize();
 	free(threads);
 	free(errors);
-	return (real_t) sum / (n);
+	return sum / real_t(n);
 }
 
 void pull_network_output(network *net) {

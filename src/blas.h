@@ -18,7 +18,6 @@ void deinter_cpu(int NX, real_t *X, int NY, real_t *Y, int B, real_t *OUT);
 void mult_add_into_cpu(int N, real_t *X, real_t *Y, real_t *Z);
 
 void const_cpu(int N, real_t ALPHA, real_t *X, int INCX);
-void constrain_gpu(int N, real_t ALPHA, real_t * X, int INCX);
 void pow_cpu(int N, real_t ALPHA, real_t *X, int INCX, real_t *Y, int INCY);
 void mul_cpu(int N, real_t *X, int INCX, real_t *Y, int INCY);
 
@@ -66,37 +65,32 @@ void upsample_cpu(real_t *in, int w, int h, int c, int batch, int stride,
 #include "cuda.h"
 #include "tree.h"
 
-void axpy_gpu(int N, real_t_device ALPHA, real_t_device * X, int INCX, real_t_device * Y, int INCY);
-void axpy_gpu_offset(int N, real_t_device ALPHA, real_t_device * X, int OFFX, int INCX, real_t_device * Y, int OFFY, int INCY);
+void axpy_gpu(int N, real_t ALPHA, real_t_device * X, int INCX, real_t_device * Y, int INCY);
+void axpy_gpu_offset(int N, real_t ALPHA, real_t_device * X, int OFFX, int INCX, real_t_device * Y, int OFFY, int INCY);
 void copy_gpu(int N, real_t_device * X, int INCX, real_t_device * Y, int INCY);
 void copy_gpu_offset(int N, real_t_device * X, int OFFX, int INCX, real_t_device * Y, int OFFY, int INCY);
-void add_gpu(int N, real_t_device ALPHA, real_t_device * X, int INCX);
-void supp_gpu(int N, real_t_device ALPHA, real_t_device * X, int INCX);
-void mask_gpu(int N, real_t_device * X, real_t_device mask_num, real_t_device * mask, real_t_device val);
-void scale_mask_gpu(int N, real_t_device * X, real_t_device mask_num, real_t_device * mask, real_t_device scale);
-void const_gpu(int N, real_t_device ALPHA, real_t_device *X, int INCX);
-void pow_gpu(int N, real_t_device ALPHA, real_t_device *X, int INCX, real_t_device *Y, int INCY);
+void add_gpu(int N, real_t ALPHA, real_t_device * X, int INCX);
+void supp_gpu(int N, real_t ALPHA, real_t_device * X, int INCX);
+void mask_gpu(int N, real_t_device * X, real_t mask_num, real_t_device * mask, real_t val);
+void scale_mask_gpu(int N, real_t_device * X, real_t mask_num, real_t_device * mask, real_t scale);
+void const_gpu(int N, real_t ALPHA, real_t_device *X, int INCX);
+void pow_gpu(int N, real_t ALPHA, real_t_device *X, int INCX, real_t_device *Y, int INCY);
 void mul_gpu(int N, real_t_device *X, int INCX, real_t_device *Y, int INCY);
-
 void mean_gpu(real_t_device *x, int batch, int filters, int spatial, real_t_device *mean);
 void variance_gpu(real_t_device *x, real_t_device *mean, int batch, int filters, int spatial, real_t_device *variance);
 void normalize_gpu(real_t_device *x, real_t_device *mean, real_t_device *variance, int batch, int filters, int spatial);
 void l2normalize_gpu(real_t_device *x, real_t_device *dx, int batch, int filters, int spatial);
-
 void normalize_delta_gpu(real_t_device *x, real_t_device *mean, real_t_device *variance, real_t_device *mean_delta, real_t_device *variance_delta, int batch, int filters, int spatial, real_t_device *delta);
-
 void fast_mean_delta_gpu(real_t_device *delta, real_t_device *variance, int batch, int filters, int spatial, real_t_device *mean_delta);
 void fast_variance_delta_gpu(real_t_device *x, real_t_device *delta, real_t_device *mean, real_t_device *variance, int batch, int filters, int spatial, real_t_device *variance_delta);
-
 void fast_variance_gpu(real_t_device *x, real_t_device *mean, int batch, int filters, int spatial, real_t_device *variance);
 void fast_mean_gpu(real_t_device *x, int batch, int filters, int spatial, real_t_device *mean);
-void shortcut_gpu(int batch, int w1, int h1, int c1, real_t_device *add, int w2, int h2, int c2, real_t_device s1, real_t_device s2, real_t_device *out);
+void shortcut_gpu(int batch, int w1, int h1, int c1, real_t_device *add, int w2, int h2, int c2, real_t s1, real_t s2, real_t_device *out);
 void scale_bias_gpu(real_t_device *output, real_t_device *biases, int batch, int n, int size);
 void backward_scale_gpu(real_t_device *x_norm, real_t_device *delta, int batch, int n, int size, real_t_device *scale_updates);
 void scale_bias_gpu(real_t_device *output, real_t_device *biases, int batch, int n, int size);
 void add_bias_gpu(real_t_device *output, real_t_device *biases, int batch, int n, int size);
 void backward_bias_gpu(real_t_device *bias_updates, real_t_device *delta, int batch, int n, int size);
-
 void logistic_x_ent_gpu(int n, real_t_device *pred, real_t_device *truth, real_t_device *delta, real_t_device *error);
 void softmax_x_ent_gpu(int n, real_t_device *pred, real_t_device *truth, real_t_device *delta, real_t_device *error);
 void smooth_l1_gpu(int n, real_t_device *pred, real_t_device *truth, real_t_device *delta, real_t_device *error);
@@ -108,16 +102,14 @@ void weighted_sum_gpu(real_t_device *a, real_t_device *b, real_t_device *s, int 
 void mult_add_into_gpu(int num, real_t_device *a, real_t_device *b, real_t_device *c);
 void inter_gpu(int NX, real_t_device *X, int NY, real_t_device *Y, int B, real_t_device *OUT);
 void deinter_gpu(int NX, real_t_device *X, int NY, real_t_device *Y, int B, real_t_device *OUT);
-
 void reorg_gpu(real_t_device *x, int w, int h, int c, int batch, int stride, int forward, real_t_device *out);
-
-void softmax_gpu(real_t_device *input, int n, int batch, int batch_offset, int groups, int group_offset, int stride, real_t_device temp, real_t_device *output);
-void adam_update_gpu(real_t_device *w, real_t_device *d, real_t_device *m, real_t_device *v, real_t_device B1, real_t_device B2, real_t_device eps, real_t_device decay, real_t_device rate, int n, int batch, int t);
-void adam_gpu(int n, real_t_device *x, real_t_device *m, real_t_device *v, real_t_device B1, real_t_device B2, real_t_device rate, real_t_device eps, int t);
-
+void softmax_gpu(real_t_device *input, int n, int batch, int batch_offset, int groups, int group_offset, int stride, real_t temp, real_t_device *output);
+void adam_update_gpu(real_t_device *w, real_t_device *d, real_t_device *m, real_t_device *v, real_t B1, real_t B2, real_t eps, real_t decay, real_t rate, int n, int batch, int t);
+void adam_gpu(int n, real_t_device *x, real_t_device *m, real_t_device *v, real_t B1, real_t B2, real_t rate, real_t eps, int t);
 void flatten_gpu(real_t_device *x, int spatial, int layers, int batch, int forward, real_t_device *out);
-void softmax_tree(real_t_device *input, int spatial, int batch, int stride, real_t_device temp, real_t_device *output, tree hier);
-void upsample_gpu(real_t_device *in, int w, int h, int c, int batch, int stride, int forward, real_t_device scale, real_t_device *out);
+void softmax_tree(real_t_device *input, int spatial, int batch, int stride, real_t temp, real_t_device *output, tree hier);
+void upsample_gpu(real_t_device *in, int w, int h, int c, int batch, int stride, int forward, real_t scale, real_t_device *out);
+void constrain_gpu(int N, real_t ALPHA, real_t_device * X, int INCX);
 
 #endif
 #endif

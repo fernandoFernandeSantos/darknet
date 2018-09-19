@@ -13,6 +13,9 @@
 
 #include "type.h"
 
+#ifdef GPU
+#include "cuda.h"
+#endif
 /**
  * Transform a float array into an half precision
  */

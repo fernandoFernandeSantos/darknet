@@ -59,7 +59,7 @@ void forward_softmax_layer(const softmax_layer l, network net) {
 }
 
 void backward_softmax_layer(const softmax_layer l, network net) {
-	axpy_cpu(l.inputs * l.batch, 1, l.delta, 1, net.delta, 1);
+	axpy_cpu(l.inputs * l.batch, real_t(1), l.delta, 1, net.delta, 1);
 }
 
 #ifdef GPU
@@ -70,7 +70,7 @@ void pull_softmax_layer_output(const softmax_layer layer) {
 
 void forward_softmax_layer_gpu(const softmax_layer l, network net) {
 	if (l.softmax_tree) {
-		softmax_tree(net.input_gpu, 1, l.batch, l.inputs, l.temperature,
+		softmax_tree(net.input_gpu, real_t(1), l.batch, l.inputs, l.temperature,
 				l.output_gpu, *l.softmax_tree);
 		/*
 		 int i;
@@ -84,10 +84,10 @@ void forward_softmax_layer_gpu(const softmax_layer l, network net) {
 	} else {
 		if (l.spatial) {
 			softmax_gpu(net.input_gpu, l.c, l.batch * l.c, l.inputs / l.c,
-					l.w * l.h, 1, l.w * l.h, 1, l.output_gpu);
+					l.w * l.h, 1, l.w * l.h, real_t(1), l.output_gpu);
 		} else {
 			softmax_gpu(net.input_gpu, l.inputs / l.groups, l.batch, l.inputs,
-					l.groups, l.inputs / l.groups, 1, l.temperature,
+					l.groups, l.inputs / l.groups, real_t(1), l.temperature,
 					l.output_gpu);
 		}
 	}
@@ -95,10 +95,10 @@ void forward_softmax_layer_gpu(const softmax_layer l, network net) {
 		softmax_x_ent_gpu(l.batch * l.inputs, l.output_gpu, net.truth_gpu,
 				l.delta_gpu, l.loss_gpu);
 		if (l.softmax_tree) {
-			mask_gpu(l.batch * l.inputs, l.delta_gpu, SECRET_NUM, net.truth_gpu,
-					0);
-			mask_gpu(l.batch * l.inputs, l.loss_gpu, SECRET_NUM, net.truth_gpu,
-					0);
+			mask_gpu(l.batch * l.inputs, l.delta_gpu, real_t(SECRET_NUM), net.truth_gpu,
+					real_t(0));
+			mask_gpu(l.batch * l.inputs, l.loss_gpu, real_t(SECRET_NUM), net.truth_gpu,
+					real_t(0));
 		}
 		cuda_pull_array(l.loss_gpu, l.loss, l.batch * l.inputs);
 		l.cost[0] = sum_array(l.loss, l.batch * l.inputs);
@@ -106,7 +106,7 @@ void forward_softmax_layer_gpu(const softmax_layer l, network net) {
 }
 
 void backward_softmax_layer_gpu(const softmax_layer layer, network net) {
-	axpy_gpu(layer.batch * layer.inputs, 1, layer.delta_gpu, 1, net.delta_gpu,
+	axpy_gpu(layer.batch * layer.inputs, real_t(1), layer.delta_gpu, 1, net.delta_gpu,
 			1);
 }
 

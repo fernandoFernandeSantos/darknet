@@ -6,7 +6,7 @@
 int nms_comparator(const void *pa, const void *pb) {
 	detection a = *(detection *) pa;
 	detection b = *(detection *) pb;
-	real_t diff = 0;
+	real_t diff = real_t(0);
 	if (b.sort_class >= 0) {
 		diff = a.prob[b.sort_class] - b.prob[b.sort_class];
 	} else {
@@ -90,7 +90,7 @@ void do_nms_sort(detection *dets, int total, int classes, real_t thresh) {
 }
 
 box real_t_to_box(real_t *f, int stride) {
-	box b = { 0 };
+	box b = { real_t(0) };
 	b.x = f[0];
 	b.y = f[1 * stride];
 	b.w = f[2 * stride];
@@ -102,14 +102,14 @@ dbox derivative(box a, box b) {
 	dbox d;
 	d.dx = 0;
 	d.dw = 0;
-	real_t l1 = a.x - a.w / 2;
-	real_t l2 = b.x - b.w / 2;
+	real_t l1 = real_t(a.x - a.w / 2);
+	real_t l2 = real_t(b.x - b.w / 2);
 	if (l1 > l2) {
 		d.dx -= 1;
 		d.dw += .5;
 	}
-	real_t r1 = a.x + a.w / 2;
-	real_t r2 = b.x + b.w / 2;
+	real_t r1 = real_t(a.x + a.w / 2);
+	real_t r2 = real_t(b.x + b.w / 2);
 	if (r1 < r2) {
 		d.dx += 1;
 		d.dw += .5;
@@ -125,14 +125,14 @@ dbox derivative(box a, box b) {
 
 	d.dy = 0;
 	d.dh = 0;
-	real_t t1 = a.y - a.h / 2;
-	real_t t2 = b.y - b.h / 2;
+	real_t t1 = real_t(a.y - a.h / 2);
+	real_t t2 = real_t(b.y - b.h / 2);
 	if (t1 > t2) {
 		d.dy -= 1;
 		d.dh += .5;
 	}
-	real_t b1 = a.y + a.h / 2;
-	real_t b2 = b.y + b.h / 2;
+	real_t b1 = real_t(a.y + a.h / 2);
+	real_t b2 = real_t(b.y + b.h / 2);
 	if (b1 < b2) {
 		d.dy += 1;
 		d.dh += .5;
@@ -149,11 +149,11 @@ dbox derivative(box a, box b) {
 }
 
 real_t overlap(real_t x1, real_t w1, real_t x2, real_t w2) {
-	real_t l1 = x1 - w1 / 2;
-	real_t l2 = x2 - w2 / 2;
+	real_t l1 = x1 - w1 / real_t(2);
+	real_t l2 = x2 - w2 / real_t(2);
 	real_t left = l1 > l2 ? l1 : l2;
-	real_t r1 = x1 + w1 / 2;
-	real_t r2 = x2 + w2 / 2;
+	real_t r1 = x1 + w1 / real_t(2);
+	real_t r2 = x2 + w2 / real_t(2);
 	real_t right = r1 < r2 ? r1 : r2;
 	return right - left;
 }
@@ -162,7 +162,7 @@ real_t box_intersection(box a, box b) {
 	real_t w = overlap(a.x, a.w, b.x, b.w);
 	real_t h = overlap(a.y, a.h, b.y, b.h);
 	if (w < 0 || h < 0)
-		return 0;
+		return real_t(0);
 	real_t area = w * h;
 	return area;
 }
@@ -178,9 +178,9 @@ real_t box_iou(box a, box b) {
 }
 
 real_t box_rmse(box a, box b) {
-	return sqrt(
+	return real_t(sqrt(
 			pow(a.x - b.x, 2) + pow(a.y - b.y, 2) + pow(a.w - b.w, 2)
-					+ pow(a.h - b.h, 2));
+					+ pow(a.h - b.h, 2)));
 }
 
 dbox dintersect(box a, box b) {
@@ -210,13 +210,13 @@ dbox dunion(box a, box b) {
 }
 
 void test_dunion() {
-	box a = { 0, 0, 1, 1 };
-	box dxa = { 0 + .0001, 0, 1, 1 };
-	box dya = { 0, 0 + .0001, 1, 1 };
-	box dwa = { 0, 0, 1 + .0001, 1 };
-	box dha = { 0, 0, 1, 1 + .0001 };
+	box a = { real_t(0), real_t(0), real_t(1), real_t(1) };
+	box dxa = { real_t(0 + .0001), real_t(0), real_t(1), real_t(1) };
+	box dya = { real_t(0), real_t(0 + .0001), real_t(1), real_t(1) };
+	box dwa = { real_t(0), real_t(0), real_t(1 + .0001), real_t(1) };
+	box dha = { real_t(0), real_t(0), real_t(1), real_t(1 + .0001) };
 
-	box b = { .5, .5, .2, .2 };
+	box b = { real_t(.5), real_t(.5), real_t(.2), real_t(.2) };
 	dbox di = dunion(a, b);
 	printf("Union: %f %f %f %f\n", di.dx, di.dy, di.dw, di.dh);
 	real_t inter = box_union(a, b);
@@ -231,13 +231,13 @@ void test_dunion() {
 	printf("Union Manual %f %f %f %f\n", xinter, yinter, winter, hinter);
 }
 void test_dintersect() {
-	box a = { 0, 0, 1, 1 };
-	box dxa = { 0 + .0001, 0, 1, 1 };
-	box dya = { 0, 0 + .0001, 1, 1 };
-	box dwa = { 0, 0, 1 + .0001, 1 };
-	box dha = { 0, 0, 1, 1 + .0001 };
+	box a = { real_t(0), real_t(0), real_t(1), real_t(1) };
+	box dxa = { real_t(0 + .0001), real_t(0), real_t(1), real_t(1) };
+	box dya = { real_t(0), real_t(0 + .0001), real_t(1), real_t(1) };
+	box dwa = { real_t(0), real_t(0), real_t(1 + .0001), real_t(1) };
+	box dha = { real_t(0), real_t(0), real_t(1), real_t(1 + .0001) };
 
-	box b = { .5, .5, .2, .2 };
+	box b = { real_t(.5), real_t(.5), real_t(.2), real_t(.2) };
 	dbox di = dintersect(a, b);
 	printf("Inter: %f %f %f %f\n", di.dx, di.dy, di.dw, di.dh);
 	real_t inter = box_intersection(a, b);
@@ -255,13 +255,13 @@ void test_dintersect() {
 void test_box() {
 	test_dintersect();
 	test_dunion();
-	box a = { 0, 0, 1, 1 };
-	box dxa = { 0 + .00001, 0, 1, 1 };
-	box dya = { 0, 0 + .00001, 1, 1 };
-	box dwa = { 0, 0, 1 + .00001, 1 };
-	box dha = { 0, 0, 1, 1 + .00001 };
+	box a = { real_t(0), real_t(0), real_t(1), real_t(1) };
+	box dxa = {real_t(0 + .00001), real_t(0), real_t(1), real_t(1) };
+	box dya = { real_t(0), real_t(0 + .00001), real_t(1), real_t(1) };
+	box dwa = { real_t(0), real_t(0), real_t(1 + .00001), real_t(1) };
+	box dha = { real_t(0), real_t(0), real_t(1), real_t(1 + .00001) };
 
-	box b = { .5, 0, .2, .2 };
+	box b = { real_t(.5), real_t(0), real_t(.2), real_t(.2) };
 
 	real_t iou = box_iou(a, b);
 	iou = (1 - iou) * (1 - iou);
@@ -285,7 +285,7 @@ dbox diou(box a, box b) {
 	real_t i = box_intersection(a, b);
 	dbox di = dintersect(a, b);
 	dbox du = dunion(a, b);
-	dbox dd = { 0, 0, 0, 0 };
+	dbox dd = { real_t(0), real_t(0), real_t(0), real_t(0) };
 
 	if (i <= 0 || 1) {
 		dd.dx = b.x - a.x;
@@ -337,7 +337,7 @@ box decode_box(box b, box anchor) {
 	box decode;
 	decode.x = b.x * anchor.w + anchor.x;
 	decode.y = b.y * anchor.h + anchor.y;
-	decode.w = pow(2., b.w) * anchor.w;
-	decode.h = pow(2., b.h) * anchor.h;
+	decode.w = real_t(pow(2., float(b.w))) * anchor.w;
+	decode.h = real_t(pow(2., float(b.h))) * anchor.h;
 	return decode;
 }

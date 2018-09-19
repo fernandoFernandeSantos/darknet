@@ -39,7 +39,7 @@ void forward_dropout_layer(dropout_layer l, network net) {
 	if (!net.train)
 		return;
 	for (i = 0; i < l.batch * l.inputs; ++i) {
-		real_t r = rand_uniform(0, 1);
+		real_t r = rand_uniform(real_t(0), real_t(1));
 		l.rand[i] = r;
 		if (r < l.probability)
 			net.input[i] = 0;

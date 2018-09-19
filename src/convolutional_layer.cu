@@ -462,6 +462,8 @@ void forward_convolutional_layer(convolutional_layer l, network net) {
 	for (i = 0; i < l.batch; ++i) {
 		for (j = 0; j < l.groups; ++j) {
 			real_t *a = l.weights + j * l.nweights / l.groups;
+#ifndef GPU
+
 			real_t *b = net.workspace;
 			real_t *c = l.output + (i * l.groups + j) * n * m;
 			real_t *im = net.input
@@ -474,6 +476,7 @@ void forward_convolutional_layer(convolutional_layer l, network net) {
 						l.pad, b);
 			}
 			gemm(0, 0, m, n, k, real_t(1), a, k, b, n, real_t(1), c, n);
+#endif
 		}
 	}
 
@@ -505,6 +508,7 @@ void backward_convolutional_layer(convolutional_layer l, network net) {
 	for (i = 0; i < l.batch; ++i) {
 		for (j = 0; j < l.groups; ++j) {
 			real_t *a = l.delta + (i * l.groups + j) * m * k;
+#ifndef GPU
 			real_t *b = net.workspace;
 			real_t *c = l.weight_updates + j * l.nweights / l.groups;
 
@@ -537,6 +541,7 @@ void backward_convolutional_layer(convolutional_layer l, network net) {
 							l.stride, l.pad, imd);
 				}
 			}
+#endif
 		}
 	}
 }

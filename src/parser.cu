@@ -229,7 +229,7 @@ convolutional_layer parse_convolutional(list *options, size_params params) {
 			groups, size, stride, padding, activation, batch_normalize, binary,
 			xnor, params.net->adam);
 	layer.flipped = option_find_int_quiet(options, "flipped", 0);
-	layer.dot = option_find_real_t_quiet(options, "dot", 0);
+	layer.dot = option_find_real_t_quiet(options, "dot", real_t(0));
 
 	return layer;
 }
@@ -299,14 +299,14 @@ layer parse_connected(list *options, size_params params) {
 layer parse_softmax(list *options, size_params params) {
 	int groups = option_find_int_quiet(options, "groups", 1);
 	layer l = make_softmax_layer(params.batch, params.inputs, groups);
-	l.temperature = option_find_real_t_quiet(options, "temperature", 1);
+	l.temperature = option_find_real_t_quiet(options, "temperature", real_t(1));
 	char *tree_file = option_find_str(options, "tree", 0);
 	if (tree_file)
 		l.softmax_tree = read_tree(tree_file);
 	l.w = params.w;
 	l.h = params.h;
 	l.c = params.c;
-	l.spatial = option_find_real_t_quiet(options, "spatial", 0);
+	l.spatial = option_find_real_t_quiet(options, "spatial", real_t(0));
 	l.noloss = option_find_int_quiet(options, "noloss", 0);
 	return l;
 }
@@ -344,10 +344,10 @@ layer parse_yolo(list *options, size_params params) {
 	assert(l.outputs == params.inputs);
 
 	l.max_boxes = option_find_int_quiet(options, "max", 90);
-	l.jitter = option_find_real_t(options, "jitter", .2);
+	l.jitter = option_find_real_t(options, "jitter", real_t(.2));
 
-	l.ignore_thresh = option_find_real_t(options, "ignore_thresh", .5);
-	l.truth_thresh = option_find_real_t(options, "truth_thresh", 1);
+	l.ignore_thresh = option_find_real_t(options, "ignore_thresh", real_t(.5));
+	l.truth_thresh = option_find_real_t(options, "truth_thresh", real_t(1));
 	l.random = option_find_int_quiet(options, "random", 0);
 
 	char *map_file = option_find_str(options, "map", 0);
@@ -364,7 +364,7 @@ layer parse_yolo(list *options, size_params params) {
 				++n;
 		}
 		for (i = 0; i < n; ++i) {
-			real_t bias = atof(a);
+			real_t bias = real_t(atof(a));
 			l.biases[i] = bias;
 			a = strchr(a, ',') + 1;
 		}
@@ -395,19 +395,19 @@ layer parse_region(list *options, size_params params) {
 	l.softmax = option_find_int(options, "softmax", 0);
 	l.background = option_find_int_quiet(options, "background", 0);
 	l.max_boxes = option_find_int_quiet(options, "max", 30);
-	l.jitter = option_find_real_t(options, "jitter", .2);
+	l.jitter = option_find_real_t(options, "jitter", real_t(.2));
 	l.rescore = option_find_int_quiet(options, "rescore", 0);
 
-	l.thresh = option_find_real_t(options, "thresh", .5);
+	l.thresh = option_find_real_t(options, "thresh", real_t(.5));
 	l.classfix = option_find_int_quiet(options, "classfix", 0);
 	l.absolute = option_find_int_quiet(options, "absolute", 0);
 	l.random = option_find_int_quiet(options, "random", 0);
 
-	l.coord_scale = option_find_real_t(options, "coord_scale", 1);
-	l.object_scale = option_find_real_t(options, "object_scale", 1);
-	l.noobject_scale = option_find_real_t(options, "noobject_scale", 1);
-	l.mask_scale = option_find_real_t(options, "mask_scale", 1);
-	l.class_scale = option_find_real_t(options, "class_scale", 1);
+	l.coord_scale = option_find_real_t(options, "coord_scale", real_t(1));
+	l.object_scale = option_find_real_t(options, "object_scale", real_t(1));
+	l.noobject_scale = option_find_real_t(options, "noobject_scale", real_t(1));
+	l.mask_scale = option_find_real_t(options, "mask_scale", real_t(1));
+	l.class_scale = option_find_real_t(options, "class_scale", real_t(1));
 	l.bias_match = option_find_int_quiet(options, "bias_match", 0);
 
 	char *tree_file = option_find_str(options, "tree", 0);
@@ -427,7 +427,7 @@ layer parse_region(list *options, size_params params) {
 				++n;
 		}
 		for (i = 0; i < n; ++i) {
-			real_t bias = atof(a);
+			real_t bias = real_t(atof(a));
 			l.biases[i] = bias;
 			a = strchr(a, ',') + 1;
 		}
@@ -448,12 +448,12 @@ detection_layer parse_detection(list *options, size_params params) {
 	layer.sqrt = option_find_int(options, "sqrt", 0);
 
 	layer.max_boxes = option_find_int_quiet(options, "max", 90);
-	layer.coord_scale = option_find_real_t(options, "coord_scale", 1);
+	layer.coord_scale = option_find_real_t(options, "coord_scale", real_t(1));
 	layer.forced = option_find_int(options, "forced", 0);
-	layer.object_scale = option_find_real_t(options, "object_scale", 1);
-	layer.noobject_scale = option_find_real_t(options, "noobject_scale", 1);
-	layer.class_scale = option_find_real_t(options, "class_scale", 1);
-	layer.jitter = option_find_real_t(options, "jitter", .2);
+	layer.object_scale = option_find_real_t(options, "object_scale", real_t(1));
+	layer.noobject_scale = option_find_real_t(options, "noobject_scale", real_t(1));
+	layer.class_scale = option_find_real_t(options, "class_scale", real_t(1));
+	layer.jitter = option_find_real_t(options, "jitter", real_t(.2));
 	layer.random = option_find_int_quiet(options, "random", 0);
 	layer.reorg = option_find_int_quiet(options, "reorg", 0);
 	return layer;
@@ -462,12 +462,12 @@ detection_layer parse_detection(list *options, size_params params) {
 cost_layer parse_cost(list *options, size_params params) {
 	char *type_s = option_find_str(options, "type", "sse");
 	COST_TYPE type = get_cost_type(type_s);
-	real_t scale = option_find_real_t_quiet(options, "scale", 1);
+	real_t scale = option_find_real_t_quiet(options, "scale", real_t(1));
 	cost_layer layer = make_cost_layer(params.batch, params.inputs, type,
 			scale);
-	layer.ratio = option_find_real_t_quiet(options, "ratio", 0);
-	layer.noobject_scale = option_find_real_t_quiet(options, "noobj", 1);
-	layer.thresh = option_find_real_t_quiet(options, "thresh", 0);
+	layer.ratio = option_find_real_t_quiet(options, "ratio", real_t(0));
+	layer.noobject_scale = option_find_real_t_quiet(options, "noobj", real_t(1));
+	layer.thresh = option_find_real_t_quiet(options, "thresh", real_t(0));
 	return layer;
 }
 
@@ -475,9 +475,9 @@ crop_layer parse_crop(list *options, size_params params) {
 	int crop_height = option_find_int(options, "crop_height", 1);
 	int crop_width = option_find_int(options, "crop_width", 1);
 	int flip = option_find_int(options, "flip", 0);
-	real_t angle = option_find_real_t(options, "angle", 0);
-	real_t saturation = option_find_real_t(options, "saturation", 1);
-	real_t exposure = option_find_real_t(options, "exposure", 1);
+	real_t angle = option_find_real_t(options, "angle", real_t(0));
+	real_t saturation = option_find_real_t(options, "saturation", real_t(1));
+	real_t exposure = option_find_real_t(options, "exposure", real_t(1));
 
 	int batch, h, w, c;
 	h = params.h;
@@ -491,7 +491,7 @@ crop_layer parse_crop(list *options, size_params params) {
 
 	crop_layer l = make_crop_layer(batch, h, w, c, crop_height, crop_width,
 			flip, angle, saturation, exposure);
-	l.shift = option_find_real_t(options, "shift", 0);
+	l.shift = option_find_real_t(options, "shift", real_t(0));
 	l.noadjust = noadjust;
 	return l;
 }
@@ -547,7 +547,7 @@ avgpool_layer parse_avgpool(list *options, size_params params) {
 }
 
 dropout_layer parse_dropout(list *options, size_params params) {
-	real_t probability = option_find_real_t(options, "probability", .5);
+	real_t probability = option_find_real_t(options, "probability", real_t(.5));
 	dropout_layer layer = make_dropout_layer(params.batch, params.inputs,
 			probability);
 	layer.out_w = params.w;
@@ -557,9 +557,9 @@ dropout_layer parse_dropout(list *options, size_params params) {
 }
 
 layer parse_normalization(list *options, size_params params) {
-	real_t alpha = option_find_real_t(options, "alpha", .0001);
-	real_t beta = option_find_real_t(options, "beta", .75);
-	real_t kappa = option_find_real_t(options, "kappa", 1);
+	real_t alpha = option_find_real_t(options, "alpha", real_t(.0001));
+	real_t beta = option_find_real_t(options, "beta", real_t(.75));
+	real_t kappa = option_find_real_t(options, "kappa", real_t(1));
 	int size = option_find_int(options, "size", 5);
 	layer l = make_normalization_layer(params.batch, params.w, params.h,
 			params.c, size, alpha, beta, kappa);
@@ -586,8 +586,8 @@ layer parse_shortcut(list *options, size_params params, network *net) {
 	char *activation_s = option_find_str(options, "activation", "linear");
 	ACTIVATION activation = get_activation(activation_s);
 	s.activation = activation;
-	s.alpha = option_find_real_t_quiet(options, "alpha", 1);
-	s.beta = option_find_real_t_quiet(options, "beta", 1);
+	s.alpha = option_find_real_t_quiet(options, "alpha", real_t(1));
+	s.beta = option_find_real_t_quiet(options, "beta", real_t(1));
 	return s;
 }
 
@@ -625,7 +625,7 @@ layer parse_upsample(list *options, size_params params, network *net) {
 	int stride = option_find_int(options, "stride", 2);
 	layer l = make_upsample_layer(params.batch, params.w, params.h, params.c,
 			stride);
-	l.scale = option_find_real_t_quiet(options, "scale", 1);
+	l.scale = option_find_real_t_quiet(options, "scale", real_t(1));
 	return l;
 }
 
@@ -693,9 +693,9 @@ learning_rate_policy get_policy(char *s) {
 
 void parse_net_options(list *options, network *net) {
 	net->batch = option_find_int(options, "batch", 1);
-	net->learning_rate = option_find_real_t(options, "learning_rate", .001);
-	net->momentum = option_find_real_t(options, "momentum", .9);
-	net->decay = option_find_real_t(options, "decay", .0001);
+	net->learning_rate = option_find_real_t(options, "learning_rate", real_t(.001));
+	net->momentum = option_find_real_t(options, "momentum", real_t(.9));
+	net->decay = option_find_real_t(options, "decay", real_t(.0001));
 	int subdivs = option_find_int(options, "subdivisions", 1);
 	net->time_steps = option_find_int_quiet(options, "time_steps", 1);
 	net->notruth = option_find_int_quiet(options, "notruth", 0);
@@ -706,9 +706,9 @@ void parse_net_options(list *options, network *net) {
 
 	net->adam = option_find_int_quiet(options, "adam", 0);
 	if (net->adam) {
-		net->B1 = option_find_real_t(options, "B1", .9);
-		net->B2 = option_find_real_t(options, "B2", .999);
-		net->eps = option_find_real_t(options, "eps", .0000001);
+		net->B1 = option_find_real_t(options, "B1", real_t(.9));
+		net->B2 = option_find_real_t(options, "B2", real_t(.999));
+		net->eps = option_find_real_t(options, "eps", real_t(.0000001));
 	}
 
 	net->h = option_find_int_quiet(options, "height", 0);
@@ -719,17 +719,17 @@ void parse_net_options(list *options, network *net) {
 	net->max_crop = option_find_int_quiet(options, "max_crop", net->w * 2);
 	net->min_crop = option_find_int_quiet(options, "min_crop", net->w);
 	net->max_ratio = option_find_real_t_quiet(options, "max_ratio",
-			(real_t) net->max_crop / net->w);
+			real_t(net->max_crop / net->w));
 	net->min_ratio = option_find_real_t_quiet(options, "min_ratio",
-			(real_t) net->min_crop / net->w);
+			real_t( net->min_crop / net->w));
 	net->center = option_find_int_quiet(options, "center", 0);
-	net->clip = option_find_real_t_quiet(options, "clip", 0);
+	net->clip = option_find_real_t_quiet(options, "clip", real_t(0));
 
-	net->angle = option_find_real_t_quiet(options, "angle", 0);
-	net->aspect = option_find_real_t_quiet(options, "aspect", 1);
-	net->saturation = option_find_real_t_quiet(options, "saturation", 1);
-	net->exposure = option_find_real_t_quiet(options, "exposure", 1);
-	net->hue = option_find_real_t_quiet(options, "hue", 0);
+	net->angle = option_find_real_t_quiet(options, "angle", real_t(0));
+	net->aspect = option_find_real_t_quiet(options, "aspect", real_t(1));
+	net->saturation = option_find_real_t_quiet(options, "saturation", real_t(1));
+	net->exposure = option_find_real_t_quiet(options, "exposure", real_t(1));
+	net->hue = option_find_real_t_quiet(options, "hue", real_t(0));
 
 	if (!net->inputs && !(net->h && net->w && net->c))
 		error("No input parameters supplied");
@@ -737,10 +737,10 @@ void parse_net_options(list *options, network *net) {
 	char *policy_s = option_find_str(options, "policy", "constant");
 	net->policy = get_policy(policy_s);
 	net->burn_in = option_find_int_quiet(options, "burn_in", 0);
-	net->power = option_find_real_t_quiet(options, "power", 4);
+	net->power = option_find_real_t_quiet(options, "power", real_t(4));
 	if (net->policy == STEP) {
 		net->step = option_find_int(options, "step", 1);
-		net->scale = option_find_real_t(options, "scale", 1);
+		net->scale = option_find_real_t(options, "scale", real_t(1));
 	} else if (net->policy == STEPS) {
 		char *l = option_find(options, "steps");
 		char *p = option_find(options, "scales");
@@ -758,7 +758,7 @@ void parse_net_options(list *options, network *net) {
 		real_t *scales = (real_t*) calloc(n, sizeof(real_t));
 		for (i = 0; i < n; ++i) {
 			int step = atoi(l);
-			real_t scale = atof(p);
+			real_t scale = real_t(atof(p));
 			l = strchr(l, ',') + 1;
 			p = strchr(p, ',') + 1;
 			steps[i] = step;
@@ -768,9 +768,9 @@ void parse_net_options(list *options, network *net) {
 		net->steps = steps;
 		net->num_steps = n;
 	} else if (net->policy == EXP) {
-		net->gamma = option_find_real_t(options, "gamma", 1);
+		net->gamma = option_find_real_t(options, "gamma", real_t(1));
 	} else if (net->policy == SIG) {
-		net->gamma = option_find_real_t(options, "gamma", 1);
+		net->gamma = option_find_real_t(options, "gamma", real_t(1));
 		net->step = option_find_int(options, "step", 1);
 	} else if (net->policy == POLY || net->policy == RANDOM) {
 	}
@@ -890,8 +890,8 @@ network *parse_network_cfg(char *filename) {
 		l.numload = option_find_int_quiet(options, "numload", 0);
 		l.dontloadscales = option_find_int_quiet(options, "dontloadscales", 0);
 		l.learning_rate_scale = option_find_real_t_quiet(options,
-				"learning_rate", 1);
-		l.smooth = option_find_real_t_quiet(options, "smooth", 0);
+				"learning_rate", real_t(1));
+		l.smooth = option_find_real_t_quiet(options, "smooth", real_t(0));
 		option_unused(options);
 		net->layers[count] = l;
 		if (l.workspace_size > workspace_size)
@@ -927,7 +927,7 @@ network *parse_network_cfg(char *filename) {
 			net->workspace = cuda_make_array(0,
 					(workspace_size - 1) / sizeof(real_t) + 1);
 		} else {
-			net->workspace = (real_t*) calloc(1, workspace_size);
+			net->workspace = (real_t_device*) calloc(1, workspace_size);
 		}
 #else
 		net->workspace = calloc(1, workspace_size);
@@ -1194,7 +1194,7 @@ void load_convolutional_weights_binary(layer l, FILE *fp) {
 	int size = l.c * l.size * l.size;
 	int i, j, k;
 	for (i = 0; i < l.n; ++i) {
-		real_t mean = 0;
+		real_t mean = real_t(0);
 		fread(&mean, sizeof(real_t), 1, fp);
 		for (j = 0; j < size / 8; ++j) {
 			int index = i * size + j * 8;
@@ -1239,8 +1239,8 @@ void load_convolutional_weights(layer l, FILE *fp) {
 			printf("\n");
 		}
 		if (0) {
-			fill_cpu(l.n, 0, l.rolling_mean, 1);
-			fill_cpu(l.n, 0, l.rolling_variance, 1);
+			fill_cpu(l.n, real_t(0), l.rolling_mean, 1);
+			fill_cpu(l.n, real_t(0), l.rolling_variance, 1);
 		}
 		if (0) {
 			int i;

@@ -97,7 +97,7 @@ void backward_route_layer(const route_layer l, network net) {
 		real_t *delta = net.layers[index].delta;
 		int input_size = l.input_sizes[i];
 		for (j = 0; j < l.batch; ++j) {
-			axpy_cpu(input_size, 1, l.delta + offset + j * l.outputs, 1,
+			axpy_cpu(input_size, real_t(1), l.delta + offset + j * l.outputs, 1,
 					delta + j * input_size, 1);
 		}
 		offset += input_size;
@@ -110,7 +110,7 @@ void forward_route_layer_gpu(const route_layer l, network net) {
 	int offset = 0;
 	for (i = 0; i < l.n; ++i) {
 		int index = l.input_layers[i];
-		real_t *input = net.layers[index].output_gpu;
+		real_t_device *input = net.layers[index].output_gpu;
 		int input_size = l.input_sizes[i];
 		for (j = 0; j < l.batch; ++j) {
 			copy_gpu(input_size, input + j * input_size, 1,
@@ -125,10 +125,10 @@ void backward_route_layer_gpu(const route_layer l, network net) {
 	int offset = 0;
 	for (i = 0; i < l.n; ++i) {
 		int index = l.input_layers[i];
-		real_t *delta = net.layers[index].delta_gpu;
+		real_t_device *delta = net.layers[index].delta_gpu;
 		int input_size = l.input_sizes[i];
 		for (j = 0; j < l.batch; ++j) {
-			axpy_gpu(input_size, 1, l.delta_gpu + offset + j * l.outputs, 1,
+			axpy_gpu(input_size, real_t(1), l.delta_gpu + offset + j * l.outputs, 1,
 					delta + j * input_size, 1);
 		}
 		offset += input_size;

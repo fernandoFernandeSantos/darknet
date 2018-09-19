@@ -168,8 +168,8 @@ void backward_bias_gpu(real_t_device *bias_updates, real_t_device *delta, int ba
  }
  */
 
-__global__ void adam_kernel(int N, real_t_device *x, real_t_device *m, real_t_device *v, real_t_device B1,
-		real_t_device B2, real_t_device rate, real_t_device eps, int t) {
+__global__ void adam_kernel(int N, real_t_device *x, real_t_device *m, real_t_device *v, real_t B1,
+		real_t B2, real_t rate, real_t eps, int t) {
 	int index = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x
 			+ threadIdx.x;
 	if (index >= N)
@@ -182,15 +182,15 @@ __global__ void adam_kernel(int N, real_t_device *x, real_t_device *m, real_t_de
 }
 
 //extern "C"
-void adam_gpu(int n, real_t_device *x, real_t_device *m, real_t_device *v, real_t_device B1, real_t_device B2,
-		real_t_device rate, real_t_device eps, int t) {
+void adam_gpu(int n, real_t_device *x, real_t_device *m, real_t_device *v, real_t B1, real_t B2,
+		real_t rate, real_t eps, int t) {
 	adam_kernel<<<cuda_gridsize(n), BLOCK>>>(n, x, m, v, B1, B2, rate, eps, t);
 	check_error(cudaPeekAtLastError());
 }
 
 //extern "C"
-void adam_update_gpu(real_t_device *w, real_t_device *d, real_t_device *m, real_t_device *v, real_t_device B1,
-		real_t_device B2, real_t_device eps, real_t_device decay, real_t_device rate, int n, int batch,
+void adam_update_gpu(real_t_device *w, real_t_device *d, real_t_device *m, real_t_device *v, real_t B1,
+		real_t B2, real_t eps, real_t decay, real_t rate, int n, int batch,
 		int t) {
 	scal_gpu(n, B1, m, 1);
 	scal_gpu(n, B2, v, 1);
@@ -441,33 +441,33 @@ __global__ void reorg_kernel(int N, real_t_device *x, int w, int h, int c, int b
 	//else out[0] = x[0];
 }
 
-__global__ void axpy_kernel(int N, real_t_device ALPHA, real_t_device *X, int OFFX, int INCX,
+__global__ void axpy_kernel(int N, real_t ALPHA, real_t_device *X, int OFFX, int INCX,
 		real_t_device *Y, int OFFY, int INCY) {
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < N)
 		Y[OFFY + i * INCY] += ALPHA * X[OFFX + i * INCX];
 }
 
-__global__ void pow_kernel(int N, real_t_device ALPHA, real_t_device *X, int INCX, real_t_device *Y,
+__global__ void pow_kernel(int N, real_t ALPHA, real_t_device *X, int INCX, real_t_device *Y,
 		int INCY) {
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < N)
 		Y[i * INCY] = pow(X[i * INCX], ALPHA);
 }
 
-__global__ void const_kernel(int N, real_t_device ALPHA, real_t_device *X, int INCX) {
+__global__ void const_kernel(int N, real_t ALPHA, real_t_device *X, int INCX) {
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < N)
 		X[i * INCX] = ALPHA;
 }
 
-__global__ void constrain_kernel(int N, real_t_device ALPHA, real_t_device *X, int INCX) {
+__global__ void constrain_kernel(int N, real_t ALPHA, real_t_device *X, int INCX) {
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < N)
 		X[i * INCX] = fminf(ALPHA, fmaxf(-ALPHA, X[i * INCX]));
 }
 
-__global__ void supp_kernel(int N, real_t_device ALPHA, real_t_device *X, int INCX) {
+__global__ void supp_kernel(int N, real_t ALPHA, real_t_device *X, int INCX) {
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < N) {
 		if ((X[i * INCX] * X[i * INCX]) < (ALPHA * ALPHA))
@@ -475,7 +475,7 @@ __global__ void supp_kernel(int N, real_t_device ALPHA, real_t_device *X, int IN
 	}
 }
 
-__global__ void add_kernel(int N, real_t_device ALPHA, real_t_device *X, int INCX) {
+__global__ void add_kernel(int N, real_t ALPHA, real_t_device *X, int INCX) {
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < N)
 		X[i * INCX] += ALPHA;
@@ -640,18 +640,18 @@ void variance_gpu(real_t_device *x, real_t_device *mean, int batch, int filters,
 }
 
 //extern "C"
-void axpy_gpu(int N, real_t_device ALPHA, real_t_device * X, int INCX, real_t_device * Y, int INCY) {
+void axpy_gpu(int N, real_t ALPHA, real_t_device * X, int INCX, real_t_device * Y, int INCY) {
 	axpy_gpu_offset(N, ALPHA, X, 0, INCX, Y, 0, INCY);
 }
 
 //extern "C"
-void pow_gpu(int N, real_t_device ALPHA, real_t_device * X, int INCX, real_t_device * Y, int INCY) {
+void pow_gpu(int N, real_t ALPHA, real_t_device * X, int INCX, real_t_device * Y, int INCY) {
 	pow_kernel<<<cuda_gridsize(N), BLOCK>>>(N, ALPHA, X, INCX, Y, INCY);
 	check_error(cudaPeekAtLastError());
 }
 
 //extern "C"
-void axpy_gpu_offset(int N, real_t_device ALPHA, real_t_device * X, int OFFX, int INCX,
+void axpy_gpu_offset(int N, real_t ALPHA, real_t_device * X, int OFFX, int INCX,
 		real_t_device * Y, int OFFY, int INCY) {
 	axpy_kernel<<<cuda_gridsize(N), BLOCK>>>(N, ALPHA, X, OFFX, INCX, Y, OFFY,
 			INCY);
@@ -714,47 +714,47 @@ void reorg_gpu(real_t_device *x, int w, int h, int c, int batch, int stride,
 	check_error(cudaPeekAtLastError());
 }
 
-__global__ void mask_kernel(int n, real_t_device *x, real_t_device mask_num, real_t_device *mask,
-		real_t_device val) {
+__global__ void mask_kernel(int n, real_t_device *x, real_t mask_num, real_t_device *mask,
+		real_t val) {
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < n && mask[i] == mask_num)
 		x[i] = val;
 }
 
 //extern "C"
-void mask_gpu(int N, real_t_device * X, real_t_device mask_num, real_t_device * mask, real_t_device val) {
+void mask_gpu(int N, real_t_device * X, real_t mask_num, real_t_device * mask, real_t val) {
 	mask_kernel<<<cuda_gridsize(N), BLOCK>>>(N, X, mask_num, mask, val);
 	check_error(cudaPeekAtLastError());
 }
 
-__global__ void scale_mask_kernel(int n, real_t_device *x, real_t_device mask_num,
-		real_t_device *mask, real_t_device scale) {
+__global__ void scale_mask_kernel(int n, real_t_device *x, real_t mask_num,
+		real_t_device *mask, real_t scale) {
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < n && mask[i] == mask_num)
 		x[i] *= scale;
 }
 
 //extern "C"
-void scale_mask_gpu(int N, real_t_device * X, real_t_device mask_num, real_t_device * mask,
-		real_t_device scale) {
+void scale_mask_gpu(int N, real_t_device * X, real_t mask_num, real_t_device * mask,
+		real_t scale) {
 	scale_mask_kernel<<<cuda_gridsize(N), BLOCK>>>(N, X, mask_num, mask, scale);
 	check_error(cudaPeekAtLastError());
 }
 
 //extern "C"
-void const_gpu(int N, real_t_device ALPHA, real_t_device * X, int INCX) {
+void const_gpu(int N, real_t ALPHA, real_t_device * X, int INCX) {
 	const_kernel<<<cuda_gridsize(N), BLOCK>>>(N, ALPHA, X, INCX);
 	check_error(cudaPeekAtLastError());
 }
 
 //extern "C"
-void constrain_gpu(int N, real_t_device ALPHA, real_t_device * X, int INCX) {
+void constrain_gpu(int N, real_t ALPHA, real_t_device * X, int INCX) {
 	constrain_kernel<<<cuda_gridsize(N), BLOCK>>>(N, ALPHA, X, INCX);
 	check_error(cudaPeekAtLastError());
 }
 
 //extern "C"
-void add_gpu(int N, real_t_device ALPHA, real_t_device * X, int INCX) {
+void add_gpu(int N, real_t ALPHA, real_t_device * X, int INCX) {
 	add_kernel<<<cuda_gridsize(N), BLOCK>>>(N, ALPHA, X, INCX);
 	check_error(cudaPeekAtLastError());
 }
@@ -766,7 +766,7 @@ void scal_gpu(int N, real_t ALPHA, real_t_device * X, int INCX) {
 }
 
 //extern "C"
-void supp_gpu(int N, real_t_device ALPHA, real_t_device * X, int INCX) {
+void supp_gpu(int N, real_t ALPHA, real_t_device * X, int INCX) {
 	supp_kernel<<<cuda_gridsize(N), BLOCK>>>(N, ALPHA, X, INCX);
 	check_error(cudaPeekAtLastError());
 }
@@ -785,7 +785,7 @@ void fill_gpu(int N, real_t ALPHA, real_t_device * X, int INCX) {
 
 __global__ void shortcut_kernel(int size, int minw, int minh, int minc,
 		int stride, int sample, int batch, int w1, int h1, int c1, real_t_device *add,
-		int w2, int h2, int c2, real_t_device s1, real_t_device s2, real_t_device *out) {
+		int w2, int h2, int c2, real_t s1, real_t s2, real_t_device *out) {
 	int id = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (id >= size)
 		return;
@@ -805,7 +805,7 @@ __global__ void shortcut_kernel(int size, int minw, int minh, int minc,
 
 //extern "C"
 void shortcut_gpu(int batch, int w1, int h1, int c1, real_t_device *add, int w2,
-		int h2, int c2, real_t_device s1, real_t_device s2, real_t_device *out) {
+		int h2, int c2, real_t s1, real_t s2, real_t_device *out) {
 	int minw = (w1 < w2) ? w1 : w2;
 	int minh = (h1 < h2) ? h1 : h2;
 	int minc = (c1 < c2) ? c1 : c2;
@@ -1044,7 +1044,7 @@ __device__ void softmax_device(real_t_device *input, int n, real_t_device temp, 
 }
 
 __global__ void softmax_tree_kernel(real_t_device *input, int spatial, int batch,
-		int stride, real_t_device temp, real_t_device *output, int groups, int *group_size,
+		int stride, real_t temp, real_t_device *output, int groups, int *group_size,
 		int *group_offset) {
 	int id = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (id >= spatial * batch * groups)
@@ -1061,7 +1061,7 @@ __global__ void softmax_tree_kernel(real_t_device *input, int spatial, int batch
 
 //extern "C"
 void softmax_tree(real_t_device *input, int spatial, int batch, int stride,
-		real_t_device temp, real_t_device *output, tree hier) {
+		real_t temp, real_t_device *output, tree hier) {
 	int *tree_groups_size = cuda_make_int_array(hier.group_size, hier.groups);
 	int *tree_groups_offset = cuda_make_int_array(hier.group_offset,
 			hier.groups);
@@ -1083,7 +1083,7 @@ void softmax_tree(real_t_device *input, int spatial, int batch, int stride,
 }
 
 __global__ void softmax_kernel(real_t_device *input, int n, int batch,
-		int batch_offset, int groups, int group_offset, int stride, real_t_device temp,
+		int batch_offset, int groups, int group_offset, int stride, real_t temp,
 		real_t_device *output) {
 	int id = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (id >= batch * groups)
@@ -1096,14 +1096,14 @@ __global__ void softmax_kernel(real_t_device *input, int n, int batch,
 
 //extern "C"
 void softmax_gpu(real_t_device *input, int n, int batch, int batch_offset, int groups,
-		int group_offset, int stride, real_t_device temp, real_t_device *output) {
+		int group_offset, int stride, real_t temp, real_t_device *output) {
 	softmax_kernel<<<cuda_gridsize(batch * groups), BLOCK>>>(input, n, batch,
 			batch_offset, groups, group_offset, stride, temp, output);
 	check_error(cudaPeekAtLastError());
 }
 
 __global__ void upsample_kernel(size_t N, real_t_device *x, int w, int h, int c,
-		int batch, int stride, int forward, real_t_device scale, real_t_device *out) {
+		int batch, int stride, int forward, real_t scale, real_t_device *out) {
 	size_t i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i >= N)
 		return;
@@ -1129,7 +1129,7 @@ __global__ void upsample_kernel(size_t N, real_t_device *x, int w, int h, int c,
 }
 //extern "C"
 void upsample_gpu(real_t_device *in, int w, int h, int c, int batch, int stride,
-		int forward, real_t_device scale, real_t_device *out) {
+		int forward, real_t scale, real_t_device *out) {
 	size_t size = w * h * c * batch * stride * stride;
 	upsample_kernel<<<cuda_gridsize(size), BLOCK>>>(size, in, w, h, c, batch,
 			stride, forward, scale, out);

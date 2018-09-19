@@ -43,9 +43,9 @@ layer make_connected_layer(int batch, int inputs, int outputs,
 	l.update = update_connected_layer;
 
 	//real_t scale = 1./sqrt(inputs);
-	real_t scale = sqrt(2. / inputs);
+	real_t scale = real_t(sqrt(2. / inputs));
 	for (i = 0; i < outputs * inputs; ++i) {
-		l.weights[i] = scale * rand_uniform(-1, 1);
+		l.weights[i] = scale * rand_uniform(real_t(-1), real_t(1));
 	}
 
 	for (i = 0; i < outputs; ++i) {
@@ -135,31 +135,31 @@ void update_connected_layer(layer l, update_args a) {
 	real_t momentum = a.momentum;
 	real_t decay = a.decay;
 	int batch = a.batch;
-	axpy_cpu(l.outputs, learning_rate / batch, l.bias_updates, 1, l.biases, 1);
+	axpy_cpu(l.outputs, real_t(learning_rate / batch), l.bias_updates, 1, l.biases, 1);
 	scal_cpu(l.outputs, momentum, l.bias_updates, 1);
 
 	if (l.batch_normalize) {
-		axpy_cpu(l.outputs, learning_rate / batch, l.scale_updates, 1, l.scales,
+		axpy_cpu(l.outputs, real_t(learning_rate / batch), l.scale_updates, 1, l.scales,
 				1);
 		scal_cpu(l.outputs, momentum, l.scale_updates, 1);
 	}
 
-	axpy_cpu(l.inputs * l.outputs, -decay * batch, l.weights, 1,
+	axpy_cpu(l.inputs * l.outputs, real_t(-decay * batch), l.weights, 1,
 			l.weight_updates, 1);
-	axpy_cpu(l.inputs * l.outputs, learning_rate / batch, l.weight_updates, 1,
+	axpy_cpu(l.inputs * l.outputs, real_t(learning_rate / batch), l.weight_updates, 1,
 			l.weights, 1);
 	scal_cpu(l.inputs * l.outputs, momentum, l.weight_updates, 1);
 }
 
 void forward_connected_layer(layer l, network net) {
-	fill_cpu(l.outputs * l.batch, 0, l.output, 1);
+	fill_cpu(l.outputs * l.batch, real_t(0), l.output, 1);
 	int m = l.batch;
 	int k = l.inputs;
 	int n = l.outputs;
 	real_t *a = net.input;
 	real_t *b = l.weights;
 	real_t *c = l.output;
-	gemm(0, 1, m, n, k, 1, a, k, b, k, 1, c, n);
+	gemm(0, 1, m, n, k, real_t(1), a, k, b, k, real_t(1), c, n);
 	if (l.batch_normalize) {
 		forward_batchnorm_layer(l, net);
 	} else {
@@ -183,7 +183,7 @@ void backward_connected_layer(layer l, network net) {
 	real_t *a = l.delta;
 	real_t *b = net.input;
 	real_t *c = l.weight_updates;
-	gemm(1, 0, m, n, k, 1, a, m, b, n, 1, c, n);
+	gemm(1, 0, m, n, k, real_t(1), a, m, b, n, real_t(1), c, n);
 
 	m = l.batch;
 	k = l.outputs;
@@ -194,13 +194,13 @@ void backward_connected_layer(layer l, network net) {
 	c = net.delta;
 
 	if (c)
-		gemm(0, 0, m, n, k, 1, a, k, b, n, 1, c, n);
+		gemm(0, 0, m, n, k, real_t(1), a, k, b, n, real_t(1), c, n);
 }
 
 void denormalize_connected_layer(layer l) {
 	int i, j;
 	for (i = 0; i < l.outputs; ++i) {
-		real_t scale = l.scales[i] / sqrt(l.rolling_variance[i] + .000001);
+		real_t scale = real_t(l.scales[i] / sqrt(l.rolling_variance[i] + .000001));
 		for (j = 0; j < l.inputs; ++j) {
 			l.weights[i * l.inputs + j] *= scale;
 		}
@@ -274,34 +274,34 @@ void update_connected_layer_gpu(layer l, update_args a) {
 					l.outputs, batch, a.t);
 		}
 	} else {
-		axpy_gpu(l.outputs, learning_rate / batch, l.bias_updates_gpu, 1,
+		axpy_gpu(l.outputs, real_t(learning_rate / batch), l.bias_updates_gpu, 1,
 				l.biases_gpu, 1);
 		scal_gpu(l.outputs, momentum, l.bias_updates_gpu, 1);
 
 		if (l.batch_normalize) {
-			axpy_gpu(l.outputs, learning_rate / batch, l.scale_updates_gpu, 1,
+			axpy_gpu(l.outputs, real_t(learning_rate / batch), l.scale_updates_gpu, 1,
 					l.scales_gpu, 1);
 			scal_gpu(l.outputs, momentum, l.scale_updates_gpu, 1);
 		}
 
-		axpy_gpu(l.inputs * l.outputs, -decay * batch, l.weights_gpu, 1,
+		axpy_gpu(l.inputs * l.outputs, real_t(-decay * batch), l.weights_gpu, 1,
 				l.weight_updates_gpu, 1);
-		axpy_gpu(l.inputs * l.outputs, learning_rate / batch,
+		axpy_gpu(l.inputs * l.outputs, real_t(learning_rate / batch),
 				l.weight_updates_gpu, 1, l.weights_gpu, 1);
 		scal_gpu(l.inputs * l.outputs, momentum, l.weight_updates_gpu, 1);
 	}
 }
 
 void forward_connected_layer_gpu(layer l, network net) {
-	fill_gpu(l.outputs * l.batch, 0, l.output_gpu, 1);
+	fill_gpu(l.outputs * l.batch, real_t(0), l.output_gpu, 1);
 
 	int m = l.batch;
 	int k = l.inputs;
 	int n = l.outputs;
-	real_t * a = net.input_gpu;
-	real_t * b = l.weights_gpu;
-	real_t * c = l.output_gpu;
-	gemm_gpu(0, 1, m, n, k, 1, a, k, b, k, 1, c, n);
+	real_t_device * a = net.input_gpu;
+	real_t_device * b = l.weights_gpu;
+	real_t_device * c = l.output_gpu;
+	gemm_gpu(0, 1, m, n, k, real_t(1), a, k, b, k, real_t(1), c, n);
 
 	if (l.batch_normalize) {
 		forward_batchnorm_layer_gpu(l, net);
@@ -312,7 +312,7 @@ void forward_connected_layer_gpu(layer l, network net) {
 }
 
 void backward_connected_layer_gpu(layer l, network net) {
-	constrain_gpu(l.outputs * l.batch, 1, l.delta_gpu, 1);
+	constrain_gpu(l.outputs * l.batch, real_t(1), l.delta_gpu, 1);
 	gradient_array_gpu(l.output_gpu, l.outputs * l.batch, l.activation,
 			l.delta_gpu);
 	if (l.batch_normalize) {
@@ -325,10 +325,10 @@ void backward_connected_layer_gpu(layer l, network net) {
 	int m = l.outputs;
 	int k = l.batch;
 	int n = l.inputs;
-	real_t * a = l.delta_gpu;
-	real_t * b = net.input_gpu;
-	real_t * c = l.weight_updates_gpu;
-	gemm_gpu(1, 0, m, n, k, 1, a, m, b, n, 1, c, n);
+	real_t_device * a = l.delta_gpu;
+	real_t_device * b = net.input_gpu;
+	real_t_device * c = l.weight_updates_gpu;
+	gemm_gpu(1, 0, m, n, k, real_t(1), a, m, b, n, real_t(1), c, n);
 
 	m = l.batch;
 	k = l.outputs;
@@ -339,6 +339,6 @@ void backward_connected_layer_gpu(layer l, network net) {
 	c = net.delta_gpu;
 
 	if (c)
-		gemm_gpu(0, 0, m, n, k, 1, a, k, b, n, 1, c, n);
+		gemm_gpu(0, 0, m, n, k, real_t(1), a, k, b, n, real_t(1), c, n);
 }
 #endif

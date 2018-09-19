@@ -30,7 +30,7 @@ real_t matrix_topk_accuracy(matrix truth, matrix guess, int k) {
 		}
 	}
 	free(indexes);
-	return (real_t) correct / truth.rows;
+	return real_t(correct / truth.rows);
 }
 
 void scale_matrix(matrix m, real_t scale) {

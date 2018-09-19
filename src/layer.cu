@@ -96,7 +96,7 @@ void free_layer(layer l) {
 
 #ifdef GPU
 	if (l.indexes_gpu)
-		cuda_free((real_t *) l.indexes_gpu);
+		cuda_free((real_t_device *) l.indexes_gpu);
 
 	if (l.z_gpu)
 		cuda_free(l.z_gpu);

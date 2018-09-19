@@ -46,7 +46,7 @@ void forward_logistic_layer(const layer l, network net) {
 }
 
 void backward_logistic_layer(const layer l, network net) {
-	axpy_cpu(l.inputs * l.batch, 1, l.delta, 1, net.delta, 1);
+	axpy_cpu(l.inputs * l.batch, real_t(1), l.delta, 1, net.delta, 1);
 }
 
 #ifdef GPU
@@ -63,7 +63,7 @@ void forward_logistic_layer_gpu(const layer l, network net) {
 }
 
 void backward_logistic_layer_gpu(const layer l, network net) {
-	axpy_gpu(l.batch * l.inputs, 1, l.delta_gpu, 1, net.delta_gpu, 1);
+	axpy_gpu(l.batch * l.inputs, real_t(1), l.delta_gpu, 1, net.delta_gpu, 1);
 }
 
 #endif

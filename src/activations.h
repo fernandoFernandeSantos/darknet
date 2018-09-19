@@ -14,8 +14,8 @@ void gradient_array(const real_t *x, const int n, const ACTIVATION a,
 		real_t *delta);
 void activate_array(real_t *x, const int n, const ACTIVATION a);
 #ifdef GPU
-void activate_array_gpu(real_t *x, int n, ACTIVATION a);
-void gradient_array_gpu(real_t *x, int n, ACTIVATION a, real_t *delta);
+void activate_array_gpu(real_t_device *x, int n, ACTIVATION a);
+void gradient_array_gpu(real_t_device *x, int n, ACTIVATION a, real_t_device *delta);
 #endif
 
 static inline real_t stair_activate(real_t x) {

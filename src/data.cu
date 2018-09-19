@@ -201,18 +201,18 @@ void correct_boxes(box_label *boxes, int n, real_t dx, real_t dy, real_t sx,
 			boxes[i].right = 1. - swap;
 		}
 
-		boxes[i].left = constrain(0, 1, boxes[i].left);
-		boxes[i].right = constrain(0, 1, boxes[i].right);
-		boxes[i].top = constrain(0, 1, boxes[i].top);
-		boxes[i].bottom = constrain(0, 1, boxes[i].bottom);
+		boxes[i].left = constrain(real_t(0), real_t(1), boxes[i].left);
+		boxes[i].right = constrain(real_t(0), real_t(1), boxes[i].right);
+		boxes[i].top = constrain(real_t(0), real_t(1), boxes[i].top);
+		boxes[i].bottom = constrain(real_t(0), real_t(1), boxes[i].bottom);
 
 		boxes[i].x = (boxes[i].left + boxes[i].right) / 2;
 		boxes[i].y = (boxes[i].top + boxes[i].bottom) / 2;
 		boxes[i].w = (boxes[i].right - boxes[i].left);
 		boxes[i].h = (boxes[i].bottom - boxes[i].top);
 
-		boxes[i].w = constrain(0, 1, boxes[i].w);
-		boxes[i].h = constrain(0, 1, boxes[i].h);
+		boxes[i].w = constrain(real_t(0), real_t(1), boxes[i].w);
+		boxes[i].h = constrain(real_t(0), real_t(1), boxes[i].h);
 	}
 }
 
@@ -360,7 +360,7 @@ box bound_image(image im) {
 			}
 		}
 	}
-	box b = { minx, miny, maxx - minx + 1, maxy - miny + 1 };
+	box b = { real_t(minx), real_t(miny), real_t(maxx - minx + 1), real_t(maxy - miny + 1) };
 	//printf("%f %f %f %f\n", b.x, b.y, b.w, b.h);
 	return b;
 }
@@ -778,8 +778,8 @@ data load_data_seg(int n, char **paths, int m, int w, int h, int classes,
 		image mask = get_segmentation_image(random_paths[i], orig.w, orig.h,
 				classes);
 		//image mask = make_image(orig.w, orig.h, classes+1);
-		image sized_m = rotate_crop_image(mask, a.rad, a.scale / div, a.w / div,
-				a.h / div, a.dx / div, a.dy / div, a.aspect);
+		image sized_m = rotate_crop_image(mask, a.rad, real_t(a.scale / div), real_t(a.w / div),
+				a.h / div, real_t(a.dx / div), real_t(a.dy / div), a.aspect);
 
 		if (flip)
 			flip_image(sized_m);
@@ -913,22 +913,22 @@ data load_data_region(int n, char **paths, int m, int w, int h, int size,
 		int dw = (ow * jitter);
 		int dh = (oh * jitter);
 
-		int pleft = rand_uniform(-dw, dw);
-		int pright = rand_uniform(-dw, dw);
-		int ptop = rand_uniform(-dh, dh);
-		int pbot = rand_uniform(-dh, dh);
+		int pleft = rand_uniform(real_t(-dw), real_t(dw));
+		int pright = rand_uniform(real_t(-dw), real_t(dw));
+		int ptop = rand_uniform(real_t(-dh), real_t(dh));
+		int pbot = rand_uniform(real_t(-dh), real_t(dh));
 
 		int swidth = ow - pleft - pright;
 		int sheight = oh - ptop - pbot;
 
-		real_t sx = (real_t) swidth / ow;
-		real_t sy = (real_t) sheight / oh;
+		real_t sx = real_t(swidth / ow);
+		real_t sy = real_t(sheight / oh);
 
 		int flip = rand() % 2;
 		image cropped = crop_image(orig, pleft, ptop, swidth, sheight);
 
-		real_t dx = ((real_t) pleft / ow) / sx;
-		real_t dy = ((real_t) ptop / oh) / sy;
+		real_t dx = real_t((pleft / ow) / sx);
+		real_t dy = real_t((ptop / oh) / sy);
 
 		image sized = resize_image(cropped, w, h);
 		if (flip)
@@ -937,7 +937,7 @@ data load_data_region(int n, char **paths, int m, int w, int h, int size,
 		d.X.vals[i] = sized.data;
 
 		fill_truth_region(random_paths[i], d.y.vals[i], classes, size, flip, dx,
-				dy, 1. / sx, 1. / sy);
+				dy, real_t(1. / sx), real_t(1. / sy));
 
 		free_image(orig);
 		free_image(cropped);
@@ -1040,30 +1040,30 @@ data load_data_swag(char **paths, int n, int classes, real_t jitter) {
 	int dw = w * jitter;
 	int dh = h * jitter;
 
-	int pleft = rand_uniform(-dw, dw);
-	int pright = rand_uniform(-dw, dw);
-	int ptop = rand_uniform(-dh, dh);
-	int pbot = rand_uniform(-dh, dh);
+	int pleft = rand_uniform(real_t(-dw), real_t(dw));
+	int pright = rand_uniform(real_t(-dw), real_t(dw));
+	int ptop = rand_uniform(real_t(-dh), real_t(dh));
+	int pbot = rand_uniform(real_t(-dh), real_t(dh));
 
 	int swidth = w - pleft - pright;
 	int sheight = h - ptop - pbot;
 
-	real_t sx = (real_t) swidth / w;
-	real_t sy = (real_t) sheight / h;
+	real_t sx = real_t(swidth / w);
+	real_t sy = real_t(sheight / h);
 
 	int flip = rand() % 2;
 	image cropped = crop_image(orig, pleft, ptop, swidth, sheight);
 
-	real_t dx = ((real_t) pleft / w) / sx;
-	real_t dy = ((real_t) ptop / h) / sy;
+	real_t dx = real_t((pleft / w) / sx);
+	real_t dy = real_t((ptop / h) / sy);
 
 	image sized = resize_image(cropped, w, h);
 	if (flip)
 		flip_image(sized);
 	d.X.vals[0] = sized.data;
 
-	fill_truth_swag(random_path, d.y.vals[0], classes, flip, dx, dy, 1. / sx,
-			1. / sy);
+	fill_truth_swag(random_path, d.y.vals[0], classes, flip, dx, dy, real_t(1. / sx),
+			real_t(1. / sy));
 
 	free_image(orig);
 	free_image(cropped);
@@ -1087,15 +1087,15 @@ data load_data_detection(int n, char **paths, int m, int w, int h, int boxes,
 	for (i = 0; i < n; ++i) {
 		image orig = load_image_color(random_paths[i], 0, 0);
 		image sized = make_image(w, h, orig.c);
-		fill_image(sized, .5);
+		fill_image(sized, real_t(.5));
 
-		real_t dw = jitter * orig.w;
-		real_t dh = jitter * orig.h;
+		real_t dw = real_t(jitter * orig.w);
+		real_t dh = real_t(jitter * orig.h);
 
-		real_t new_ar = (orig.w + rand_uniform(-dw, dw))
-				/ (orig.h + rand_uniform(-dh, dh));
+		real_t new_ar = real_t((orig.w + rand_uniform(-dw, dw))
+				/ (orig.h + rand_uniform(-dh, dh)));
 		//real_t scale = rand_uniform(.25, 2);
-		real_t scale = 1;
+		real_t scale = real_t(1);
 
 		real_t nw, nh;
 
@@ -1107,8 +1107,8 @@ data load_data_detection(int n, char **paths, int m, int w, int h, int boxes,
 			nh = nw / new_ar;
 		}
 
-		real_t dx = rand_uniform(0, w - nw);
-		real_t dy = rand_uniform(0, h - nh);
+		real_t dx = rand_uniform(real_t(0), real_t(w - nw));
+		real_t dy = rand_uniform(real_t(0), real_t(h - nh));
 
 		place_image(orig, nw, nh, dx, dy, sized);
 
@@ -1120,7 +1120,7 @@ data load_data_detection(int n, char **paths, int m, int w, int h, int boxes,
 		d.X.vals[i] = sized.data;
 
 		fill_truth_detection(random_paths[i], boxes, d.y.vals[i], classes, flip,
-				-dx / w, -dy / h, nw / w, nh / h);
+				real_t(-dx / w), real_t(-dy / h), real_t(nw / w), real_t(nh / h));
 
 		free_image(orig);
 	}
@@ -1507,7 +1507,7 @@ data load_cifar10_data(char *filename) {
 			X.vals[i][j] = (double) bytes[j + 1];
 		}
 	}
-	scale_data_rows(d, 1. / 255);
+	scale_data_rows(d, real_t(1. / 255));
 	//normalize_data_rows(d);
 	fclose(fp);
 	return d;
@@ -1535,8 +1535,8 @@ void get_next_batch(data d, int n, int offset, real_t *X, real_t *y) {
 
 void smooth_data(data d) {
 	int i, j;
-	real_t scale = 1. / d.y.cols;
-	real_t eps = .1;
+	real_t scale = real_t(1. / d.y.cols);
+	real_t eps = real_t(.1);
 	for (i = 0; i < d.y.rows; ++i) {
 		for (j = 0; j < d.y.cols; ++j) {
 			d.y.vals[i][j] = eps * scale + (1 - eps) * d.y.vals[i][j];
@@ -1572,7 +1572,7 @@ data load_all_cifar10() {
 		fclose(fp);
 	}
 	//normalize_data_rows(d);
-	scale_data_rows(d, 1. / 255);
+	scale_data_rows(d, real_t(1. / 255));
 	smooth_data(d);
 	return d;
 }
@@ -1600,7 +1600,7 @@ data load_go(char *filename) {
 		y.vals[count][index] = 1;
 
 		for (i = 0; i < 19 * 19; ++i) {
-			real_t val = 0;
+			real_t val = real_t(0);
 			if (board[i] == '1')
 				val = 1;
 			else if (board[i] == '2')

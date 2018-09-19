@@ -126,14 +126,14 @@ int option_find_int_quiet(list *l, char *key, int def) {
 real_t option_find_real_t_quiet(list *l, char *key, real_t def) {
 	char *v = option_find(l, key);
 	if (v)
-		return atof(v);
+		return real_t(atof(v));
 	return def;
 }
 
 real_t option_find_real_t(list *l, char *key, real_t def) {
 	char *v = option_find(l, key);
 	if (v)
-		return atof(v);
+		return real_t(atof(v));
 	fprintf(stderr, "%s: Using default '%lf'\n", key, def);
 	return def;
 }

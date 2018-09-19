@@ -138,16 +138,16 @@ void forward_gru_layer(layer l, network net) {
 	layer wr = *(l.wr);
 	layer wh = *(l.wh);
 
-	fill_cpu(l.outputs * l.batch * l.steps, 0, uz.delta, 1);
-	fill_cpu(l.outputs * l.batch * l.steps, 0, ur.delta, 1);
-	fill_cpu(l.outputs * l.batch * l.steps, 0, uh.delta, 1);
+	fill_cpu(l.outputs * l.batch * l.steps, real_t(0), uz.delta, 1);
+	fill_cpu(l.outputs * l.batch * l.steps, real_t(0), ur.delta, 1);
+	fill_cpu(l.outputs * l.batch * l.steps, real_t(0), uh.delta, 1);
 
-	fill_cpu(l.outputs * l.batch * l.steps, 0, wz.delta, 1);
-	fill_cpu(l.outputs * l.batch * l.steps, 0, wr.delta, 1);
-	fill_cpu(l.outputs * l.batch * l.steps, 0, wh.delta, 1);
+	fill_cpu(l.outputs * l.batch * l.steps, real_t(0), wz.delta, 1);
+	fill_cpu(l.outputs * l.batch * l.steps, real_t(0), wr.delta, 1);
+	fill_cpu(l.outputs * l.batch * l.steps, real_t(0), wh.delta, 1);
 	if (net.train) {
-		fill_cpu(l.outputs * l.batch * l.steps, 0, l.delta, 1);
-		copy_cpu(l.outputs * l.batch, l.state, 1, l.prev_state, 1);
+		fill_cpu(l.outputs * l.batch * l.steps, real_t(0), l.delta, 1);
+		copy_cpu(l.outputs * l.batch, l.state, real_t(1), l.prev_state, 1);
 	}
 
 	for (i = 0; i < l.steps; ++i) {
@@ -161,10 +161,10 @@ void forward_gru_layer(layer l, network net) {
 		forward_connected_layer(uh, s);
 
 		copy_cpu(l.outputs * l.batch, uz.output, 1, l.z_cpu, 1);
-		axpy_cpu(l.outputs * l.batch, 1, wz.output, 1, l.z_cpu, 1);
+		axpy_cpu(l.outputs * l.batch, real_t(1), wz.output, 1, l.z_cpu, 1);
 
 		copy_cpu(l.outputs * l.batch, ur.output, 1, l.r_cpu, 1);
-		axpy_cpu(l.outputs * l.batch, 1, wr.output, 1, l.r_cpu, 1);
+		axpy_cpu(l.outputs * l.batch, real_t(1), wr.output, 1, l.r_cpu, 1);
 
 		activate_array(l.z_cpu, l.outputs * l.batch, LOGISTIC);
 		activate_array(l.r_cpu, l.outputs * l.batch, LOGISTIC);
@@ -176,7 +176,7 @@ void forward_gru_layer(layer l, network net) {
 		forward_connected_layer(wh, s);
 
 		copy_cpu(l.outputs * l.batch, uh.output, 1, l.h_cpu, 1);
-		axpy_cpu(l.outputs * l.batch, 1, wh.output, 1, l.h_cpu, 1);
+		axpy_cpu(l.outputs * l.batch, real_t(1), wh.output, 1, l.h_cpu, 1);
 
 		if (l.tanh) {
 			activate_array(l.h_cpu, l.outputs * l.batch, TANH);
@@ -233,15 +233,15 @@ void forward_gru_layer_gpu(layer l, network net) {
 	layer wr = *(l.wr);
 	layer wh = *(l.wh);
 
-	fill_gpu(l.outputs * l.batch * l.steps, 0, uz.delta_gpu, 1);
-	fill_gpu(l.outputs * l.batch * l.steps, 0, ur.delta_gpu, 1);
-	fill_gpu(l.outputs * l.batch * l.steps, 0, uh.delta_gpu, 1);
+	fill_gpu(l.outputs * l.batch * l.steps, real_t(0), uz.delta_gpu, 1);
+	fill_gpu(l.outputs * l.batch * l.steps, real_t(0), ur.delta_gpu, 1);
+	fill_gpu(l.outputs * l.batch * l.steps, real_t(0), uh.delta_gpu, 1);
 
-	fill_gpu(l.outputs * l.batch * l.steps, 0, wz.delta_gpu, 1);
-	fill_gpu(l.outputs * l.batch * l.steps, 0, wr.delta_gpu, 1);
-	fill_gpu(l.outputs * l.batch * l.steps, 0, wh.delta_gpu, 1);
+	fill_gpu(l.outputs * l.batch * l.steps, real_t(0), wz.delta_gpu, 1);
+	fill_gpu(l.outputs * l.batch * l.steps, real_t(0), wr.delta_gpu, 1);
+	fill_gpu(l.outputs * l.batch * l.steps, real_t(0), wh.delta_gpu, 1);
 	if (net.train) {
-		fill_gpu(l.outputs * l.batch * l.steps, 0, l.delta_gpu, 1);
+		fill_gpu(l.outputs * l.batch * l.steps, real_t(0), l.delta_gpu, 1);
 		copy_gpu(l.outputs * l.batch, l.state_gpu, 1, l.prev_state_gpu, 1);
 	}
 
@@ -256,10 +256,10 @@ void forward_gru_layer_gpu(layer l, network net) {
 		forward_connected_layer_gpu(uh, s);
 
 		copy_gpu(l.outputs * l.batch, uz.output_gpu, 1, l.z_gpu, 1);
-		axpy_gpu(l.outputs * l.batch, 1, wz.output_gpu, 1, l.z_gpu, 1);
+		axpy_gpu(l.outputs * l.batch, real_t(1), wz.output_gpu, 1, l.z_gpu, 1);
 
 		copy_gpu(l.outputs * l.batch, ur.output_gpu, 1, l.r_gpu, 1);
-		axpy_gpu(l.outputs * l.batch, 1, wr.output_gpu, 1, l.r_gpu, 1);
+		axpy_gpu(l.outputs * l.batch, real_t(1), wr.output_gpu, 1, l.r_gpu, 1);
 
 		activate_array_gpu(l.z_gpu, l.outputs * l.batch, LOGISTIC);
 		activate_array_gpu(l.r_gpu, l.outputs * l.batch, LOGISTIC);
@@ -271,7 +271,7 @@ void forward_gru_layer_gpu(layer l, network net) {
 		forward_connected_layer_gpu(wh, s);
 
 		copy_gpu(l.outputs * l.batch, uh.output_gpu, 1, l.h_gpu, 1);
-		axpy_gpu(l.outputs * l.batch, 1, wh.output_gpu, 1, l.h_gpu, 1);
+		axpy_gpu(l.outputs * l.batch, real_t(1), wh.output_gpu, 1, l.h_gpu, 1);
 
 		if (l.tanh) {
 			activate_array_gpu(l.h_gpu, l.outputs * l.batch, TANH);
@@ -320,27 +320,27 @@ void backward_gru_layer_gpu(layer l, network net) {
 		net.delta_gpu += l.inputs * l.batch * (l.steps - 1);
 	l.output_gpu += l.outputs * l.batch * (l.steps - 1);
 	l.delta_gpu += l.outputs * l.batch * (l.steps - 1);
-	real_t *end_state = l.output_gpu;
+	real_t_device *end_state = l.output_gpu;
 	for (i = l.steps - 1; i >= 0; --i) {
 		if (i != 0)
 			copy_gpu(l.outputs * l.batch, l.output_gpu - l.outputs * l.batch, 1,
 					l.state_gpu, 1);
 		else
 			copy_gpu(l.outputs * l.batch, l.prev_state_gpu, 1, l.state_gpu, 1);
-		real_t *prev_delta_gpu =
+		real_t_device *prev_delta_gpu =
 				(i == 0) ? 0 : l.delta_gpu - l.outputs * l.batch;
 
 		copy_gpu(l.outputs * l.batch, uz.output_gpu, 1, l.z_gpu, 1);
-		axpy_gpu(l.outputs * l.batch, 1, wz.output_gpu, 1, l.z_gpu, 1);
+		axpy_gpu(l.outputs * l.batch, real_t(1), wz.output_gpu, 1, l.z_gpu, 1);
 
 		copy_gpu(l.outputs * l.batch, ur.output_gpu, 1, l.r_gpu, 1);
-		axpy_gpu(l.outputs * l.batch, 1, wr.output_gpu, 1, l.r_gpu, 1);
+		axpy_gpu(l.outputs * l.batch, real_t(1), wr.output_gpu, 1, l.r_gpu, 1);
 
 		activate_array_gpu(l.z_gpu, l.outputs * l.batch, LOGISTIC);
 		activate_array_gpu(l.r_gpu, l.outputs * l.batch, LOGISTIC);
 
 		copy_gpu(l.outputs * l.batch, uh.output_gpu, 1, l.h_gpu, 1);
-		axpy_gpu(l.outputs * l.batch, 1, wh.output_gpu, 1, l.h_gpu, 1);
+		axpy_gpu(l.outputs * l.batch, real_t(1), wh.output_gpu, 1, l.h_gpu, 1);
 
 		if (l.tanh) {
 			activate_array_gpu(l.h_gpu, l.outputs * l.batch, TANH);
@@ -363,7 +363,7 @@ void backward_gru_layer_gpu(layer l, network net) {
 
 		copy_gpu(l.outputs * l.batch, l.state_gpu, 1, l.forgot_state_gpu, 1);
 		mul_gpu(l.outputs * l.batch, l.r_gpu, 1, l.forgot_state_gpu, 1);
-		fill_gpu(l.outputs * l.batch, 0, l.forgot_delta_gpu, 1);
+		fill_gpu(l.outputs * l.batch, real_t(0), l.forgot_delta_gpu, 1);
 
 		s.input_gpu = l.forgot_state_gpu;
 		s.delta_gpu = l.forgot_delta_gpu;
