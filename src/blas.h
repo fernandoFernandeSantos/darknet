@@ -2,7 +2,6 @@
 #define BLAS_H
 #include "darknet.h"
 #include "type.h"
-#include "type.h"
 
 void flatten(real_t *x, int size, int layers, int batch, int forward);
 void pm(int M, int N, real_t *A);

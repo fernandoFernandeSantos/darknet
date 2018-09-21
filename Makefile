@@ -99,7 +99,7 @@ all: obj backup results  $(EXEC)
 #all: obj  results $(SLIB) $(ALIB) $(EXEC) $(ALIB) $(SLIB)
 
 # $(SLIB) #$(ALIB
-$(EXEC): $(EXECOBJ) $(OBJS) 
+$(EXEC): $(OBJS) $(EXECOBJ)  
 	$(NVCC) $(COMMON) --compiler-options "$(CFLAGS)" $^ -o $@ --compiler-options "$(LDFLAGS)" $(NVCCLDFLAGS)
 
 #$(ALIB): $(OBJS)

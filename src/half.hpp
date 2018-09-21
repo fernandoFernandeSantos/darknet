@@ -1479,7 +1479,7 @@ public:
 	/// \return single precision value representing expression value
 	operator float() const {return detail::half2float<float>(data_);}
 
-//	operator __half() const {return __half(detail::half2float<float>(data_)); }
+	operator __half() const {return __half(detail::half2float<float>(data_)); }
 
 	/// Assignment operator.
 	/// \tparam T type of concrete half expression
