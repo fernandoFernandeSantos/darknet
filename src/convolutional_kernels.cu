@@ -13,65 +13,65 @@
 #include "cuda.h"
 //}
 
-__global__ void binarize_kernel(real_t *x, int n, real_t *binary) {
+__global__ void binarize_kernel(real_t_device *x, int n, real_t_device *binary) {
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i >= n)
 		return;
-	binary[i] = (x[i] >= 0) ? 1 : -1;
+	binary[i] = (x[i] >= real_t_device(0)) ? real_t_device(1) : real_t_device(-1);
 }
 
-void binarize_gpu(real_t *x, int n, real_t *binary) {
+void binarize_gpu(real_t_device *x, int n, real_t_device *binary) {
 	binarize_kernel<<<cuda_gridsize(n), BLOCK>>>(x, n, binary);
 	check_error(cudaPeekAtLastError());
 }
 
-__global__ void binarize_input_kernel(real_t *input, int n, int size,
-		real_t *binary) {
+__global__ void binarize_input_kernel(real_t_device *input, int n, int size,
+		real_t_device *binary) {
 	int s = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (s >= size)
 		return;
 	int i = 0;
-	real_t mean = 0;
+	real_t_device mean = real_t_device(0);
 	for (i = 0; i < n; ++i) {
 		mean += fabsf(input[i * size + s]);
 	}
-	mean = mean / n;
+	mean = real_t_device(mean / real_t_device(n));
 	for (i = 0; i < n; ++i) {
-		binary[i * size + s] = (input[i * size + s] > 0) ? mean : -mean;
+		binary[i * size + s] = (input[i * size + s] > real_t_device(0)) ? mean : -mean;
 	}
 }
 
-void binarize_input_gpu(real_t *input, int n, int size, real_t *binary) {
+void binarize_input_gpu(real_t_device *input, int n, int size, real_t_device *binary) {
 	binarize_input_kernel<<<cuda_gridsize(size), BLOCK>>>(input, n, size,
 			binary);
 	check_error(cudaPeekAtLastError());
 }
 
-__global__ void binarize_weights_kernel(real_t *weights, int n, int size,
-		real_t *binary) {
+__global__ void binarize_weights_kernel(real_t_device *weights, int n, int size,
+		real_t_device *binary) {
 	int f = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (f >= n)
 		return;
 	int i = 0;
-	real_t mean = 0;
+	real_t_device mean = 0;
 	for (i = 0; i < size; ++i) {
 		mean += fabsf(weights[f * size + i]);
 	}
-	mean = mean / size;
+	mean = mean / real_t_device(size);
 	for (i = 0; i < size; ++i) {
-		binary[f * size + i] = (weights[f * size + i] > 0) ? mean : -mean;
+		binary[f * size + i] = (weights[f * size + i] > real_t_device(0)) ? mean : -mean;
 		//binary[f*size + i] = weights[f*size + i];
 	}
 }
 
-void binarize_weights_gpu(real_t *weights, int n, int size, real_t *binary) {
+void binarize_weights_gpu(real_t_device *weights, int n, int size, real_t_device *binary) {
 	binarize_weights_kernel<<<cuda_gridsize(n), BLOCK>>>(weights, n, size,
 			binary);
 	check_error(cudaPeekAtLastError());
 }
 
 void forward_convolutional_layer_gpu(convolutional_layer l, network net) {
-	fill_gpu(l.outputs * l.batch, 0, l.output_gpu, 1);
+	fill_gpu(l.outputs * l.batch, real_t(0), l.output_gpu, 1);
 	if (l.binary) {
 		binarize_weights_gpu(l.weights_gpu, l.n,
 				l.c / l.groups * l.size * l.size, l.binary_weights_gpu);
@@ -110,10 +110,10 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net) {
 	int n = l.out_w * l.out_h;
 	for (i = 0; i < l.batch; ++i) {
 		for (j = 0; j < l.groups; ++j) {
-			real_t *a = l.weights_gpu + j * l.nweights / l.groups;
-			real_t *b = net.workspace;
-			real_t *c = l.output_gpu + (i * l.groups + j) * n * m;
-			real_t *im = net.input_gpu
+			real_t_device *a = l.weights_gpu + j * l.nweights / l.groups;
+			real_t_device *b = net.workspace;
+			real_t_device *c = l.output_gpu + (i * l.groups + j) * n * m;
+			real_t_device *im = net.input_gpu
 					+ (i * l.groups + j) * l.c / l.groups * l.h * l.w;
 
 			if (l.size == 1) {
@@ -122,7 +122,7 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net) {
 				im2col_gpu(im, l.c / l.groups, l.h, l.w, l.size, l.stride,
 						l.pad, b);
 			}
-			gemm_gpu(0, 0, m, n, k, 1, a, k, b, n, 1, c, n);
+			gemm_gpu(0, 0, m, n, k, real_t(1), a, k, b, n, real_t(1), c, n);
 		}
 	}
 #endif
@@ -140,8 +140,8 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net) {
 		swap_binary(&l);
 }
 
-__global__ void smooth_kernel(real_t *x, int n, int w, int h, int c, int size,
-		real_t rate, real_t *delta) {
+__global__ void smooth_kernel(real_t_device *x, int n, int w, int h, int c, int size,
+		real_t_device rate, real_t_device *delta) {
 	int id = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (id >= n)
 		return;
@@ -165,7 +165,7 @@ __global__ void smooth_kernel(real_t *x, int n, int w, int h, int c, int size,
 			int cur_w = w_offset + j + m;
 			int index = cur_w + w * (cur_h + h * (k + b * c));
 			int valid = (cur_h >= 0 && cur_h < h && cur_w >= 0 && cur_w < w);
-			delta[out_index] += valid ? rate * (x[index] - x[out_index]) : 0;
+			delta[out_index] += valid ? real_t_device(rate) * (x[index] - x[out_index]) : real_t_device(0);
 		}
 	}
 }
@@ -177,9 +177,10 @@ void smooth_layer(layer l, int size, real_t rate) {
 	int c = l.out_c;
 
 	size_t n = h * w * c * l.batch;
+	real_t_device rate_half = real_t_device(float(rate));
 
 	smooth_kernel<<<cuda_gridsize(n), BLOCK>>>(l.output_gpu, n, l.w, l.h, l.c,
-			size, rate, l.delta_gpu);
+			size, rate_half, l.delta_gpu);
 	check_error(cudaPeekAtLastError());
 }
 
@@ -197,7 +198,7 @@ void backward_convolutional_layer_gpu(convolutional_layer l, network net) {
 		backward_bias_gpu(l.bias_updates_gpu, l.delta_gpu, l.batch, l.n,
 				l.out_w * l.out_h);
 	}
-	real_t *original_input = net.input_gpu;
+	real_t_device *original_input = net.input_gpu;
 
 	if (l.xnor)
 		net.input_gpu = l.binary_input_gpu;
@@ -244,18 +245,18 @@ void backward_convolutional_layer_gpu(convolutional_layer l, network net) {
 	int i, j;
 	for (i = 0; i < l.batch; ++i) {
 		for (j = 0; j < l.groups; ++j) {
-			real_t *a = l.delta_gpu + (i * l.groups + j) * m * k;
-			real_t *b = net.workspace;
-			real_t *c = l.weight_updates_gpu + j * l.nweights / l.groups;
+			real_t_device *a = l.delta_gpu + (i * l.groups + j) * m * k;
+			real_t_device *b = net.workspace;
+			real_t_device *c = l.weight_updates_gpu + j * l.nweights / l.groups;
 
-			real_t *im = net.input_gpu
+			real_t_device *im = net.input_gpu
 					+ (i * l.groups + j) * l.c / l.groups * l.h * l.w;
-			real_t *imd = net.delta_gpu
+			real_t_device *imd = net.delta_gpu
 					+ (i * l.groups + j) * l.c / l.groups * l.h * l.w;
 
 			im2col_gpu(im, l.c / l.groups, l.h, l.w, l.size, l.stride, l.pad,
 					b);
-			gemm_gpu(0, 1, m, n, k, 1, a, k, b, k, 1, c, n);
+			gemm_gpu(0, 1, m, n, k, real_t(1), a, k, b, k, real_t(1), c, n);
 
 			if (net.delta_gpu) {
 				if (l.binary || l.xnor)
@@ -267,7 +268,7 @@ void backward_convolutional_layer_gpu(convolutional_layer l, network net) {
 					c = imd;
 				}
 
-				gemm_gpu(1, 0, n, k, m, 1, a, n, b, k, 0, c, k);
+				gemm_gpu(1, 0, n, k, m, real_t(1), a, n, b, k, real_t(0), c, k);
 
 				if (l.size != 1) {
 					col2im_gpu(net.workspace, l.c / l.groups, l.h, l.w, l.size,
@@ -329,18 +330,18 @@ void update_convolutional_layer_gpu(layer l, update_args a) {
 					batch, a.t);
 		}
 	} else {
-		axpy_gpu(l.nweights, -decay * batch, l.weights_gpu, 1,
+		axpy_gpu(l.nweights, real_t(-decay * batch), l.weights_gpu, 1,
 				l.weight_updates_gpu, 1);
-		axpy_gpu(l.nweights, learning_rate / batch, l.weight_updates_gpu, 1,
+		axpy_gpu(l.nweights, real_t(learning_rate / batch), l.weight_updates_gpu, 1,
 				l.weights_gpu, 1);
 		scal_gpu(l.nweights, momentum, l.weight_updates_gpu, 1);
 
-		axpy_gpu(l.n, learning_rate / batch, l.bias_updates_gpu, 1,
+		axpy_gpu(l.n, real_t(learning_rate / batch), l.bias_updates_gpu, 1,
 				l.biases_gpu, 1);
 		scal_gpu(l.n, momentum, l.bias_updates_gpu, 1);
 
 		if (l.scales_gpu) {
-			axpy_gpu(l.n, learning_rate / batch, l.scale_updates_gpu, 1,
+			axpy_gpu(l.n, real_t(learning_rate / batch), l.scale_updates_gpu, 1,
 					l.scales_gpu, 1);
 			scal_gpu(l.n, momentum, l.scale_updates_gpu, 1);
 		}

@@ -93,7 +93,7 @@ endif
 
 EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
-DEPS = $(wildcard src/*.h) Makefile include/darknet.h
+DEPS = $(wildcard src/*.h) src/half.hpp Makefile include/darknet.h
 
 all: obj backup results  $(EXEC)
 #all: obj  results $(SLIB) $(ALIB) $(EXEC) $(ALIB) $(SLIB)

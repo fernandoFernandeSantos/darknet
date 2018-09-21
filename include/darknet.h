@@ -115,14 +115,14 @@ typedef enum {
 
 typedef struct {
 	int batch;
+	int adam;
+	int t;
 	real_t learning_rate;
 	real_t momentum;
 	real_t decay;
-	int adam;
 	real_t B1;
 	real_t B2;
 	real_t eps;
-	int t;
 } update_args;
 
 struct network;
@@ -661,12 +661,12 @@ void normalize_cpu(real_t *x, real_t *mean, real_t *variance, int batch,
 void softmax(real_t *input, int n, real_t temp, int stride, real_t *output);
 
 int best_3d_shift_r(image a, image b, int min, int max);
-#ifdef GPU
-void axpy_gpu(int N, real_t ALPHA, real_t_device * X, int INCX, real_t * Y, int INCY);
-void fill_gpu(int N, real_t ALPHA, real_t_device * X, int INCX);
-void scal_gpu(int N, real_t ALPHA, real_t_device * X, int INCX);
-void copy_gpu(int N, real_t_device * X, int INCX, real_t_device * Y, int INCY);
 
+#ifdef GPU
+void axpy_gpu(int N, real_t_device ALPHA, real_t_device * X, int INCX, real_t_device * Y, int INCY);
+void fill_gpu(int N, real_t_device ALPHA, real_t_device * X, int INCX);
+void scal_gpu(int N, real_t_device ALPHA, real_t_device * X, int INCX);
+void copy_gpu(int N, real_t_device * X, int INCX, real_t_device * Y, int INCY);
 void cuda_set_device(int n);
 void cuda_free(real_t_device *x_gpu);
 real_t_device *cuda_make_array(real_t *x, size_t n);
@@ -682,6 +682,7 @@ real_t train_networks(network **nets, int n, data d, int interval);
 void sync_nets(network **nets, int n, int interval);
 void harmless_update_network_gpu(network *net);
 #endif
+
 image get_label(image **characters, char *string, int size);
 void draw_label(image a, int r, int c, image label, const real_t *rgb);
 void save_image_png(image im, const char *name);

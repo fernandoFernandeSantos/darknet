@@ -16,7 +16,7 @@ __global__ void col2im_gpu_kernel(const int n, const real_t_device* data_col,
 		real_t_device *data_im) {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	for (; index < n; index += blockDim.x * gridDim.x) {
-		real_t val = 0;
+		real_t_device val(0);
 		int w = index % width + pad;
 		int h = (index / width) % height + pad;
 		int c = index / (width * height);
