@@ -52,7 +52,7 @@ __device__ __forceinline__ real_t_device operator*(real_t_device &x, const float
 /**
  * DIVISOR OPERATORS
  */
-__device__ __forceinline__ real_t_device operator/(real_t_device &x, int &y) {
+__device__ __forceinline__ real_t_device operator/(real_t_device &x, const int &y) {
 	return x / real_t_device(float(y));
 }
 
@@ -111,6 +111,11 @@ __device__ __forceinline__ real_t_device operator+(real_t_device &x, double &y) 
 	return x + real_t_device(y);
 }
 
+__device__ __forceinline__ real_t_device operator+(int &y, real_t_device &x) {
+	return x + real_t_device(y);
+}
+
+
 #define FLT_MAX real_t(65504 - 1)
 
 void transform_float_to_half_array(real_t_device* dst, float* src, size_t n);
@@ -134,9 +139,9 @@ typedef real_t real_t_device;
 #ifdef __NVCC__
 
 typedef struct __device_builtin__ {
-	real_t x;
-	real_t y;
-	real_t z;
+	real_t_device x;
+	real_t_device y;
+	real_t_device z;
 }real_t3;
 
 #endif
@@ -223,6 +228,26 @@ __device__  __forceinline__ real_t_device atomic_add_real(real_t_device *x,
 	return atomicAdd(x, val);
 #else
 	return 0;
+#endif
+}
+
+__device__ __forceinline__ real_t_device cos_real(real_t_device x){
+#if REAL_TYPE == HALF
+	return hcos(x);
+#elif REAL_TYPE == FLOAT
+	return cosf(x);
+#elif REAL_TYPE == DOUBLE
+	return cos(x);
+#endif
+}
+
+__device__ __forceinline__ real_t_device sin_real(real_t_device x){
+#if REAL_TYPE == HALF
+	return hsin(x);
+#elif REAL_TYPE == FLOAT
+	return sinf(x);
+#elif REAL_TYPE == DOUBLE
+	return sin(x);
 #endif
 }
 

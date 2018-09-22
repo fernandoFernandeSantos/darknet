@@ -8,7 +8,7 @@
 //}
 
 __global__ void forward_avgpool_layer_kernel(int n, int w, int h, int c,
-		real_t *input, real_t *output) {
+		real_t_device *input, real_t_device *output) {
 	int id = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (id >= n)
 		return;
@@ -28,7 +28,7 @@ __global__ void forward_avgpool_layer_kernel(int n, int w, int h, int c,
 }
 
 __global__ void backward_avgpool_layer_kernel(int n, int w, int h, int c,
-		real_t *in_delta, real_t *out_delta) {
+		real_t_device *in_delta, real_t_device *out_delta) {
 	int id = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (id >= n)
 		return;

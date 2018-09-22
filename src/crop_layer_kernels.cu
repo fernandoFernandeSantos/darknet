@@ -9,7 +9,7 @@
 #include "image.h"
 //}
 
-__device__ real_t3 make_real_t3(real_t x, real_t y, real_t z) {
+__device__ real_t3 make_real_t3(real_t_device x, real_t_device y, real_t_device z) {
 	real_t3 mem;
 	mem.x = x;
 	mem.y = y;
@@ -17,7 +17,7 @@ __device__ real_t3 make_real_t3(real_t x, real_t y, real_t z) {
 	return mem;
 }
 
-__device__ real_t get_pixel_kernel(real_t *image, int w, int h, int x, int y,
+__device__ real_t_device get_pixel_kernel(real_t_device *image, int w, int h, int x, int y,
 		int c) {
 	if (x < 0 || x >= w || y < 0 || y >= h)
 		return 0;
@@ -25,14 +25,14 @@ __device__ real_t get_pixel_kernel(real_t *image, int w, int h, int x, int y,
 }
 
 __device__ real_t3 rgb_to_hsv_kernel(real_t3 rgb) {
-	real_t r = rgb.x;
-	real_t g = rgb.y;
-	real_t b = rgb.z;
+	real_t_device r = rgb.x;
+	real_t_device g = rgb.y;
+	real_t_device b = rgb.z;
 
-	real_t h, s, v;
-	real_t max = (r > g) ? ((r > b) ? r : b) : ((g > b) ? g : b);
-	real_t min = (r < g) ? ((r < b) ? r : b) : ((g < b) ? g : b);
-	real_t delta = max - min;
+	real_t_device h, s, v;
+	real_t_device max = (r > g) ? ((r > b) ? r : b) : ((g > b) ? g : b);
+	real_t_device min = (r < g) ? ((r < b) ? r : b) : ((g < b) ? g : b);
+	real_t_device delta = max - min;
 	v = max;
 	if (max == 0) {
 		s = 0;
@@ -42,9 +42,9 @@ __device__ real_t3 rgb_to_hsv_kernel(real_t3 rgb) {
 		if (r == max) {
 			h = (g - b) / delta;
 		} else if (g == max) {
-			h = 2 + (b - r) / delta;
+			h = real_t_device(2) + (b - r) / delta;
 		} else {
-			h = 4 + (r - g) / delta;
+			h = real_t_device(4) + (r - g) / delta;
 		}
 		if (h < 0)
 			h += 6;
@@ -53,21 +53,21 @@ __device__ real_t3 rgb_to_hsv_kernel(real_t3 rgb) {
 }
 
 __device__ real_t3 hsv_to_rgb_kernel(real_t3 hsv) {
-	real_t h = hsv.x;
-	real_t s = hsv.y;
-	real_t v = hsv.z;
+	real_t_device h = hsv.x;
+	real_t_device s = hsv.y;
+	real_t_device v = hsv.z;
 
-	real_t r, g, b;
-	real_t f, p, q, t;
+	real_t_device r, g, b;
+	real_t_device f, p, q, t;
 
 	if (s == 0) {
 		r = g = b = v;
 	} else {
-		int index = (int) floorf(h);
+		int index = (int) floor_real(h);
 		f = h - index;
 		p = v * (1 - s);
-		q = v * (1 - s * f);
-		t = v * (1 - s * (1 - f));
+		q = v * (real_t_device(1) - s * f);
+		t = v * (real_t_device(1) - s * (1 - f));
 		if (index == 0) {
 			r = v;
 			g = t;
@@ -94,30 +94,30 @@ __device__ real_t3 hsv_to_rgb_kernel(real_t3 hsv) {
 			b = q;
 		}
 	}
-	r = (r < 0) ? 0 : ((r > 1) ? 1 : r);
-	g = (g < 0) ? 0 : ((g > 1) ? 1 : g);
-	b = (b < 0) ? 0 : ((b > 1) ? 1 : b);
+	r = (r < 0) ? real_t_device(0) : ((r > 1) ? real_t_device(1) : r);
+	g = (g < 0) ? real_t_device(0) : ((g > 1) ? real_t_device(1) : g);
+	b = (b < 0) ? real_t_device(0) : ((b > 1) ? real_t_device(1) : b);
 	return make_real_t3(r, g, b);
 }
 
-__device__ real_t bilinear_interpolate_kernel(real_t *image, int w, int h,
-		real_t x, real_t y, int c) {
-	int ix = (int) floorf(x);
-	int iy = (int) floorf(y);
+__device__ real_t_device bilinear_interpolate_kernel(real_t_device *image, int w, int h,
+		real_t_device x, real_t_device y, int c) {
+	int ix = (int) floor_real(x);
+	int iy = (int) floor_real(y);
 
-	real_t dx = x - ix;
-	real_t dy = y - iy;
+	real_t_device dx = x - ix;
+	real_t_device dy = y - iy;
 
-	real_t val = (1 - dy) * (1 - dx) * get_pixel_kernel(image, w, h, ix, iy, c)
+	real_t_device val = (1 - dy) * (1 - dx) * get_pixel_kernel(image, w, h, ix, iy, c)
 			+ dy * (1 - dx) * get_pixel_kernel(image, w, h, ix, iy + 1, c)
 			+ (1 - dy) * dx * get_pixel_kernel(image, w, h, ix + 1, iy, c)
 			+ dy * dx * get_pixel_kernel(image, w, h, ix + 1, iy + 1, c);
 	return val;
 }
 
-__global__ void levels_image_kernel(real_t *image, real_t *rand, int batch,
-		int w, int h, int train, real_t saturation, real_t exposure,
-		real_t translate, real_t scale, real_t shift) {
+__global__ void levels_image_kernel(real_t_device *image, real_t_device *rand, int batch,
+		int w, int h, int train, real_t_device saturation, real_t_device exposure,
+		real_t_device translate, real_t_device scale, real_t_device shift) {
 	int size = batch * w * h;
 	int id = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (id >= size)
@@ -126,24 +126,24 @@ __global__ void levels_image_kernel(real_t *image, real_t *rand, int batch,
 	id /= w;
 	int y = id % h;
 	id /= h;
-	real_t rshift = rand[0];
-	real_t gshift = rand[1];
-	real_t bshift = rand[2];
-	real_t r0 = rand[8 * id + 0];
-	real_t r1 = rand[8 * id + 1];
-	real_t r2 = rand[8 * id + 2];
-	real_t r3 = rand[8 * id + 3];
+	real_t_device rshift = rand[0];
+	real_t_device gshift = rand[1];
+	real_t_device bshift = rand[2];
+	real_t_device r0 = rand[8 * id + 0];
+	real_t_device r1 = rand[8 * id + 1];
+	real_t_device r2 = rand[8 * id + 2];
+	real_t_device r3 = rand[8 * id + 3];
 
-	saturation = r0 * (saturation - 1) + 1;
-	saturation = (r1 > .5f) ? 1.f / saturation : saturation;
-	exposure = r2 * (exposure - 1) + 1;
-	exposure = (r3 > .5f) ? 1.f / exposure : exposure;
+	saturation = r0 * (saturation - real_t_device(1)) + real_t_device(1);
+	saturation = (r1 > real_t_device(.5f)) ? real_t_device(1.f) / saturation : saturation;
+	exposure = r2 * (exposure - real_t_device(1)) + real_t_device(1);
+	exposure = (r3 > real_t_device(.5f)) ? real_t_device(1.f) / exposure : exposure;
 
 	size_t offset = id * h * w * 3;
 	image += offset;
-	real_t r = image[x + w * (y + h * 0)];
-	real_t g = image[x + w * (y + h * 1)];
-	real_t b = image[x + w * (y + h * 2)];
+	real_t_device r = image[x + w * (y + h * 0)];
+	real_t_device g = image[x + w * (y + h * 1)];
+	real_t_device b = image[x + w * (y + h * 2)];
 	real_t3 rgb = make_real_t3(r, g, b);
 	if (train) {
 		real_t3 hsv = rgb_to_hsv_kernel(rgb);
@@ -161,15 +161,15 @@ __global__ void levels_image_kernel(real_t *image, real_t *rand, int batch,
 			+ (bshift - .5f) * shift;
 }
 
-__global__ void forward_crop_layer_kernel(real_t *input, real_t *rand, int size,
+__global__ void forward_crop_layer_kernel(real_t_device *input, real_t_device *rand, int size,
 		int c, int h, int w, int crop_height, int crop_width, int train,
-		int flip, real_t angle, real_t *output) {
+		int flip, real_t_device angle, real_t_device *output) {
 	int id = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (id >= size)
 		return;
 
-	real_t cx = w / 2.f;
-	real_t cy = h / 2.f;
+	real_t_device cx = w / 2.f;
+	real_t_device cy = h / 2.f;
 
 	int count = id;
 	int j = id % crop_width;
@@ -180,13 +180,13 @@ __global__ void forward_crop_layer_kernel(real_t *input, real_t *rand, int size,
 	id /= c;
 	int b = id;
 
-	real_t r4 = rand[8 * b + 4];
-	real_t r5 = rand[8 * b + 5];
-	real_t r6 = rand[8 * b + 6];
-	real_t r7 = rand[8 * b + 7];
+	real_t_device r4 = rand[8 * b + 4];
+	real_t_device r5 = rand[8 * b + 5];
+	real_t_device r6 = rand[8 * b + 6];
+	real_t_device r7 = rand[8 * b + 7];
 
-	real_t dw = (w - crop_width) * r4;
-	real_t dh = (h - crop_height) * r5;
+	real_t_device dw = (w - crop_width) * r4;
+	real_t_device dh = (h - crop_height) * r5;
 	flip = (flip && (r6 > .5f));
 	angle = 2 * angle * r7 - angle;
 	if (!train) {
@@ -198,11 +198,11 @@ __global__ void forward_crop_layer_kernel(real_t *input, real_t *rand, int size,
 
 	input += w * h * c * b;
 
-	real_t x = (flip) ? w - dw - j - 1 : j + dw;
-	real_t y = i + dh;
+	real_t_device x = (flip) ? w - dw - real_t_device(j) - real_t_device(1) : real_t_device(j) + dw;
+	real_t_device y = i + dh;
 
-	real_t rx = cosf(angle) * (x - cx) - sinf(angle) * (y - cy) + cx;
-	real_t ry = sinf(angle) * (x - cx) + cosf(angle) * (y - cy) + cy;
+	real_t_device rx = cos_real(angle) * (x - cx) - sin_real(angle) * (y - cy) + cx;
+	real_t_device ry = sin_real(angle) * (x - cx) + cos_real(angle) * (y - cy) + cy;
 
 	output[count] = bilinear_interpolate_kernel(input, w, h, rx, ry, k);
 }
@@ -211,13 +211,13 @@ __global__ void forward_crop_layer_kernel(real_t *input, real_t *rand, int size,
 void forward_crop_layer_gpu(crop_layer layer, network net) {
 	cuda_random(layer.rand_gpu, layer.batch * 8);
 
-	real_t radians = layer.angle * 3.14159265f / 180.f;
+	real_t radians = real_t(layer.angle * 3.14159265f / 180.f);
 
-	real_t scale = 2;
-	real_t translate = -1;
+	real_t scale = real_t(2);
+	real_t translate = real_t(-1);
 	if (layer.noadjust) {
-		scale = 1;
-		translate = 0;
+		scale = real_t(1);
+		translate = real_t(0);
 	}
 
 	int size = layer.batch * layer.w * layer.h;

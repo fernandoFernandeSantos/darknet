@@ -8,11 +8,11 @@
 #include "utils.h"
 //}
 
-__global__ void yoloswag420blazeit360noscope(real_t *input, int size,
-		real_t *rand, real_t prob, real_t scale) {
+__global__ void yoloswag420blazeit360noscope(real_t_device *input, int size,
+		real_t_device *rand, real_t_device prob, real_t_device scale) {
 	int id = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (id < size)
-		input[id] = (rand[id] < prob) ? 0 : input[id] * scale;
+		input[id] = (rand[id] < prob) ? real_t_device(0) : input[id] * scale;
 }
 
 void forward_dropout_layer_gpu(dropout_layer layer, network net) {
