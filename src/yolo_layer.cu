@@ -380,6 +380,7 @@ int get_yolo_detections(layer l, int w, int h, int netw, int neth,
 void forward_yolo_layer_gpu(const layer l, network net) {
 	copy_gpu(l.batch * l.inputs, net.input_gpu, 1, l.output_gpu, 1);
 	int b, n;
+	printf("passou na primeira parte da yolo layer\n");
 	for (b = 0; b < l.batch; ++b) {
 		for (n = 0; n < l.n; ++n) {
 			int index = entry_index(l, b, n * l.w * l.h, 0);
@@ -389,14 +390,23 @@ void forward_yolo_layer_gpu(const layer l, network net) {
 					(1 + l.classes) * l.w * l.h, LOGISTIC);
 		}
 	}
+	printf("passou na segunda parte da yolo layer\n");
+
 	if (!net.train || l.onlyforward) {
 		cuda_pull_array(l.output_gpu, l.output, l.batch * l.outputs);
 		return;
 	}
+	printf("passou na terceira parte da yolo layer\n");
 
 	cuda_pull_array(l.output_gpu, net.input, l.batch * l.inputs);
+	printf("passou na quarta parte da yolo layer\n");
+
 	forward_yolo_layer(l, net);
+	printf("passou na quinta parte da yolo layer\n");
+
 	cuda_push_array(l.delta_gpu, l.delta, l.batch * l.outputs);
+	printf("passou na fechou da yolo layer\n");
+
 }
 
 void backward_yolo_layer_gpu(const layer l, network net) {
