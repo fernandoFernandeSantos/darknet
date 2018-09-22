@@ -254,7 +254,7 @@ void calc_network_cost(network *netp) {
 			++count;
 		}
 	}
-	print("last step of calc cost\n");
+	printf("last step of calc cost\n");
 	*net.cost = sum / count;
 }
 
