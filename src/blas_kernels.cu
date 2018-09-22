@@ -343,7 +343,7 @@ __global__ void mean_delta_kernel(real_t_device *delta, real_t_device *variance,
 			mean_delta[i] += delta[index];
 		}
 	}
-	mean_delta[i] *= (-1.f / sqrt_real(variance[i] + .00001f));
+	mean_delta[i] *= (real_t_device(-1.f) / sqrt_real(variance[i] + .00001f));
 }
 
 //extern "C"

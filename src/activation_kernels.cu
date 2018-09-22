@@ -32,10 +32,10 @@ __device__ real_t_device linear_activate_kernel(real_t_device x) {
 	return x;
 }
 __device__ real_t_device logistic_activate_kernel(real_t_device x) {
-	return 1.f / (1.f + exp_real(-x));
+	return real_t_device(1.f) / (real_t_device(1.f) + exp_real(-x));
 }
 __device__ real_t_device loggy_activate_kernel(real_t_device x) {
-	return 2.f / (1.f + exp_real(-x)) - 1;
+	return real_t_device(2.f) / (real_t_device(1.f) + exp_real(-x)) - real_t_device(1);
 }
 __device__ real_t_device relu_activate_kernel(real_t_device x) {
 	return x * real_t_device(x > real_t_device(0));
