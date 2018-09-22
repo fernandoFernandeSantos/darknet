@@ -248,11 +248,13 @@ void calc_network_cost(network *netp) {
 	real_t sum = real_t(0);
 	int count = 0;
 	for (i = 0; i < net.n; ++i) {
+		printf("calculating cost of layer %d\n", i);
 		if (net.layers[i].cost) {
 			sum += net.layers[i].cost[0];
 			++count;
 		}
 	}
+	print("last step of calc cost\n");
 	*net.cost = sum / count;
 }
 
