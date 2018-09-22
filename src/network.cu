@@ -789,6 +789,7 @@ void forward_network_gpu(network *netp) {
 	}
 	printf("terminou o forward\n");
 	pull_network_output(netp);
+	printf("pau no calc cost\n");
 	calc_network_cost(netp);
 	printf("agora foi\n");
 }
