@@ -768,11 +768,12 @@ void forward_network_gpu(network *netp) {
 	if (net.truth) {
 		cuda_push_array(net.truth_gpu, net.truth, net.truths * net.batch);
 	}
-
+	printf("sizeof host real %d device real %d\n", sizeof real_t, sizeof real_t_device);
 	int i;
 	for (i = 0; i < net.n; ++i) {
 		net.index = i;
 		layer l = net.layers[i];
+		printf("layer %i fill gpu\n", i);
 		if (l.delta_gpu) {
 			fill_gpu(l.outputs * l.batch, real_t(0), l.delta_gpu, 1);
 		}
