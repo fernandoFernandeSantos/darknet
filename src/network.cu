@@ -790,6 +790,7 @@ void forward_network_gpu(network *netp) {
 	printf("terminou o forward\n");
 	pull_network_output(netp);
 	calc_network_cost(netp);
+	printf("agora foi\n");
 }
 
 void backward_network_gpu(network *netp) {
