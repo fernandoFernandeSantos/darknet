@@ -71,7 +71,7 @@ void binarize_weights_gpu(real_t_device *weights, int n, int size, real_t_device
 }
 
 void forward_convolutional_layer_gpu(convolutional_layer l, network net) {
-	fill_gpu(l.outputs * l.batch, real_t(0), l.output_gpu, 1);
+	fill_gpu(l.outputs * l.batch, 0, l.output_gpu, 1);
 	if (l.binary) {
 		binarize_weights_gpu(l.weights_gpu, l.n,
 				l.c / l.groups * l.size * l.size, l.binary_weights_gpu);
@@ -86,7 +86,7 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net) {
 				l.binary_input_gpu);
 		net.input_gpu = l.binary_input_gpu;
 	}
-
+	printf("10% part of conv layer ok\n");
 #ifdef CUDNN
 	real_t one = 1;
 	cudnnConvolutionForward(cudnn_handle(),
@@ -108,8 +108,12 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net) {
 	int m = l.n / l.groups;
 	int k = l.size * l.size * l.c / l.groups;
 	int n = l.out_w * l.out_h;
+
+	printf("20% part of conv layer ok\n");
 	for (i = 0; i < l.batch; ++i) {
 		for (j = 0; j < l.groups; ++j) {
+
+			printf("first gemm conv layer ok\n");
 			real_t_device *a = l.weights_gpu + j * l.nweights / l.groups;
 			real_t_device *b = net.workspace;
 			real_t_device *c = l.output_gpu + (i * l.groups + j) * n * m;
@@ -122,7 +126,9 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net) {
 				im2col_gpu(im, l.c / l.groups, l.h, l.w, l.size, l.stride,
 						l.pad, b);
 			}
-			gemm_gpu(0, 0, m, n, k, real_t(1), a, k, b, n, real_t(1), c, n);
+			printf("executing gemm\n");
+			gemm_gpu(0, 0, m, n, k, (1), a, k, b, n, (1), c, n);
+			printf("pau no gemnmn\n");
 		}
 	}
 #endif

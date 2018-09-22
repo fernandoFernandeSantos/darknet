@@ -147,21 +147,21 @@ void gemm_cpu(int TA, int TB, int M, int N, int K, real_t ALPHA, real_t *A,
 
 #ifdef GPU
 
-void gemm_gpu(int TA, int TB, int M, int N, int K, real_t ALPHA,
+void gemm_gpu(int TA, int TB, int M, int N, int K, real_t_device ALPHA,
 		real_t_device *A_gpu, int lda, real_t_device *B_gpu, int ldb,
-		real_t BETA, real_t_device *C_gpu, int ldc) {
+		real_t_device BETA, real_t_device *C_gpu, int ldc) {
 	cublasHandle_t handle = blas_handle();
 
 #if REAL_TYPE == HALF
-	real_t_device *alpha_device = cuda_make_array(&ALPHA, 1);
-	real_t_device *beta_device = cuda_make_array(&BETA, 1);
+//	real_t_device *alpha_device = cuda_make_array(&ALPHA, 1);
+//	real_t_device *beta_device = cuda_make_array(&BETA, 1);
 
 	cudaError_t status = (cudaError_t) cublasHgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
-			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, alpha_device, B_gpu, ldb,
-			A_gpu, lda, beta_device, C_gpu, ldc);
+			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &ALPHA, B_gpu, ldb,
+			A_gpu, lda, &BETA, C_gpu, ldc);
 
-	cuda_free(alpha_device);
-	cuda_free(beta_device);
+//	cuda_free(alpha_device);
+//	cuda_free(beta_device);
 #elif REAL_TYPE == FLOAT
 	cudaError_t status = (cudaError_t) cublasSgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
 			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &ALPHA, B_gpu, ldb,

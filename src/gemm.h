@@ -12,16 +12,16 @@ void gemm_cpu(int TA, int TB, int M, int N, int K, real_t ALPHA, real_t *A,
 		int lda, real_t *B, int ldb, real_t BETA, real_t *C, int ldc);
 
 #ifdef GPU
-void gemm_gpu(int TA, int TB, int M, int N, int K, real_t ALPHA,
+void gemm_gpu(int TA, int TB, int M, int N, int K, real_t_device ALPHA,
 		real_t_device *A_gpu, int lda,
 		real_t_device *B_gpu, int ldb,
-		real_t BETA,
+		real_t_device BETA,
 		real_t_device *C_gpu, int ldc);
 
-void gemm_gpu(int TA, int TB, int M, int N, int K, real_t ALPHA,
-		real_t_device *A, int lda,
-		real_t_device *B, int ldb,
-		real_t BETA,
-		real_t_device *C, int ldc);
+//void gemm_gpu(int TA, int TB, int M, int N, int K, real_t ALPHA,
+//		real_t_device *A, int lda,
+//		real_t_device *B, int ldb,
+//		real_t BETA,
+//		real_t_device *C, int ldc);
 #endif
 #endif
