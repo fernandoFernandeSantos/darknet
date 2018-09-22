@@ -622,6 +622,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile,
 	char buff[256];
 	char *input = buff;
 	real_t nms = real_t(.45);
+	printf("passou aqui\n");
 	while (1) {
 		if (filename) {
 			strncpy(input, filename, 256);
@@ -633,7 +634,11 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile,
 				return;
 			strtok(input, "\n");
 		}
+
+		printf("passou aqui2\n");
 		image im = load_image_color(input, 0, 0);
+
+		printf("passou aqui3\n");
 		image sized = letterbox_image(im, net->w, net->h);
 		//image sized = resize_image(im, net->w, net->h);
 		//image sized2 = resize_max(im, net->w);
@@ -641,7 +646,10 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile,
 		//resize_network(net, sized.w, sized.h);
 		layer l = net->layers[net->n - 1];
 
+		printf("passou aqui4\n");
 		real_t *X = sized.data;
+
+		printf("passou aqui5\n");
 		time = what_time_is_it_now();
 		network_predict(net, X);
 		printf("%s: Predicted in %f seconds.\n", input,

@@ -420,9 +420,9 @@ int main(int argc, char **argv) {
 
 //	if (0 == strcmp(argv[1], "average")) {
 //		average(argc, argv);
-//	}
+//	} else
 
-	else if (0 == strcmp(argv[1], "yolo")) {
+	if (0 == strcmp(argv[1], "yolo")) {
 		run_yolo(argc, argv);
 	}
 
