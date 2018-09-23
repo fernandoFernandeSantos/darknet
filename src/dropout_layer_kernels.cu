@@ -29,7 +29,7 @@ void forward_dropout_layer_gpu(dropout_layer layer, network net) {
 	 */
 
 	yoloswag420blazeit360noscope<<<cuda_gridsize(size), BLOCK>>>(net.input_gpu,
-			size, layer.rand_gpu, layer.probability, layer.scale);
+			size, layer.rand_gpu, CAST(layer.probability), CAST(layer.scale));
 	check_error(cudaPeekAtLastError());
 }
 
@@ -39,6 +39,6 @@ void backward_dropout_layer_gpu(dropout_layer layer, network net) {
 	int size = layer.inputs * layer.batch;
 
 	yoloswag420blazeit360noscope<<<cuda_gridsize(size), BLOCK>>>(net.delta_gpu,
-			size, layer.rand_gpu, layer.probability, layer.scale);
+			size, layer.rand_gpu, CAST(layer.probability), CAST(layer.scale));
 	check_error(cudaPeekAtLastError());
 }

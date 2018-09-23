@@ -410,7 +410,7 @@ void forward_yolo_layer_gpu(const layer l, network net) {
 }
 
 void backward_yolo_layer_gpu(const layer l, network net) {
-	axpy_gpu(l.batch * l.inputs,real_t(1), l.delta_gpu, 1, net.delta_gpu, 1);
+	axpy_gpu(l.batch * l.inputs, (1), l.delta_gpu, 1, net.delta_gpu, 1);
 }
 #endif
 

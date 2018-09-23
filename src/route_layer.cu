@@ -128,7 +128,7 @@ void backward_route_layer_gpu(const route_layer l, network net) {
 		real_t_device *delta = net.layers[index].delta_gpu;
 		int input_size = l.input_sizes[i];
 		for (j = 0; j < l.batch; ++j) {
-			axpy_gpu(input_size, real_t(1), l.delta_gpu + offset + j * l.outputs, 1,
+			axpy_gpu(input_size, (1), l.delta_gpu + offset + j * l.outputs, 1,
 					delta + j * input_size, 1);
 		}
 		offset += input_size;

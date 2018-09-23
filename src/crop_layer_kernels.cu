@@ -224,14 +224,14 @@ void forward_crop_layer_gpu(crop_layer layer, network net) {
 
 	levels_image_kernel<<<cuda_gridsize(size), BLOCK>>>(net.input_gpu,
 			layer.rand_gpu, layer.batch, layer.w, layer.h, net.train,
-			layer.saturation, layer.exposure, translate, scale, layer.shift);
+			CAST(layer.saturation), CAST(layer.exposure), CAST(translate), CAST(scale), CAST(layer.shift));
 	check_error(cudaPeekAtLastError());
 
 	size = layer.batch * layer.c * layer.out_w * layer.out_h;
 
 	forward_crop_layer_kernel<<<cuda_gridsize(size), BLOCK>>>(net.input_gpu,
 			layer.rand_gpu, size, layer.c, layer.h, layer.w, layer.out_h,
-			layer.out_w, net.train, layer.flip, radians, layer.output_gpu);
+			layer.out_w, net.train, layer.flip, CAST(radians), layer.output_gpu);
 	check_error(cudaPeekAtLastError());
 
 	/*

@@ -90,7 +90,7 @@ real_t_device *cuda_make_array(real_t *x, size_t n) {
 		status = cudaMemcpy(x_gpu, x, size, cudaMemcpyHostToDevice);
 		check_error(status);
 	} else {
-		fill_gpu(n, real_t(0), x_gpu, 1);
+		fill_gpu(n, 0, x_gpu, 1);
 	}
 	if (!x_gpu)
 		error("Cuda malloc failed\n");

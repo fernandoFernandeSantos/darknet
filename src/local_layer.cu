@@ -217,7 +217,7 @@ void forward_local_layer_gpu(const local_layer l, network net) {
 			int n = 1;
 			int k = l.size * l.size * l.c;
 
-			gemm_gpu(0, 0, m, n, k, real_t(1), a, k, b, locations, real_t(1), c, locations);
+			gemm_gpu(0, 0, m, n, k, (1), a, k, b, locations, (1), c, locations);
 		}
 	}
 	activate_array_gpu(l.output_gpu, l.outputs * l.batch, l.activation);
@@ -230,7 +230,7 @@ void backward_local_layer_gpu(local_layer l, network net) {
 	gradient_array_gpu(l.output_gpu, l.outputs * l.batch, l.activation,
 			l.delta_gpu);
 	for (i = 0; i < l.batch; ++i) {
-		axpy_gpu(l.outputs, real_t(1), l.delta_gpu + i * l.outputs, 1,
+		axpy_gpu(l.outputs, (1), l.delta_gpu + i * l.outputs, 1,
 				l.bias_updates_gpu, 1);
 	}
 
@@ -247,7 +247,7 @@ void backward_local_layer_gpu(local_layer l, network net) {
 			int n = l.size * l.size * l.c;
 			int k = 1;
 
-			gemm_gpu(0, 1, m, n, k, real_t(1), a, locations, b, locations, real_t(1), c, n);
+			gemm_gpu(0, 1, m, n, k, (1), a, locations, b, locations, (1), c, n);
 		}
 
 		if (net.delta_gpu) {
@@ -260,7 +260,7 @@ void backward_local_layer_gpu(local_layer l, network net) {
 				int n = 1;
 				int k = l.n;
 
-				gemm_gpu(1, 0, m, n, k, real_t(1), a, m, b, locations, real_t(0), c, locations);
+				gemm_gpu(1, 0, m, n, k, (1), a, m, b, locations, (0), c, locations);
 			}
 
 			col2im_gpu(net.workspace, l.c, l.h, l.w, l.size, l.stride, l.pad,
@@ -277,14 +277,14 @@ void update_local_layer_gpu(local_layer l, update_args a) {
 
 	int locations = l.out_w * l.out_h;
 	int size = l.size * l.size * l.c * l.n * locations;
-	axpy_gpu(l.outputs, real_t(learning_rate / batch), l.bias_updates_gpu, 1,
+	axpy_gpu(l.outputs, (learning_rate / batch), l.bias_updates_gpu, 1,
 			l.biases_gpu, 1);
-	scal_gpu(l.outputs, momentum, l.bias_updates_gpu, 1);
+	scal_gpu(l.outputs, CAST(momentum), l.bias_updates_gpu, 1);
 
-	axpy_gpu(size, real_t(-decay * batch), l.weights_gpu, 1, l.weight_updates_gpu, 1);
-	axpy_gpu(size, real_t(learning_rate / batch), l.weight_updates_gpu, 1,
+	axpy_gpu(size, (-decay * batch), l.weights_gpu, 1, l.weight_updates_gpu, 1);
+	axpy_gpu(size, (learning_rate / batch), l.weight_updates_gpu, 1,
 			l.weights_gpu, 1);
-	scal_gpu(size, momentum, l.weight_updates_gpu, 1);
+	scal_gpu(size, CAST(momentum), l.weight_updates_gpu, 1);
 }
 
 void pull_local_layer(local_layer l) {

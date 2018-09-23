@@ -525,11 +525,11 @@ void forward_region_layer_gpu(const layer l, network net) {
 	if (l.softmax_tree) {
 		int index = entry_index(l, 0, 0, l.coords + 1);
 		softmax_tree(net.input_gpu + index, l.w * l.h, l.batch * l.n,
-				l.inputs / l.n, real_t(1), l.output_gpu + index, *l.softmax_tree);
+				l.inputs / l.n, (1), l.output_gpu + index, *l.softmax_tree);
 	} else if (l.softmax) {
 		int index = entry_index(l, 0, 0, l.coords + !l.background);
 		softmax_gpu(net.input_gpu + index, l.classes + l.background,
-				l.batch * l.n, l.inputs / l.n, l.w * l.h, 1, l.w * l.h, real_t(1),
+				l.batch * l.n, l.inputs / l.n, l.w * l.h, 1, l.w * l.h, (1),
 				l.output_gpu + index);
 	}
 	if (!net.train || l.onlyforward) {
@@ -564,7 +564,7 @@ void backward_region_layer_gpu(const layer l, network net) {
 						l.delta_gpu + index);
 		}
 	}
-	axpy_gpu(l.batch * l.inputs, real_t(1), l.delta_gpu, 1, net.delta_gpu, 1);
+	axpy_gpu(l.batch * l.inputs, (1), l.delta_gpu, 1, net.delta_gpu, 1);
 }
 #endif
 

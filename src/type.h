@@ -25,98 +25,10 @@
 typedef half_float::half real_t;
 
 typedef half real_t_device;
-//
-///**
-// * MULTIPLIER OPERATORS
-// */
-//__device__ __forceinline__ real_t_device operator*(real_t_device &x, const int &y) {
-//	return x * real_t_device(float(y));
-//}
-//
-//__device__ __forceinline__ real_t_device operator*(int &y, real_t_device &x) {
-//	return x * real_t_device(float(y));
-//}
-//
-//__device__ __forceinline__ real_t_device operator*(const float &y, real_t_device &x) {
-//	return x * real_t_device(y);
-//}
-//
-//__device__ __forceinline__ real_t_device operator*(float &y, real_t_device &x) {
-//	return x * real_t_device(y);
-//}
-//
-//__device__ __forceinline__ real_t_device operator*(real_t_device &x, const float &y) {
-//	return x * real_t_device(y);
-//}
-//
-///**
-// * DIVISOR OPERATORS
-// */
-//__device__ __forceinline__ real_t_device operator/(real_t_device &x, const int &y) {
-//	return x / real_t_device(float(y));
-//}
-//
-///**
-// * LOGIC OPERATORS
-// */
-//__device__ __forceinline__ bool operator==(real_t_device &x, int &y) {
-//	return x == real_t_device(float(y));
-//}
-//
-//__device__ __forceinline__ bool operator==(real_t_device &x, const int &y) {
-//	return x == real_t_device(float(y));
-//}
-//
-//__device__ __forceinline__ bool operator<(real_t_device &x, const int &y) {
-//	return x < real_t_device(float(y));
-//}
-//
-//__device__ __forceinline__ bool operator>(real_t_device &x, const int &y) {
-//	return x > real_t_device(float(y));
-//}
-//
-//__device__ __forceinline__ bool operator>(const int &y, real_t_device &x) {
-//	return real_t_device(float(y)) > x;
-//}
-//
-///**
-// * MINUS OPERATOR
-// */
-//
-//__device__ __forceinline__ real_t_device operator-(real_t_device &x, const int &y) {
-//	return x - real_t_device(float(y));
-//}
-//
-//__device__ __forceinline__ real_t_device operator-(const int &y, real_t_device &x) {
-//	return real_t_device(float(y)) - x;
-//}
-//
-//__device__ __forceinline__ real_t_device operator-(real_t_device &x, int &y) {
-//	return x - real_t_device(float(y));
-//}
-//
-//__device__ __forceinline__ real_t_device operator-(int &y, real_t_device &x) {
-//	return real_t_device(float(y)) - x;
-//}
-//
-///**
-// * PLUS OPERATOR
-// */
-//
-//__device__ __forceinline__ real_t_device operator+(real_t_device &x, const float &y) {
-//	return x + real_t_device(y);
-//}
-//
-//__device__ __forceinline__ real_t_device operator+(real_t_device &x, double &y) {
-//	return x + real_t_device(y);
-//}
-//
-//__device__ __forceinline__ real_t_device operator+(int &y, real_t_device &x) {
-//	return x + real_t_device(y);
-//}
-
 
 #define FLT_MAX real_t(65504 - 1)
+
+#define CAST(a) real_t_device(float(a))
 
 void transform_float_to_half_array(real_t_device* dst, float* src, size_t n);
 
@@ -127,12 +39,16 @@ typedef real_t real_t_device;
 
 #define FLT_MAX real_t(1E+37)
 
+#define CAST(a) (a)
+
 #elif REAL_TYPE == DOUBLE
 //Double precision
 typedef double real_t;
 typedef real_t real_t_device;
 
 #define FLT_MAX real_t(1E+307)
+#define CAST(a) (a)
+
 
 #endif
 

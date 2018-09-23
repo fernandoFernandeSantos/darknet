@@ -133,8 +133,8 @@ void forward_cost_layer_gpu(cost_layer l, network net) {
 	if (!net.truth)
 		return;
 	if (l.smooth) {
-		scal_gpu(l.batch * l.inputs, real_t(1 - l.smooth), net.truth_gpu, 1);
-		add_gpu(l.batch * l.inputs, real_t(l.smooth * 1. / l.inputs), net.truth_gpu, 1);
+		scal_gpu(l.batch * l.inputs, (1 - l.smooth), net.truth_gpu, 1);
+		add_gpu(l.batch * l.inputs, (l.smooth * 1. / l.inputs), net.truth_gpu, 1);
 	}
 
 	if (l.cost_type == SMOOTH) {
@@ -152,14 +152,14 @@ void forward_cost_layer_gpu(cost_layer l, network net) {
 	}
 
 	if (l.cost_type == SEG && l.noobject_scale != 1) {
-		scale_mask_gpu(l.batch * l.inputs, l.delta_gpu, real_t(0), net.truth_gpu,
-				l.noobject_scale);
-		scale_mask_gpu(l.batch * l.inputs, l.output_gpu, real_t(0), net.truth_gpu,
-				l.noobject_scale);
+		scale_mask_gpu(l.batch * l.inputs, l.delta_gpu, (0), net.truth_gpu,
+				CAST(l.noobject_scale));
+		scale_mask_gpu(l.batch * l.inputs, l.output_gpu, (0), net.truth_gpu,
+				CAST(l.noobject_scale));
 	}
 	if (l.cost_type == MASKED) {
-		mask_gpu(l.batch * l.inputs, net.delta_gpu, real_t(SECRET_NUM), net.truth_gpu,
-				real_t(0));
+		mask_gpu(l.batch * l.inputs, net.delta_gpu, (SECRET_NUM), net.truth_gpu,
+				(0));
 	}
 
 	if (l.ratio) {
@@ -169,11 +169,11 @@ void forward_cost_layer_gpu(cost_layer l, network net) {
 		real_t thresh = l.delta[n];
 		thresh = 0;
 		printf("%f\n", thresh);
-		supp_gpu(l.batch * l.inputs, thresh, l.delta_gpu, 1);
+		supp_gpu(l.batch * l.inputs, CAST(thresh), l.delta_gpu, 1);
 	}
 
 	if (l.thresh) {
-		supp_gpu(l.batch * l.inputs, real_t(l.thresh * 1. / l.inputs), l.delta_gpu, 1);
+		supp_gpu(l.batch * l.inputs, (l.thresh * 1. / l.inputs), l.delta_gpu, 1);
 	}
 
 	cuda_pull_array(l.output_gpu, l.output, l.batch * l.inputs);
@@ -181,7 +181,7 @@ void forward_cost_layer_gpu(cost_layer l, network net) {
 }
 
 void backward_cost_layer_gpu(const cost_layer l, network net) {
-	axpy_gpu(l.batch * l.inputs, l.scale, l.delta_gpu, 1, net.delta_gpu, 1);
+	axpy_gpu(l.batch * l.inputs, CAST(l.scale), l.delta_gpu, 1, net.delta_gpu, 1);
 }
 #endif
 

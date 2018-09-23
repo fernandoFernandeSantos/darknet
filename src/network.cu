@@ -70,10 +70,10 @@ void reset_network_state(network *net, int b) {
 #ifdef GPU
 		layer l = net->layers[i];
 		if (l.state_gpu) {
-			fill_gpu(l.outputs, real_t(0), l.state_gpu + l.outputs * b, 1);
+			fill_gpu(l.outputs, 0, l.state_gpu + l.outputs * b, 1);
 		}
 		if (l.h_gpu) {
-			fill_gpu(l.outputs, real_t(0), l.h_gpu + l.outputs * b, 1);
+			fill_gpu(l.outputs, 0, l.h_gpu + l.outputs * b, 1);
 		}
 #endif
 	}
@@ -777,7 +777,7 @@ void forward_network_gpu(network *netp) {
 		net.index = i;
 		layer l = net.layers[i];
 		if (l.delta_gpu) {
-			fill_gpu(l.outputs * l.batch, real_t(0), l.delta_gpu, 1);
+			fill_gpu(l.outputs * l.batch, (0), l.delta_gpu, 1);
 		}
 		l.forward_gpu(l, net);
 		net.input_gpu = l.output_gpu;
@@ -846,11 +846,11 @@ void harmless_update_network_gpu(network *netp) {
 	for (i = 0; i < net.n; ++i) {
 		layer l = net.layers[i];
 		if (l.weight_updates_gpu)
-			fill_gpu(l.nweights, real_t(0), l.weight_updates_gpu, 1);
+			fill_gpu(l.nweights, (0), l.weight_updates_gpu, 1);
 		if (l.bias_updates_gpu)
-			fill_gpu(l.nbiases, real_t(0), l.bias_updates_gpu, 1);
+			fill_gpu(l.nbiases, (0), l.bias_updates_gpu, 1);
 		if (l.scale_updates_gpu)
-			fill_gpu(l.nbiases, real_t(0), l.scale_updates_gpu, 1);
+			fill_gpu(l.nbiases, (0), l.scale_updates_gpu, 1);
 	}
 }
 
