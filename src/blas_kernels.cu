@@ -326,7 +326,7 @@ __global__ void fast_variance_delta_kernel(real_t_device *x, real_t_device *delt
 		for (i = 0; i < threads; ++i) {
 			variance_delta[filter] += local[i];
 		}
-		variance_delta[filter] *= real_t_device(-.5f) * pow_real(variance[filter] + .00001f, (-3.f / 2.f));
+		variance_delta[filter] *= real_t_device(-.5f) * pow_real(variance[filter] + real_t_device(.00001f), (-3.f / 2.f));
 	}
 }
 
@@ -343,7 +343,7 @@ __global__ void mean_delta_kernel(real_t_device *delta, real_t_device *variance,
 			mean_delta[i] += delta[index];
 		}
 	}
-	mean_delta[i] *= (real_t_device(-1.f) / sqrt_real(variance[i] + .00001f));
+	mean_delta[i] *= (real_t_device(-1.f) / sqrt_real(variance[i] + real_t_device(.00001f)));
 }
 
 //extern "C"
@@ -529,13 +529,13 @@ __global__ void l2norm_kernel(int N, real_t_device *x, real_t_device *dx, int ba
 		sum += powf(x[index], 2);
 	}
 	sum = sqrt_real(sum);
-	if (sum == 0)
+	if (sum == real_t_device(0))
 		sum = 1;
 	//printf("%f\n", sum);
 	for (f = 0; f < filters; ++f) {
 		int index = b * filters * spatial + f * spatial + i;
 		x[index] /= sum;
-		dx[index] = (1 - x[index]) / sum;
+		dx[index] = (real_t_device(1) - x[index]) / sum;
 	}
 }
 
@@ -824,12 +824,12 @@ __global__ void smooth_l1_kernel(int n, real_t_device *pred, real_t_device *trut
 	if (i < n) {
 		real_t_device diff = truth[i] - pred[i];
 		real_t_device abs_val = fabs_real(diff);
-		if (abs_val < 1) {
+		if (abs_val < real_t_device(1)) {
 			error[i] = diff * diff;
 			delta[i] = diff;
 		} else {
-			error[i] = 2 * abs_val - real_t_device(1);
-			delta[i] = (diff > 0) ? 1 : -1;
+			error[i] = real_t_device(2) * abs_val - real_t_device(1);
+			delta[i] = (diff > real_t_device(0)) ? real_t_device(1) : real_t_device(-1);
 		}
 	}
 }
@@ -866,7 +866,7 @@ __global__ void logistic_x_ent_kernel(int n, real_t_device *pred, real_t_device 
 	if (i < n) {
 		real_t_device t = truth[i];
 		real_t_device p = pred[i];
-		error[i] = -t * log_real(p + real_t_device(.0000001)) - (1 - t) * log_real(1 - p + real_t_device(.0000001));
+		error[i] = -t * log_real(p + real_t_device(.0000001)) - (real_t_device(1) - t) * log_real(real_t_device(1) - p + real_t_device(.0000001));
 		delta[i] = t - p;
 	}
 }
@@ -901,7 +901,7 @@ __global__ void l1_kernel(int n, real_t_device *pred, real_t_device *truth, real
 	if (i < n) {
 		real_t_device diff = truth[i] - pred[i];
 		error[i] = fabs_real(diff);
-		delta[i] = (diff > 0) ? 1 : -1;
+		delta[i] = (diff > real_t_device(0)) ? real_t_device(1) : real_t_device(-1);
 	}
 }
 
@@ -916,7 +916,7 @@ __global__ void wgan_kernel(int n, real_t_device *pred, real_t_device *truth, re
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < n) {
 		error[i] = truth[i] ? -pred[i] : pred[i];
-		delta[i] = (truth[i] > 0) ? 1 : -1;
+		delta[i] = (truth[i] > real_t_device(0)) ? real_t_device(1) : real_t_device(-1);
 	}
 }
 
@@ -931,7 +931,7 @@ __global__ void weighted_sum_kernel(int n, real_t_device *a, real_t_device *b, r
 		real_t_device *c) {
 	int i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < n) {
-		c[i] = s[i] * a[i] + (1 - s[i]) * (b ? b[i] : real_t_device(0));
+		c[i] = s[i] * a[i] + (real_t_device(1) - s[i]) * (b ? b[i] : real_t_device(0));
 	}
 }
 
@@ -991,7 +991,7 @@ __global__ void weighted_delta_kernel(int n, real_t_device *a, real_t_device *b,
 		if (da)
 			da[i] += dc[i] * s[i];
 		if (db)
-			db[i] += dc[i] * (1 - s[i]);
+			db[i] += dc[i] * (real_t_device(1) - s[i]);
 		ds[i] += dc[i] * (a[i] - b[i]);
 	}
 }
@@ -1024,7 +1024,7 @@ __device__ void softmax_device(real_t_device *input, int n, real_t_device temp, 
 	real_t_device largest = -INFINITY;
 	for (i = 0; i < n; ++i) {
 		int val = input[i * stride];
-		largest = (val > largest) ? real_t_device(val) : largest;
+		largest = (real_t_device(val) > largest) ? real_t_device(val) : largest;
 	}
 	for (i = 0; i < n; ++i) {
 		real_t_device e = exp_real(input[i * stride] / temp - largest / temp);

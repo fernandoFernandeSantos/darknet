@@ -34,7 +34,7 @@ __device__ real_t3 rgb_to_hsv_kernel(real_t3 rgb) {
 	real_t_device min = (r < g) ? ((r < b) ? r : b) : ((g < b) ? g : b);
 	real_t_device delta = max - min;
 	v = max;
-	if (max == 0) {
+	if (max == real_t_device(0)) {
 		s = 0;
 		h = -1;
 	} else {
@@ -46,7 +46,7 @@ __device__ real_t3 rgb_to_hsv_kernel(real_t3 rgb) {
 		} else {
 			h = real_t_device(4) + (r - g) / delta;
 		}
-		if (h < 0)
+		if (h < real_t_device(0))
 			h += 6;
 	}
 	return make_real_t3(h, s, v);
@@ -60,14 +60,14 @@ __device__ real_t3 hsv_to_rgb_kernel(real_t3 hsv) {
 	real_t_device r, g, b;
 	real_t_device f, p, q, t;
 
-	if (s == 0) {
+	if (s == real_t_device(0)) {
 		r = g = b = v;
 	} else {
 		int index = (int) floor_real(h);
-		f = h - index;
-		p = v * (1 - s);
+		f = h - real_t_device(index);
+		p = v * (real_t_device(1) - s);
 		q = v * (real_t_device(1) - s * f);
-		t = v * (real_t_device(1) - s * (1 - f));
+		t = v * (real_t_device(1) - s * (real_t_device(1) - f));
 		if (index == 0) {
 			r = v;
 			g = t;
@@ -94,9 +94,9 @@ __device__ real_t3 hsv_to_rgb_kernel(real_t3 hsv) {
 			b = q;
 		}
 	}
-	r = (r < 0) ? real_t_device(0) : ((r > 1) ? real_t_device(1) : r);
-	g = (g < 0) ? real_t_device(0) : ((g > 1) ? real_t_device(1) : g);
-	b = (b < 0) ? real_t_device(0) : ((b > 1) ? real_t_device(1) : b);
+	r = (r < real_t_device(0)) ? real_t_device(0) : ((r > real_t_device(1)) ? real_t_device(1) : r);
+	g = (g < real_t_device(0)) ? real_t_device(0) : ((g > real_t_device(1)) ? real_t_device(1) : g);
+	b = (b < real_t_device(0)) ? real_t_device(0) : ((b > real_t_device(1)) ? real_t_device(1) : b);
 	return make_real_t3(r, g, b);
 }
 
@@ -105,12 +105,12 @@ __device__ real_t_device bilinear_interpolate_kernel(real_t_device *image, int w
 	int ix = (int) floor_real(x);
 	int iy = (int) floor_real(y);
 
-	real_t_device dx = x - ix;
-	real_t_device dy = y - iy;
+	real_t_device dx = x - real_t_device(ix);
+	real_t_device dy = y - real_t_device(iy);
 
-	real_t_device val = (1 - dy) * (1 - dx) * get_pixel_kernel(image, w, h, ix, iy, c)
-			+ dy * (1 - dx) * get_pixel_kernel(image, w, h, ix, iy + 1, c)
-			+ (1 - dy) * dx * get_pixel_kernel(image, w, h, ix + 1, iy, c)
+	real_t_device val = (real_t_device(1) - dy) * (real_t_device(1) - dx) * get_pixel_kernel(image, w, h, ix, iy, c)
+			+ dy * (real_t_device(1) - dx) * get_pixel_kernel(image, w, h, ix, iy + 1, c)
+			+ (real_t_device(1) - dy) * dx * get_pixel_kernel(image, w, h, ix + 1, iy, c)
 			+ dy * dx * get_pixel_kernel(image, w, h, ix + 1, iy + 1, c);
 	return val;
 }
@@ -154,11 +154,11 @@ __global__ void levels_image_kernel(real_t_device *image, real_t_device *rand, i
 		shift = 0;
 	}
 	image[x + w * (y + h * 0)] = rgb.x * scale + translate
-			+ (rshift - .5f) * shift;
+			+ (rshift - real_t_device(.5f)) * shift;
 	image[x + w * (y + h * 1)] = rgb.y * scale + translate
-			+ (gshift - .5f) * shift;
+			+ (gshift - real_t_device(.5f)) * shift;
 	image[x + w * (y + h * 2)] = rgb.z * scale + translate
-			+ (bshift - .5f) * shift;
+			+ (bshift - real_t_device(.5f)) * shift;
 }
 
 __global__ void forward_crop_layer_kernel(real_t_device *input, real_t_device *rand, int size,
@@ -185,10 +185,10 @@ __global__ void forward_crop_layer_kernel(real_t_device *input, real_t_device *r
 	real_t_device r6 = rand[8 * b + 6];
 	real_t_device r7 = rand[8 * b + 7];
 
-	real_t_device dw = (w - crop_width) * r4;
-	real_t_device dh = (h - crop_height) * r5;
-	flip = (flip && (r6 > .5f));
-	angle = 2 * angle * r7 - angle;
+	real_t_device dw = real_t_device(w - crop_width) * r4;
+	real_t_device dh = real_t_device(h - crop_height) * r5;
+	flip = (flip && (r6 > real_t_device(.5f)));
+	angle = real_t_device(2) * angle * r7 - angle;
 	if (!train) {
 		dw = (w - crop_width) / 2.f;
 		dh = (h - crop_height) / 2.f;
@@ -198,8 +198,8 @@ __global__ void forward_crop_layer_kernel(real_t_device *input, real_t_device *r
 
 	input += w * h * c * b;
 
-	real_t_device x = (flip) ? w - dw - real_t_device(j) - real_t_device(1) : real_t_device(j) + dw;
-	real_t_device y = i + dh;
+	real_t_device x = (flip) ? real_t_device(w) - dw - real_t_device(j) - real_t_device(1) : real_t_device(j) + dw;
+	real_t_device y = real_t_device(i) + dh;
 
 	real_t_device rx = cos_real(angle) * (x - cx) - sin_real(angle) * (y - cy) + cx;
 	real_t_device ry = sin_real(angle) * (x - cx) + cos_real(angle) * (y - cy) + cy;
