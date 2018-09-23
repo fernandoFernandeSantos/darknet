@@ -776,13 +776,10 @@ void forward_network_gpu(network *netp) {
 	for (i = 0; i < net.n; ++i) {
 		net.index = i;
 		layer l = net.layers[i];
-		printf("layer %i fill gpu\n", i);
 		if (l.delta_gpu) {
 			fill_gpu(l.outputs * l.batch, real_t(0), l.delta_gpu, 1);
 		}
-		printf("pau no fill\n");
 		l.forward_gpu(l, net);
-		printf("pau no forward gpu\n");
 		net.input_gpu = l.output_gpu;
 		net.input = l.output;
 		if (l.truth) {
@@ -790,10 +787,8 @@ void forward_network_gpu(network *netp) {
 			net.truth = l.output;
 		}
 	}
-	printf("terminou o forward\n");
 	pull_network_output(netp);
-	printf("pau no calc cost\n");
-//	calc_network_cost(netp);
+	calc_network_cost(netp);
 	printf("agora foi\n");
 }
 
