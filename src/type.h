@@ -20,11 +20,10 @@
 // For half precision
 #include <cuda_fp16.h>
 #include <cuda_fp16.hpp>
-//#include "half.hpp"
+#include "half.hpp"
 
 //HALF-----------------------------------------------------------------------------------------------
-//typedef half_float::half real_t;
-typedef half real_t;
+typedef half_float::half real_t;
 
 typedef half real_t_device;
 
