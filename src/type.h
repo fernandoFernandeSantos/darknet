@@ -20,9 +20,11 @@
 // For half precision
 #include <cuda_fp16.h>
 #include <cuda_fp16.hpp>
-#include "half.hpp"
+//#include "half.hpp"
 
-typedef half_float::half real_t;
+//HALF-----------------------------------------------------------------------------------------------
+//typedef half_float::half real_t;
+typedef half real_t;
 
 typedef half real_t_device;
 
@@ -30,9 +32,15 @@ typedef half real_t_device;
 
 #define CAST(a) real_t_device(float(a))
 
+#define REAL_INFINITY 0x7C00
+
 void transform_float_to_half_array(real_t_device* dst, float* src, size_t n);
 
+//---------------------------------------------------------------------------------------------------
+
 #elif REAL_TYPE == FLOAT
+
+//FLOAT----------------------------------------------------------------------------------------------
 // Single precision
 typedef float real_t;
 typedef real_t real_t_device;
@@ -41,7 +49,12 @@ typedef real_t real_t_device;
 
 #define CAST(a) (a)
 
+#define REAL_INFINITY 0x7F800000
+//---------------------------------------------------------------------------------------------------
+
 #elif REAL_TYPE == DOUBLE
+
+//DOUBLE----------------------------------------------------------------------------------------------
 //Double precision
 typedef double real_t;
 typedef real_t real_t_device;
@@ -50,6 +63,9 @@ typedef real_t real_t_device;
 #define CAST(a) (a)
 
 
+#define REAL_INFINITY 0x7FF0000000000000
+
+//---------------------------------------------------------------------------------------------------
 #endif
 
 #ifdef __NVCC__

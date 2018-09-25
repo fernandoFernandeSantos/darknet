@@ -39,7 +39,6 @@ void transform_float_to_half_array(real_t_device* dst, float* src, size_t n) {
 int fread_float_to_real_t(real_t* dst, size_t siz, size_t times, FILE* fp) {
 	float* temp = (float*) calloc(times, sizeof(float));
 	if (temp == NULL) {
-		free(temp);
 		return -1;
 	}
 	int fread_result = fread(temp, sizeof(float), times, fp);
@@ -50,11 +49,10 @@ int fread_float_to_real_t(real_t* dst, size_t siz, size_t times, FILE* fp) {
 	int i;
 	for (i = 0; i < times; i++) {
 		//TODO: make ready for half
-		dst[i] = (real_t) temp[i];
+		dst[i] = real_t(temp[i]);
 	}
 	free(temp);
 	return fread_result;
 
 }
-
 

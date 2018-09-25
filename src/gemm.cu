@@ -30,7 +30,7 @@ real_t *random_matrix(int rows, int cols) {
 	int i;
 	real_t *m = (real_t*) calloc(rows * cols, sizeof(real_t));
 	for (i = 0; i < rows * cols; ++i) {
-		m[i] = (real_t) rand() / RAND_MAX;
+		m[i] = (real_t) rand() / real_t(RAND_MAX);
 	}
 	return m;
 }
@@ -57,7 +57,7 @@ void time_random_matrix(int TA, int TB, int m, int k, int n) {
 	}
 	end = clock();
 	printf("Matrix Multiplication %dx%d * %dx%d, TA=%d, TB=%d: %lf ms\n", m, k,
-			k, n, TA, TB, (real_t)(end - start) / CLOCKS_PER_SEC);
+			k, n, TA, TB, real_t(float(end - start)) / real_t(float(CLOCKS_PER_SEC)));
 	free(a);
 	free(b);
 	free(c);

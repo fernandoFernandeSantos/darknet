@@ -32,7 +32,7 @@ __global__ void forward_maxpool_layer_kernel(int n, int in_h, int in_w,
 	int h_offset = -pad / 2;
 
 	int out_index = j + w * (i + h * (k + c * b));
-	real_t_device max = -INFINITY;
+	real_t_device max = -REAL_INFINITY; //-INFINITY;
 	int max_i = -1;
 	int l, m;
 	for (l = 0; l < size; ++l) {
@@ -42,8 +42,7 @@ __global__ void forward_maxpool_layer_kernel(int n, int in_h, int in_w,
 			int index = cur_w + in_w * (cur_h + in_h * (k + b * in_c));
 			int valid = (cur_h >= 0 && cur_h < in_h && cur_w >= 0
 					&& cur_w < in_w);
-			real_t_device val =
-					(valid != 0) ? input[index] : -real_t_device(INFINITY);
+			real_t_device val = (valid != 0) ? input[index] : -real_t_device(REAL_INFINITY); //real_t_device(INFINITY);
 			max_i = (val > max) ? index : max_i;
 			max = (val > max) ? val : max;
 		}
@@ -84,7 +83,8 @@ __global__ void backward_maxpool_layer_kernel(int n, int in_h, int in_w,
 			int out_h = (i - h_offset) / stride + l;
 			int out_index = out_w + w * (out_h + h * (k + c * b));
 			int valid = (out_w >= 0 && out_w < w && out_h >= 0 && out_h < h);
-			d += (valid && indexes[out_index] == index) ? delta[out_index] : real_t_device(0);
+			d += (valid && indexes[out_index] == index) ?
+					delta[out_index] : real_t_device(0);
 		}
 	}
 	prev_delta[index] += d;

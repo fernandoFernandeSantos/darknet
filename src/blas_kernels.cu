@@ -1021,7 +1021,7 @@ __device__ void softmax_device(real_t_device *input, int n, real_t_device temp, 
 		real_t_device *output) {
 	int i;
 	real_t_device sum = 0;
-	real_t_device largest = -INFINITY;
+	real_t_device largest = -REAL_INFINITY;
 	for (i = 0; i < n; ++i) {
 		int val = input[i * stride];
 		largest = (real_t_device(val) > largest) ? real_t_device(val) : largest;

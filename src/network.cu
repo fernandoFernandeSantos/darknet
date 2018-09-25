@@ -248,9 +248,9 @@ void calc_network_cost(network *netp) {
 	real_t sum = real_t(0);
 	int count = 0;
 	for (i = 0; i < net.n; ++i) {
-		printf("calculating cost of layer %d\n", i);
 		if (net.layers[i].cost) {
-			printf("%p cost\n", net.layers[i].cost);
+			float f = float(net.layers[i].cost[0]);
+			printf("%f cost\n", f);
 			sum += net.layers[i].cost[0];
 			++count;
 		}
@@ -771,11 +771,13 @@ void forward_network_gpu(network *netp) {
 	if (net.truth) {
 		cuda_push_array(net.truth_gpu, net.truth, net.truths * net.batch);
 	}
-	printf("sizeof host real %d device real %d\n", sizeof(real_t), sizeof(real_t_device));
+	printf("sizeof host real %d device real %d\n", sizeof(real_t),
+			sizeof(real_t_device));
 	int i;
 	for (i = 0; i < net.n; ++i) {
 		net.index = i;
 		layer l = net.layers[i];
+
 		if (l.delta_gpu) {
 			fill_gpu(l.outputs * l.batch, (0), l.delta_gpu, 1);
 		}
@@ -786,7 +788,9 @@ void forward_network_gpu(network *netp) {
 			net.truth_gpu = l.output_gpu;
 			net.truth = l.output;
 		}
+
 	}
+
 	pull_network_output(netp);
 	calc_network_cost(netp);
 	printf("agora foi\n");
