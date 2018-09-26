@@ -800,7 +800,7 @@ void forward_network_gpu(network *netp) {
 		std::ofstream myfile(out);
 
 		for (int t = 0; t < 1000; t++)
-			myfile << l.output[t];
+			myfile << l.output[t] << std::endl;
 		myfile.close();
 	}
 
