@@ -676,7 +676,7 @@ real_t rand_uniform(real_t min, real_t max) {
 		min = max;
 		max = swap;
 	}
-	return real_t(((real_t) rand() / RAND_MAX * (max - min)) + min);
+	return real_t((rand() / REAL_RAND_MAX * (max - min)) + min);
 }
 
 real_t rand_scale(real_t s) {

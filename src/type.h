@@ -32,6 +32,7 @@ typedef half real_t_device;
 #define CAST(a) real_t_device(float(a))
 
 #define REAL_INFINITY 0x7C00
+#define REAL_RAND_MAX FLT_MAX
 
 void transform_float_to_half_array(real_t_device* dst, float* src, size_t n);
 
@@ -61,7 +62,6 @@ typedef real_t real_t_device;
 #define FLT_MAX real_t(1E+307)
 #define CAST(a) (a)
 
-
 #define REAL_INFINITY 0x7FF0000000000000
 
 //---------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ typedef struct __device_builtin__ {
 
 #endif
 
-__device__         __forceinline__ real_t_device exp_real(real_t_device x) {
+__device__          __forceinline__ real_t_device exp_real(real_t_device x) {
 #if REAL_TYPE == HALF
 	return hexp(x);
 #elif REAL_TYPE == FLOAT
@@ -87,7 +87,7 @@ __device__         __forceinline__ real_t_device exp_real(real_t_device x) {
 #endif
 }
 
-__device__         __forceinline__ real_t_device floor_real(real_t_device x) {
+__device__          __forceinline__ real_t_device floor_real(real_t_device x) {
 #if REAL_TYPE == HALF
 	return hfloor(half(x));
 #elif REAL_TYPE == FLOAT
@@ -97,7 +97,7 @@ __device__         __forceinline__ real_t_device floor_real(real_t_device x) {
 #endif
 }
 
-__device__         __forceinline__ real_t_device pow_real(real_t_device x,
+__device__          __forceinline__ real_t_device pow_real(real_t_device x,
 		real_t_device y) {
 #if REAL_TYPE == HALF
 	return real_t_device(powf(float(x), y));
@@ -108,7 +108,7 @@ __device__         __forceinline__ real_t_device pow_real(real_t_device x,
 #endif
 }
 
-__device__         __forceinline__ real_t_device sqrt_real(real_t_device x) {
+__device__          __forceinline__ real_t_device sqrt_real(real_t_device x) {
 #if REAL_TYPE == HALF
 	return hsqrt(x);
 #elif REAL_TYPE == FLOAT
@@ -118,7 +118,7 @@ __device__         __forceinline__ real_t_device sqrt_real(real_t_device x) {
 #endif
 }
 
-__device__         __forceinline__ real_t_device fabs_real(real_t_device x) {
+__device__          __forceinline__ real_t_device fabs_real(real_t_device x) {
 #if REAL_TYPE == HALF
 	return fabsf(x);
 #elif REAL_TYPE == FLOAT
@@ -128,7 +128,7 @@ __device__         __forceinline__ real_t_device fabs_real(real_t_device x) {
 #endif
 }
 
-__device__         __forceinline__ real_t_device log_real(real_t_device x) {
+__device__          __forceinline__ real_t_device log_real(real_t_device x) {
 #if REAL_TYPE == HALF
 	return hlog(x);
 #elif REAL_TYPE == FLOAT
@@ -138,31 +138,22 @@ __device__         __forceinline__ real_t_device log_real(real_t_device x) {
 #endif
 }
 
-__device__  __forceinline__ real_t_device atomic_add_real(real_t_device *x,
+__device__   __forceinline__ real_t_device atomic_add_real(real_t_device *x,
 		real_t_device val) {
-//
-//	uint16* address_as_ull = (uint16*)x;
-//	uint16 old = *address_as_ull, assumed;
-//
-//	do {
-//		assumed = old;
-//		old = atomicCAS(address_as_ull, assumed,
-//				__half_as_short(val +
-//						__short_as_half(assumed)));
-//
-//		// Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
-//	}while (assumed != old);
-//
-//	return __longlong_as_double(old);
-//#else
-#if __CUDA_ARCH__ > 700
-	return atomicAdd(x, val);
+#if REAL_TYPE == HALF
+	#if __CUDA_ARCH__ > 700
+		return atomicAdd((half*)x, (half)val);
+	#endif
+
+    half old = *x;
+    *x += val;
+  	return old;
 #else
-	return 0;
+	return atomicAdd(x, val);
 #endif
 }
 
-__device__ __forceinline__ real_t_device cos_real(real_t_device x){
+__device__  __forceinline__ real_t_device cos_real(real_t_device x) {
 #if REAL_TYPE == HALF
 	return hcos(x);
 #elif REAL_TYPE == FLOAT
@@ -172,7 +163,7 @@ __device__ __forceinline__ real_t_device cos_real(real_t_device x){
 #endif
 }
 
-__device__ __forceinline__ real_t_device sin_real(real_t_device x){
+__device__  __forceinline__ real_t_device sin_real(real_t_device x) {
 #if REAL_TYPE == HALF
 	return hsin(x);
 #elif REAL_TYPE == FLOAT

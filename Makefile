@@ -26,12 +26,12 @@ NVCC=nvcc
 AR=ar
 ARFLAGS=rcs
 OPTS=-Ofast
-LDFLAGS= -lm -pthread -lcublas
+LDFLAGS= -lm -pthread -lcublas 
 NVCCLDFLAGS =  -L/usr/local/cuda/lib64 -lcudart -lcublas -lcurand
 COMMON= -Iinclude/ -Isrc/
 CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -fPIC
 
-NVCCFLAGS= --disable-warnings --std=c++11
+NVCCFLAGS= --disable-warnings --std=c++11 
 
 
 ifeq ($(OPENMP), 1) 
@@ -130,4 +130,4 @@ detector:
 	./darknet detector demo cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/output.avi
 
 demo:
-	nvprof ./darknet detector test cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/dog.jpg
+	./darknet detector test cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/dog.jpg

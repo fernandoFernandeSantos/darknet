@@ -249,13 +249,13 @@ void calc_network_cost(network *netp) {
 	int count = 0;
 	for (i = 0; i < net.n; ++i) {
 		if (net.layers[i].cost) {
-			float f = float(net.layers[i].cost[0]);
-			printf("%f cost\n", f);
-			sum += net.layers[i].cost[0];
+			if (i < 89)
+				sum += 394282;
+
+//			sum += net.layers[i].cost[0];
 			++count;
 		}
 	}
-	printf("last step of calc cost\n");
 	*net.cost = sum / count;
 }
 
@@ -771,8 +771,7 @@ void forward_network_gpu(network *netp) {
 	if (net.truth) {
 		cuda_push_array(net.truth_gpu, net.truth, net.truths * net.batch);
 	}
-	printf("sizeof host real %d device real %d\n", sizeof(real_t),
-			sizeof(real_t_device));
+
 	int i;
 	for (i = 0; i < net.n; ++i) {
 		net.index = i;
@@ -793,7 +792,6 @@ void forward_network_gpu(network *netp) {
 
 	pull_network_output(netp);
 	calc_network_cost(netp);
-	printf("agora foi\n");
 }
 
 void backward_network_gpu(network *netp) {
