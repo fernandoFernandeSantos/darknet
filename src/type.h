@@ -32,7 +32,6 @@ typedef half real_t_device;
 #define CAST(a) real_t_device(float(a))
 
 #define REAL_INFINITY 0x7C00
-#define REAL_RAND_MAX FLT_MAX
 
 void transform_float_to_half_array(real_t_device* dst, float* src, size_t n);
 
@@ -76,6 +75,9 @@ typedef struct __device_builtin__ {
 }real_t3;
 
 #endif
+
+#define REAL_RAND_MAX FLT_MAX
+
 
 __device__          __forceinline__ real_t_device exp_real(real_t_device x) {
 #if REAL_TYPE == HALF
