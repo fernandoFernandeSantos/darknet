@@ -95,10 +95,8 @@ FP16Array::FP16Array(size_t size, float* fp32_array) {
 
 FP16Array::~FP16Array() {
 	if (this->fp16_ptr != nullptr) {
-		printf("passou aqui\n");
 		cudaError_t status = cudaFree(this->fp16_ptr);
 		check_error(status);
-		printf("fechou\n");
 	}
 }
 
