@@ -153,8 +153,8 @@ void gemm_gpu(int TA, int TB, int M, int N, int K, real_t_device ALPHA,
 	cublasHandle_t handle = blas_handle();
 
 #if REAL_TYPE == HALF
-	static FP16Array fp16_buff_a(M * K, A_gpu);
-	static FP16Array fp16_buff_b(K * N, B_gpu);
+	static FP16Array fp16_buff_a(K * N, A_gpu);
+	static FP16Array fp16_buff_b(M * K, B_gpu);
 	static FP16Array fp16_buff_c(M * N, C_gpu);
 
 //	fp16_buff_a.cuda_convert_f32_to_f16();
