@@ -56,34 +56,34 @@ int fread_float_to_real_t(real_t* dst, size_t siz, size_t times, FILE* fp) {
 
 }
 
-inline int cuda_get_device() {
-	int n = 0;
-	cudaError_t status = cudaGetDevice(&n);
-	check_error(status);
-	return n;
-}
-
-inline cudaStream_t get_cuda_stream() {
-	static cudaStream_t streamsArray[16]; // cudaStreamSynchronize( get_cuda_stream() );
-	static int streamInit[16] = { 0 };
-
-	int i = cuda_get_device();
-	if (!streamInit[i]) {
-		cudaError_t status = cudaStreamCreate(&streamsArray[i]);
-		//cudaError_t status = cudaStreamCreateWithFlags(&streamsArray[i], cudaStreamNonBlocking);
-		if (status != cudaSuccess) {
-			printf(" cudaStreamCreate error: %d \n", status);
-			const char *s = cudaGetErrorString(status);
-			char buffer[256];
-			printf("CUDA Error: %s\n", s);
-			status = cudaStreamCreateWithFlags(&streamsArray[i],
-					cudaStreamDefault);
-			check_error(status);
-		}
-		streamInit[i] = 1;
-	}
-	return streamsArray[i];
-}
+//inline int cuda_get_device() {
+//	int n = 0;
+//	cudaError_t status = cudaGetDevice(&n);
+//	check_error(status);
+//	return n;
+//}
+//
+//inline cudaStream_t get_cuda_stream() {
+//	static cudaStream_t streamsArray[16]; // cudaStreamSynchronize( get_cuda_stream() );
+//	static int streamInit[16] = { 0 };
+//
+//	int i = cuda_get_device();
+//	if (!streamInit[i]) {
+//		cudaError_t status = cudaStreamCreate(&streamsArray[i]);
+//		//cudaError_t status = cudaStreamCreateWithFlags(&streamsArray[i], cudaStreamNonBlocking);
+//		if (status != cudaSuccess) {
+//			printf(" cudaStreamCreate error: %d \n", status);
+//			const char *s = cudaGetErrorString(status);
+//			char buffer[256];
+//			printf("CUDA Error: %s\n", s);
+//			status = cudaStreamCreateWithFlags(&streamsArray[i],
+//					cudaStreamDefault);
+//			check_error(status);
+//		}
+//		streamInit[i] = 1;
+//	}
+//	return streamsArray[i];
+//}
 
 FP16Array::FP16Array(size_t size, float* fp32_array) {
 	cudaError_t status = cudaMalloc(&this->fp16_ptr,
@@ -111,8 +111,8 @@ __global__ void cuda_f32_to_f16(real_t_device* input_f32, size_t size,
 }
 
 void FP16Array::cuda_convert_f32_to_f16() {
-	cuda_f32_to_f16<<<size / BLOCK + 1, BLOCK, 0, get_cuda_stream()>>>(
-			this->fp32_ptr, size, this->fp16_ptr);
+	cuda_f32_to_f16<<<size / BLOCK + 1, BLOCK>>>(this->fp32_ptr, size,
+			this->fp16_ptr);
 }
 
 __global__ void cuda_f16_to_f32(real_t_fp16* input_f16, size_t size,
@@ -123,7 +123,7 @@ __global__ void cuda_f16_to_f32(real_t_fp16* input_f16, size_t size,
 }
 
 void FP16Array::cuda_convert_f16_to_f32() {
-	cuda_f16_to_f32<<<this->size / BLOCK + 1, BLOCK, 0, get_cuda_stream()>>>(
-			this->fp16_ptr, size, this->fp32_ptr);
+	cuda_f16_to_f32<<<this->size / BLOCK + 1, BLOCK>>>(this->fp16_ptr, size,
+			this->fp32_ptr);
 }
 
