@@ -86,10 +86,13 @@ inline cudaStream_t get_cuda_stream() {
 }
 
 FP16Array::FP16Array(size_t size, float* fp32_array) {
+	printf("passou no fp16array");
 	cudaError_t status = cudaMalloc((void**) this->fp16_ptr,
 			sizeof(real_t_fp16) * size);
-	this->fp32_ptr = fp32_array;
+	printf("aqui agoraz\n");
 	check_error(status);
+
+	this->fp32_ptr = fp32_array;
 	this->size = size;
 }
 
