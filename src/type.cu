@@ -107,11 +107,10 @@ __global__ void cuda_f32_to_f16(real_t_device* input_f32, size_t size,
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (idx < size)
 		output_f16[idx] = __float2half(input_f32[idx]);
-	//if (idx < size) *((unsigned short *)output_f16 + idx) = __float2half(input_f32[idx]);
 }
 
 void FP16Array::cuda_convert_f32_to_f16() {
-	cuda_f32_to_f16<<<size / BLOCK + 1, BLOCK>>>(this->fp32_ptr, size,
+	cuda_f32_to_f16<<<cuda_gridsize(this->size), BLOCK>>>(this->fp32_ptr, size,
 			this->fp16_ptr);
 }
 
@@ -123,7 +122,7 @@ __global__ void cuda_f16_to_f32(real_t_fp16* input_f16, size_t size,
 }
 
 void FP16Array::cuda_convert_f16_to_f32() {
-	cuda_f16_to_f32<<<this->size / BLOCK + 1, BLOCK>>>(this->fp16_ptr, size,
+	cuda_f16_to_f32<<<cuda_gridsize(this->size), BLOCK>>>(this->fp16_ptr, size,
 			this->fp32_ptr);
 }
 
