@@ -758,7 +758,6 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 
 		free_image(im);
 		free_image(sized);
-		printf("passou\n");
 //		if (filename)
 //			break;
 	}
