@@ -156,7 +156,6 @@ void gemm_gpu(int TA, int TB, int M, int N, int K, real_t_device ALPHA,
 	static FP16Array fp16_buff_a(M * K, A_gpu);
 	static FP16Array fp16_buff_b(K * N, B_gpu);
 	static FP16Array fp16_buff_c(M * N, C_gpu);
-	printf("foi antes\n");
 
 	fp16_buff_a.cuda_convert_f32_to_f16();
 	fp16_buff_b.cuda_convert_f32_to_f16();
@@ -164,18 +163,14 @@ void gemm_gpu(int TA, int TB, int M, int N, int K, real_t_device ALPHA,
 	real_t_fp16 alpha = real_t_fp16(ALPHA);
 	real_t_fp16 beta = real_t_fp16(BETA);
 
-	printf("foi\n");
 	cudaError_t status = (cudaError_t) cublasHgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
 			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &alpha, fp16_buff_b.fp16_ptr, ldb,
 			fp16_buff_a.fp16_ptr, lda, &beta, fp16_buff_c.fp16_ptr, ldc);
 
 
-	printf("foi222\n");
 	fp16_buff_a.cuda_convert_f16_to_f32();
 	fp16_buff_b.cuda_convert_f16_to_f32();
 	fp16_buff_c.cuda_convert_f16_to_f32();
-
-	printf("foi3\n");
 
 #elif REAL_TYPE == FLOAT
 	cudaError_t status = (cudaError_t) cublasSgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
