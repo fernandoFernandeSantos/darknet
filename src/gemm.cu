@@ -153,15 +153,26 @@ void gemm_gpu(int TA, int TB, int M, int N, int K, real_t_device ALPHA,
 	cublasHandle_t handle = blas_handle();
 
 #if REAL_TYPE == HALF
-//	real_t_device *alpha_device = cuda_make_array(&ALPHA, 1);
-//	real_t_device *beta_device = cuda_make_array(&BETA, 1);
+	static FP16Array fp16_buff_a(M * K, A_gpu);
+	static FP16Array fp16_buff_b(K * N, B_gpu);
+	static FP16Array fp16_buff_c(M * N, C_gpu);
+
+	fp16_buff_a.cuda_convert_f32_to_f16();
+	fp16_buff_b.cuda_convert_f32_to_f16();
+	fp16_buff_c.cuda_convert_f32_to_f16();
+	real_t_fp16 alpha = real_t_fp16(ALPHA);
+	real_t_fp16 beta = real_t_fp16(BETA);
 
 	cudaError_t status = (cudaError_t) cublasHgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
-			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &ALPHA, B_gpu, ldb,
-			A_gpu, lda, &BETA, C_gpu, ldc);
+			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &alpha, fp16_buff_b.fp16_ptr, ldb,
+			fp16_buff_a.fp16_ptr, lda, &beta, fp16_buff_c.fp16_ptr, ldc);
 
-//	cuda_free(alpha_device);
-//	cuda_free(beta_device);
+
+	fp16_buff_a.cuda_convert_f16_to_f32();
+	fp16_buff_b.cuda_convert_f16_to_f32();
+	fp16_buff_c.cuda_convert_f16_to_f32();
+
+
 #elif REAL_TYPE == FLOAT
 	cudaError_t status = (cudaError_t) cublasSgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
 			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &ALPHA, B_gpu, ldb,
