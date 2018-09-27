@@ -701,11 +701,11 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 //	printf("passou aqui\n");
 	int size = 9;
 	char **image_names = get_labels(filename);
-	char **ptr_images = image_names;
+
 	int icount = 0;
 	while (icount < size) {
-		if (ptr_images) {
-			strncpy(input, ptr_images[icount++], 256);
+		if (*image_names) {
+			strncpy(input, image_names[icount++], 256);
 		} else {
 			printf("Enter Image Path: ");
 			fflush(stdout);
