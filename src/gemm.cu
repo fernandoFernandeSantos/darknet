@@ -256,8 +256,8 @@ void gemm_gpu(int TA, int TB, int M, int N, int K, real_t_device ALPHA,
 //	srand(0);
 //	real_t *a;
 //	if (!TA)3.407 BFLOPs
-88 conv    255  1 x 1 / 1    19 x  19 x1024   ->    19 x  19 x 255  0.189 BFLOPs
-89 yolo
+//88 conv    255  1 x 1 / 1    19 x  19 x1024   ->    19 x  19 x 255  0.189 BFLOPs
+//89 yolo
 
 //		a = random_matrix(m, k);
 //	else
