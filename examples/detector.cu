@@ -702,7 +702,7 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	char **image_names = get_labels(filename);
 	char **ptr_images = image_names;
 
-	while (ptr_images++) {
+	while (++ptr_images) {
 		if (ptr_images) {
 			strncpy(input, *ptr_images, 256);
 		} else {
