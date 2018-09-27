@@ -699,12 +699,13 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	char *input = buff;
 	real_t nms = real_t(.45);
 //	printf("passou aqui\n");
-	char **image_names = get_labels(filename);
+	int size = 0;
+	char **image_names = get_labels(filename, &size);
 	char **ptr_images = image_names;
-
-	while ((ptr_images++)[0]) {
+	int icount = 0;
+	while (icount < size) {
 		if (ptr_images) {
-			strncpy(input, *ptr_images, 256);
+			strncpy(input, ptr_images[icount++], 256);
 		} else {
 			printf("Enter Image Path: ");
 			fflush(stdout);
