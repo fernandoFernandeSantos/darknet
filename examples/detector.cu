@@ -699,8 +699,8 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	char *input = buff;
 	real_t nms = real_t(.45);
 //	printf("passou aqui\n");
-	int size = 0;
-	char **image_names = get_labels(filename, &size);
+	int size = 9;
+	char **image_names = get_labels(filename);
 	char **ptr_images = image_names;
 	int icount = 0;
 	while (icount < size) {
