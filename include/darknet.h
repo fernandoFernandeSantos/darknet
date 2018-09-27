@@ -800,7 +800,7 @@ void free_detections(detection *dets, int n);
 
 void reset_network_state(network *net, int b);
 
-char **get_labels(char *filename);
+char **get_labels(char *filename, int *size = 0);
 void do_nms_obj(detection *dets, int total, int classes, real_t thresh);
 void do_nms_sort(detection *dets, int total, int classes, real_t thresh);
 
