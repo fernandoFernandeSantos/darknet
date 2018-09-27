@@ -153,9 +153,24 @@ void gemm_gpu(int TA, int TB, int M, int N, int K, real_t_device ALPHA,
 	cublasHandle_t handle = blas_handle();
 
 #if REAL_TYPE == HALF
-	FP16Array fp16_buff_a(M * K, A_gpu);
-	FP16Array fp16_buff_b(K * N, B_gpu);
-	FP16Array fp16_buff_c(M * N, C_gpu);
+	static size_t max_mk  = 0;
+	static size_t max_nk = 0;
+	static size_t max_mn = 0;
+	bool realloc = false;
+	if (M * K > max_mk || K * N > max_nk|| M * N > max_mn){
+		max_nk = M * K;
+		max_nk = K * N;
+		max_mn = M * N;
+		realloc = true;
+	}
+
+	static FP16Array fp16_buff_a(M * K, A_gpu);
+	static FP16Array fp16_buff_b(K * N, B_gpu);
+	static FP16Array fp16_buff_c(M * N, C_gpu);
+
+	fp16_buff_a.realloc(M * K, A_gpu, realloc);
+	fp16_buff_b.realloc(K * N, B_gpu, realloc);
+	fp16_buff_c.realloc(M * N, C_gpu, realloc);
 
 	fp16_buff_a.cuda_convert_f32_to_f16();
 	fp16_buff_b.cuda_convert_f32_to_f16();

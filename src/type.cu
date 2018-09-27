@@ -93,6 +93,21 @@ FP16Array::FP16Array(size_t size, float* fp32_array) {
 	this->size = size;
 }
 
+void FP16Array::realloc(size_t size, float* fp32_array, bool realloc) {
+	if (realloc == true) {
+		if (this->fp16_ptr != nullptr) {
+			cudaError_t status = cudaFree(this->fp16_ptr);
+			check_error(status);
+		}
+
+		cudaError_t status = cudaMalloc(&this->fp16_ptr,
+				sizeof(real_t_fp16) * size);
+		check_error(status);
+		this->fp32_ptr = fp32_array;
+		this->size = size;
+	}
+}
+
 FP16Array::~FP16Array() {
 	if (this->fp16_ptr != nullptr) {
 		cudaError_t status = cudaFree(this->fp16_ptr);
@@ -108,8 +123,8 @@ __global__ void cuda_f32_to_f16(real_t_device* input_f32, size_t size,
 }
 
 void FP16Array::cuda_convert_f32_to_f16() {
-	cuda_f32_to_f16<<<this->size / BLOCK + 1, BLOCK>>>(this->fp32_ptr, this->size,
-			this->fp16_ptr);
+	cuda_f32_to_f16<<<this->size / BLOCK + 1, BLOCK>>>(this->fp32_ptr,
+			this->size, this->fp16_ptr);
 }
 
 __global__ void cuda_f16_to_f32(real_t_fp16* input_f16, size_t size,
@@ -120,7 +135,7 @@ __global__ void cuda_f16_to_f32(real_t_fp16* input_f16, size_t size,
 }
 
 void FP16Array::cuda_convert_f16_to_f32() {
-	cuda_f16_to_f32<<<this->size / BLOCK + 1, BLOCK>>>(this->fp16_ptr, this->size,
-			this->fp32_ptr);
+	cuda_f16_to_f32<<<this->size / BLOCK + 1, BLOCK>>>(this->fp16_ptr,
+			this->size, this->fp32_ptr);
 }
 
