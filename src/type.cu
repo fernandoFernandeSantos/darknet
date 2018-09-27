@@ -85,10 +85,17 @@ int fread_float_to_real_t(real_t* dst, size_t siz, size_t times, FILE* fp) {
 //	return streamsArray[i];
 //}
 
-FP16Array::FP16Array(size_t size, float* fp32_array) {
-	cudaError_t status = cudaMalloc(&this->fp16_ptr,
+FP16Array::FP16Array(size_t size, float* fp32_array, bool realloc) {
+	if(realloc){
+		if(this->fp16_ptr){
+			cudaError_t status = cudaFree(this->fp16_ptr);
+			check_error(status);
+		}
+
+		cudaError_t status = cudaMalloc(&this->fp16_ptr,
 			sizeof(real_t_fp16) * size);
-	check_error(status);
+		check_error(status);
+	}
 	this->fp32_ptr = fp32_array;
 	this->size = size;
 }
