@@ -5,11 +5,10 @@
  *      Author: fernando
  */
 
-
-
+extern "C" {
 
 #include "type.h"
-
+}
 #ifdef GPU
 #include "cuda.h"
 #endif
@@ -36,3 +35,4 @@ int fread_float_to_real_t(real_t* dst, size_t siz, size_t times, FILE* fp) {
 	return fread_result;
 
 }
+
