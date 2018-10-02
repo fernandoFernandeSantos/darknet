@@ -164,13 +164,13 @@ void run_cuda_gemm_half(int TA, int TB, int M, int N, int K, real_t ALPHA, real_
 	check_error(cudaMalloc(&c, sizeof(real_t_fp16) * siz_c));
 
 
-	cuda_f32_to_f16<<<cuda_gridsize(siz_a), BLOCK>>>(d_a, siz_a, a);
+	cuda_f32_to_f16<<<cuda_gridsize(siz_a), BLOCK>>>(A_gpu, siz_a, a);
 	check_error(cudaPeekAtLastError());
 
-	cuda_f32_to_f16<<<cuda_gridsize(siz_b), BLOCK>>>(d_b, siz_b, b);
+	cuda_f32_to_f16<<<cuda_gridsize(siz_b), BLOCK>>>(B_gpu, siz_b, b);
 	check_error(cudaPeekAtLastError());
 
-	cuda_f32_to_f16<<<cuda_gridsize(siz_c), BLOCK>>>(d_c, siz_c, c);
+	cuda_f32_to_f16<<<cuda_gridsize(siz_c), BLOCK>>>(C_gpu, siz_c, c);
 	check_error(cudaPeekAtLastError());
 
 	real_t_fp16 alpha = real_t_fp16(ALPHA);
@@ -182,13 +182,13 @@ void run_cuda_gemm_half(int TA, int TB, int M, int N, int K, real_t ALPHA, real_
 
 //	pop_and_convert_3_arrays(A_gpu, B_gpu, C_gpu,
 //			a, M * K, b, K * N, c, M * N);
-	cuda_f16_to_f32<<<cuda_gridsize(siz_a), BLOCK>>>(a, siz_a, d_a);
+	cuda_f16_to_f32<<<cuda_gridsize(siz_a), BLOCK>>>(a, siz_a, A_gpu);
 	check_error(cudaPeekAtLastError());
 
-	cuda_f16_to_f32<<<cuda_gridsize(siz_b), BLOCK>>>(b, siz_b, d_b);
+	cuda_f16_to_f32<<<cuda_gridsize(siz_b), BLOCK>>>(b, siz_b, B_gpu);
 	check_error(cudaPeekAtLastError());
 
-	cuda_f16_to_f32<<<cuda_gridsize(siz_c), BLOCK>>>(c, siz_c, d_c);
+	cuda_f16_to_f32<<<cuda_gridsize(siz_c), BLOCK>>>(c, siz_c, C_gpu);
 	check_error(cudaPeekAtLastError());
 
 	//free the three half arrays
