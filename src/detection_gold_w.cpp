@@ -50,6 +50,7 @@ void start_iteration_wrapper(detection_gold_t *m) {
 
 	obj = static_cast<DetectionGold *>(m->obj);
 	obj->start_iteration();
+	printf("passou no wrapper do start\n");
 }
 
 void end_iteration_wrapper(detection_gold_t *m) {
@@ -59,6 +60,7 @@ void end_iteration_wrapper(detection_gold_t *m) {
 
 	obj = static_cast<DetectionGold *>(m->obj);
 	obj->end_iteration();
+	printf("passou no wrapper do end\n");
 
 }
 

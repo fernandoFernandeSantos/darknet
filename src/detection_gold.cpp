@@ -136,7 +136,7 @@ bool operator!=(const box& a, const box& b) {
 void DetectionGold::cmp(detection* found_dets, int nboxes, int img_index,
 		int classes) {
 	std::string img = this->gold_img_names[img_index];
-
+	std::cout << "DENTRO DO CMP\n";
 	std::vector<Detection> gold_dets = this->gold_hash_var[img];
 
 	int error_count = 0;
@@ -214,6 +214,7 @@ void DetectionGold::run(detection *dets, int nboxes, int img_index,
 	} else {
 		// To compare function
 		//detection is allways nboxes size
+		std::cout << "it is going to compare\n";
 		double start = mysecond();
 		this->cmp(dets, nboxes, img_index, classes);
 
