@@ -31,8 +31,8 @@ NVCCLDFLAGS =  -L/usr/local/cuda/lib64 -lcudart -lcublas -lcurand
 COMMON= -Iinclude/ -Isrc/
 CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -fPIC
 
-NVCCFLAGS= --disable-warnings --std=c++11 
-
+NVCCFLAGS=  --std=c++11 
+#-disable-warnings 
 
 ifeq ($(OPENMP), 1) 
 CFLAGS+= -fopenmp
@@ -79,7 +79,7 @@ im2col.o col2im.o blas.o crop_layer.o dropout_layer.o maxpool_layer.o softmax_la
 network.o connected_layer.o cost_layer.o parser.o option_list.o detection_layer.o route_layer.o upsample_layer.o \
 box.o normalization_layer.o avgpool_layer.o layer.o local_layer.o shortcut_layer.o logistic_layer.o activation_layer.o \
 rnn_layer.o gru_layer.o crnn_layer.o demo.o batchnorm_layer.o region_layer.o reorg_layer.o tree.o  lstm_layer.o \
-l2norm_layer.o yolo_layer.o iseg_layer.o type.o
+l2norm_layer.o yolo_layer.o iseg_layer.o #type.o
 
 # I removed those ones to save time
 # captcha.o lsd.o super.o art.o tag.o cifar.o go.o rnn.o segmenter.o regressor.o classifier.o coco.o nightmare.o instance-segmenter.o
@@ -93,14 +93,14 @@ endif
 
 EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
-DEPS = $(wildcard src/*.h) src/half.hpp Makefile include/darknet.h
+DEPS = $(wildcard src/*.h) Makefile include/darknet.h
 
 all: obj backup results  $(EXEC)
 #all: obj  results $(SLIB) $(ALIB) $(EXEC) $(ALIB) $(SLIB)
 
 # $(SLIB) #$(ALIB
 $(EXEC): $(OBJS) $(EXECOBJ)  
-	$(NVCC) $(COMMON) --compiler-options "$(CFLAGS)" $^ -o $@ --compiler-options "$(LDFLAGS)" $(NVCCLDFLAGS)
+	$(CC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 #$(ALIB): $(OBJS)
 #	$(AR) $(ARFLAGS) $@ $^
@@ -109,7 +109,7 @@ $(EXEC): $(OBJS) $(EXECOBJ)
 #	$(CXX) $(CFLAGS) $^ -o $@  $(LDFLAGS)
 
 $(OBJDIR)%.o: %.c $(DEPS)
-	$(NVCC) $(COMMON)  $(NVCCFLAGS) --compiler-options "$(CFLAGS)" -c $< -o $@
+	$(CC) $(COMMON)  $(CFLAGS) -c $< -o $@
 
 $(OBJDIR)%.o: %.cu $(DEPS)
 	$(NVCC) $(ARCH) $(COMMON) $(NVCCFLAGS) --compiler-options "$(CFLAGS)" -c $< -o $@
