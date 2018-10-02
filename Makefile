@@ -19,7 +19,7 @@ ARCH= -gencode arch=compute_60,code=sm_60 \
 VPATH=./src/:./examples
 SLIB=libdarknet.so
 ALIB=libdarknet.a
-EXEC=darknet
+EXEC=darknet_v3_$(REAL_TYPE)
 OBJDIR=./obj/
 
 CC=gcc
@@ -130,20 +130,20 @@ results:
 .PHONY: clean
 
 clean:
-	rm -rf $(OBJS) $(SLIB) $(ALIB) $(EXEC) $(EXECOBJ) $(OBJDIR)/*
+	rm -rf $(OBJS) $(SLIB) $(ALIB) $(EXEC) $(EXECOBJ) $(OBJDIR)/* darknet_v3_*
 
 detector:
-	./darknet detector demo cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/output.avi
+	./$(EXEC) detector demo cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/output.avi
 
 demo:
-	./darknet detector test cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/dog.jpg
+	./$(EXEC) detector test cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/dog.jpg
 
 generate:
-	./darknet detector test_radiation cfg/coco.data cfg/yolov3.cfg data/yolov3.weights \
+	./$(EXEC) detector test_radiation cfg/coco.data cfg/yolov3.cfg data/yolov3.weights \
 			$(RADIATIONDIR)/data/networks_img_list/caltech.pedestrians.10.txt \
 			-generate 1 -gold ./test.csv
 
 test:
-	./darknet detector test_radiation cfg/coco.data cfg/yolov3.cfg data/yolov3.weights \
+	./$(EXEC) detector test_radiation cfg/coco.data cfg/yolov3.cfg data/yolov3.weights \
 			$(RADIATIONDIR)/data/networks_img_list/caltech.pedestrians.10.txt \
 			-generate 0 -gold ./test.csv -iterations 200

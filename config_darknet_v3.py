@@ -9,21 +9,22 @@ from common_config import discover_board, execute_and_write_json_to_file
 
 DATASETS = [
     # normal
-     {'txt': 'caltech.pedestrians.1K.txt', 'gold': 'gold.caltech.1K.csv', 'mode': 'full'},
+    {'txt': 'caltech.pedestrians.1K.txt', 'gold': 'gold.caltech.1K.csv', 'mode': 'full'},
     # {'txt': 'urban.street.1.1K.txt', 'gold': 'gold.urban.street.1.1K.csv', 'mode': 'full'},
     # {'txt': 'voc.2012.1K.txt', 'gold': 'gold.voc.2012.1K.csv', 'mode': 'full'},
 ]
 
-BINARY_NAME = "darknet_v3"
+BINARY_NAME = "darknet_v3_"
 # SAVE_LAYER = [0, ]
 USE_TENSOR_CORES = [0, 1]
 # 0 - "none",  1 - "gemm", 2 - "smart_pooling", 3 - "l1", 4 - "l2", 5 - "trained_weights"}
 ABFT = [0]  # , 2]
+REAL_TYPES = ["double", "single", "half"]
 WEIGHTS = "yolov3.weights"
 CFG = "yolov3.cfg"
 
 
-def config(board, debug, download_data):
+def config(board, debug):
     print "Generating darknet v3 for CUDA, board:" + board
 
     conf_file = '/etc/radiation-benchmarks.conf'
@@ -47,50 +48,44 @@ def config(board, debug, download_data):
 
     # change it for darknetv2
     generate = ["mkdir -p " + bin_path, "mkdir -p /var/radiation-benchmarks/data", "cd " + src_darknet,
-                "make clean GPU=1", "make -j4 GPU=1  SAFE_MALLOC=1",
-                "mv ./" + benchmark_bin + "  " + bin_path + "/"]
+                "make clean GPU=1", "make -C ../../include/"]
     execute = []
 
     # 0 - "none",  1 - "gemm", 2 - "smart_pooling", 3 - "l1", 4 - "l2", 5 - "trained_weights"}
+    for fp_precision in REAL_TYPES:
+        for i in DATASETS:
+            for tc in USE_TENSOR_CORES:
+                generate.append("make clean GPU=1 LOGS=1")
+                bin_final_name = benchmark_bin + fp_precision
+                generate.append("make -j4 GPU=1 REAL_TYPE=" + fp_precision)
+                generate.append("mv ./" + bin_final_name + "  " + bin_path + "/")
 
-    for i in DATASETS:
-        for tc in USE_TENSOR_CORES:
-            if (save_layer == 1 and i['mode'] == 'full') or (save_layer == 0 and i['mode'] == 'small'):
-                continue
-
-            gold = data_path + '/' + BINARY_NAME + '_tensor_cores_mode_' + str(tc) + '_' + i['gold']
-            txt_list = install_dir + 'data/networks_img_list/' + i['txt']
-            gen = {
-                'bin': [
+                gold = data_path + '/' + BINARY_NAME + 'tensor_cores_mode_' + str(tc) + '_fp_precision_' + str(
+                    fp_precision) + '_' + i['gold']
+                txt_list = install_dir + 'data/networks_img_list/' + i['txt']
+                gen = [] * 8
+                gen[0] = [
                     "sudo env LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}} " + bin_path,
-                    "/" + benchmark_bin],
-                # 'e': [' -e ', 'yolo'],  # execution_type =
-                'aa': ['test_radiation', ''],  # execution_model =
-                'c': [' -c ', data_path + '/' + CFG],  # config_file =
-                'w': [' -w ', data_path + '/' + WEIGHTS],  # weights =
-                'n': [' -n ', '1'],
-                # iterations =  #it is not so much, since each dataset have at least 10k of images
-                'g': [' -g ', gold],  # base_caltech_out = base_voc_out = src_darknet
-                'l': [' -l ', txt_list],
-                't': [' -t ', tc]
-            }
+                    "/" + bin_final_name]
+                gen[1] = [" detector ", " test_radiation "]
+                gen[2] = [data_path + '/' + CFG]
+                gen[3] = [data_path + '/' + WEIGHTS]
+                gen[4] = [txt_list]
+                gen[5] = [' -generate ', '1']
+                gen[6] = [' -iterations ', '1']
+                gen[7] = [' -tensor_cores ', tc]
+                gen[8] = [' -gold ', gold]
 
-            exe = copy.deepcopy(gen)
-            exe['n'][1] = 10000
-            exe['g'][0] = ' -d '
+                generate.append("make -j 4 GPU=1 LOGS=1 REAL_TYPE=" + fp_precision)
+                generate.append("mv ./" + bin_final_name + "  " + bin_path + "/")
 
-            exe_save = copy.deepcopy(exe)
-            exe_save['s'][1] = save_layer
+                exe = copy.deepcopy(gen)
+                exe[6][1] = '1000000'
+                exe[5][1] = '0'
 
-            if abft == 0:
-                generate.append(" ".join([''.join(map(str, value)) for key, value in gen.iteritems()]))
+                generate.append(" ".join([''.join(value) for value in gen]))
 
-            execute.append(" ".join([''.join(map(str, value)) for key, value in exe.iteritems()]))
-
-    generate.append("make clean GPU=1 SAFE_MALLOC=1")
-    generate.append("make -C ../../include/")
-    generate.append("make -j 4 GPU=1 SAFE_MALLOC=1 LOGS=1")
-    generate.append("mv ./" + benchmark_bin + " " + bin_path + "/")
+                execute.append(" ".join([''.join(value) for value in exe]))
 
     execute_and_write_json_to_file(execute=execute, generate=generate, install_dir=install_dir,
                                    benchmark_bin=benchmark_bin, debug=debug)
@@ -109,4 +104,4 @@ if __name__ == "__main__":
         debug_mode = False
         download_data = False
     board, _ = discover_board()
-    config(board=board, debug=debug_mode, download_data=download_data)
+    config(board=board, debug=debug_mode)
