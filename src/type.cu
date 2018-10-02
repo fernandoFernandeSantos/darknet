@@ -21,13 +21,13 @@ int fread_float_to_real_t(real_t* dst, size_t siz, size_t times, FILE* fp) {
 	if (temp == NULL) {
 		return -1;
 	}
-	int fread_result = fread(temp, sizeof(float), times, fp);
+	size_t fread_result = fread(temp, sizeof(float), times, fp);
 	if (fread_result != times) {
 		free(temp);
 		return -1;
 	}
-	int i;
-	for (i = 0; i < times; i++) {
+
+	for (size_t i = 0; i < times; i++) {
 		//TODO: make ready for half
 		dst[i] = real_t(temp[i]);
 	}

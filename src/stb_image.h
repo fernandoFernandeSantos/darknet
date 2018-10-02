@@ -733,7 +733,7 @@ static void stbi__start_callbacks(stbi__context *s, stbi_io_callbacks *c, void *
 
 static int stbi__stdio_read(void *user, char *data, int size)
 {
-   return (int) fread_float_to_real_t(data,1,size,(FILE*) user);
+   return (int) fread(data,1,size,(FILE*) user);
 }
 
 static void stbi__stdio_skip(void *user, int n)

@@ -255,7 +255,7 @@ unsigned char *read_file(char *filename) {
 	fseek(fp, 0, SEEK_SET);
 
 	unsigned char *text = calloc(size + 1, sizeof(char));
-	fread_float_to_real_t(text, 1, size, fp);
+	fread(text, 1, size, fp);
 	fclose(fp);
 	return text;
 }
