@@ -94,6 +94,7 @@ struct DetectionGold {
 	std::string img_list_path, config_file, cfg_data, model, weights;
 	std::vector<std::string> gold_img_names;
 	int iterations, tensor_core_mode, stream_mr;
+	int total_errors;
 
 	//gold atribute
 	GoldHash gold_hash_var;

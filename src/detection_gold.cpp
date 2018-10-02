@@ -60,6 +60,7 @@ DetectionGold::DetectionGold(int argc, char **argv, real_t thresh,
 	this->stream_mr = find_int_arg(argc, argv, "-smx_redundancy", 0);
 	this->thresh = thresh;
 	this->hier_thresh = hier_thresh;
+	this->total_errors = 0;
 
 	if (!this->generate) {
 
@@ -185,7 +186,11 @@ int DetectionGold::cmp(detection* found_dets, int nboxes, int img_index,
 			}
 		}
 	}
-
+	this->total_errors+= error_count;
+	if(this->total_errors > MAX_ERROR_COUNT){
+		this->app_log->update_error_count(this->total_errors);
+		exit(-1);
+	}
 	this->app_log->update_error_count(error_count);
 	return error_count;
 }
