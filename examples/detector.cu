@@ -703,9 +703,9 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	char **image_names = get_labels(filename);
 
 	int icount = 0;
-	while (icount < size) {
-		if (*image_names) {
-			strncpy(input, image_names[icount++], 256);
+	while (icount++ < size) {
+		if (image_names[icount]) {
+			strncpy(input, image_names[icount], 256);
 		} else {
 			printf("Enter Image Path: ");
 			fflush(stdout);
