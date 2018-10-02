@@ -79,7 +79,8 @@ endif
 
 ifeq ($(LOGS), 1)
 COMMON += -DLOGS -I$(RADIATIONDIR)/src/include
-COMMON += -L$(RADIATIONDIR)/src/include -lLogHelper
+COMMON += -L$(RADIATIONDIR)/src/include 
+LDFLAGS += -lLogHelper
 endif
 
 
