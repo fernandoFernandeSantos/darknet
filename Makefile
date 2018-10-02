@@ -29,7 +29,7 @@ OPTS=-Ofast
 LDFLAGS= -lm -pthread -lcublas 
 NVCCLDFLAGS =  -L/usr/local/cuda/lib64 -lcudart -lcublas -lcurand
 COMMON= -Iinclude/ -Isrc/
-CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -Werror -fPIC
+CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -fPIC
 
 NVCCFLAGS=  --std=c++11 
 #-disable-warnings 
@@ -43,7 +43,8 @@ OPTS=-O0 -g
 NVCCFLAGS+= -G
 endif
 
-CFLAGS+=$(OPTS)
+CFLAGS+=$(OPTS) -lstdc++
+CXXFLAGS+= $(CFLAGS) --std=c++11
 
 ifeq ($(REAL_TYPE), double)
 COMMON+= -DREAL_TYPE=64
@@ -83,7 +84,7 @@ l2norm_layer.o yolo_layer.o iseg_layer.o
 
 # I removed those ones to save time
 # captcha.o lsd.o super.o art.o tag.o cifar.o go.o rnn.o segmenter.o regressor.o classifier.o coco.o nightmare.o instance-segmenter.o
-EXECOBJA= yolo.o detector.o  darknet.o
+EXECOBJA= yolo.o detector.o  darknet.o detection_gold.o detection_gold_w.o
 
 ifeq ($(GPU), 1) 
 LDFLAGS+= -lstdc++ 
@@ -96,20 +97,16 @@ OBJS = $(addprefix $(OBJDIR), $(OBJ))
 DEPS = $(wildcard src/*.h) Makefile include/darknet.h
 
 all: obj backup results  $(EXEC)
-#all: obj  results $(SLIB) $(ALIB) $(EXEC) $(ALIB) $(SLIB)
 
 # $(SLIB) #$(ALIB
 $(EXEC): $(OBJS) $(EXECOBJ)  
 	$(CC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-#$(ALIB): $(OBJS)
-#	$(AR) $(ARFLAGS) $@ $^
-
-#$(SLIB): $(OBJS)
-#	$(CXX) $(CFLAGS) $^ -o $@  $(LDFLAGS)
-
 $(OBJDIR)%.o: %.c $(DEPS)
 	$(CC) $(COMMON)  $(CFLAGS) -c $< -o $@
+	
+$(OBJDIR)%.o: %.cpp $(DEPS)
+	$(CXX) $(COMMON)  $(CXXFLAGS) -c $< -o $@
 
 $(OBJDIR)%.o: %.cu $(DEPS)
 	$(NVCC) $(ARCH) $(COMMON) $(NVCCFLAGS) --compiler-options "$(CFLAGS)" -c $< -o $@

@@ -1,4 +1,5 @@
 #include "darknet.h"
+#include "detection_gold_w.h"
 
 static int coco_ids[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17,
 		18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38,
@@ -734,7 +735,6 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 			image sized = sized_images[images]; //letterbox_image(im, net->w, net->h);
 
 			layer l = net->layers[net->n - 1];
-			printf("passou\n");
 
 			real_t *X = sized.data;
 			time = what_time_is_it_now();
