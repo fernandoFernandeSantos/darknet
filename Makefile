@@ -4,7 +4,7 @@ OPENCV?=0
 OPENMP=0
 DEBUG?=0
 REAL_TYPE?=float
-LOGS?=1
+LOGS?=0
 
 RADIATIONDIR=/home/ffsantos/fernando_rad_dir/radiation-benchmarks/
 
@@ -31,7 +31,7 @@ OPTS=-Ofast
 LDFLAGS= -lm -pthread -lcublas 
 NVCCLDFLAGS =  -L/usr/local/cuda/lib64 -lcudart -lcublas -lcurand
 COMMON= -Iinclude/ -Isrc/
-CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -fPIC
+CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -Werror -fPIC
 
 NVCCFLAGS=  --std=c++11 
 #-disable-warnings 

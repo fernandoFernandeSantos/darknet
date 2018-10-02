@@ -95,11 +95,9 @@ struct DetectionGold {
 	std::string img_list_path, config_file, cfg_data, model, weights;
 	std::vector<std::string> gold_img_names;
 	int iterations, tensor_core_mode, stream_mr;
-	int current_iteration;
 
 	//gold atribute
 	GoldHash gold_hash_var;
-
 
 	Log* app_log;
 
@@ -109,7 +107,7 @@ struct DetectionGold {
 
 	virtual ~DetectionGold();
 
-	void run(detection* dets, int nboxes, int img_index, int classes);
+	int run(detection* dets, int nboxes, int img_index, int classes);
 
 	void start_iteration();
 	void end_iteration();
@@ -120,7 +118,7 @@ struct DetectionGold {
 
 	void gen(detection* dets, int nboxes, int img_index,
 			std::ofstream& gold_file, int classes);
-	void cmp(detection* dets, int nboxes, int img_index, int classes);
+	int cmp(detection* dets, int nboxes, int img_index, int classes);
 
 	//log functions
 //	void start_log(std::string gold, int save_layer, int abft, int iterations,

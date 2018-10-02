@@ -8,13 +8,13 @@
 #ifndef LOG_PROCESSING_H_
 #define LOG_PROCESSING_H_
 
-#ifdef LOGS
-#include "log_helper.h"
-#endif
-
 #include <string>
 
+
+#ifdef LOGS
+#include "log_helper.h"
 static const char* ABFT_TYPES[] = { "none", "abft" };
+#endif
 
 struct Log {
 	static void start_log(std::string gold, int save_layer, int abft,

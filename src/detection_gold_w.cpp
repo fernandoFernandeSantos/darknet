@@ -33,14 +33,14 @@ void destroy_detection_gold(detection_gold_t *m) {
 	free(m);
 }
 
-void run(detection_gold_t *m, detection* dets, int nboxes, int img_index,
+int run(detection_gold_t *m, detection* dets, int nboxes, int img_index,
 		int classes) {
 	DetectionGold *obj;
 	if (m == NULL)
-		return;
+		return 0;
 
 	obj = static_cast<DetectionGold *>(m->obj);
-	obj->run(dets, nboxes, img_index, classes);
+	return obj->run(dets, nboxes, img_index, classes);
 }
 
 void start_iteration_wrapper(detection_gold_t *m) {

@@ -60,7 +60,6 @@ DetectionGold::DetectionGold(int argc, char **argv, real_t thresh,
 	this->stream_mr = find_int_arg(argc, argv, "-smx_redundancy", 0);
 	this->thresh = thresh;
 	this->hier_thresh = hier_thresh;
-	this->current_iteration = 0;
 
 	if (!this->generate) {
 
@@ -127,7 +126,7 @@ bool operator!=(const box& a, const box& b) {
 			|| w_diff > THRESHOLD_ERROR || h_diff > THRESHOLD_ERROR);
 }
 
-void DetectionGold::cmp(detection* found_dets, int nboxes, int img_index,
+int DetectionGold::cmp(detection* found_dets, int nboxes, int img_index,
 		int classes) {
 	std::string img = this->gold_img_names[img_index];
 	std::vector<Detection> gold_dets = this->gold_hash_var[img];
@@ -188,10 +187,12 @@ void DetectionGold::cmp(detection* found_dets, int nboxes, int img_index,
 	}
 
 	this->app_log->update_error_count(error_count);
+	return error_count;
 }
 
-void DetectionGold::run(detection *dets, int nboxes, int img_index,
+int DetectionGold::run(detection *dets, int nboxes, int img_index,
 		int classes) {
+	int ret = 0;
 	// To generate function
 	//std::string img, detection* dets, int nboxes, int classes, int l_coord
 	if (this->generate) {
@@ -207,13 +208,13 @@ void DetectionGold::run(detection *dets, int nboxes, int img_index,
 		// To compare function
 		//detection is allways nboxes size
 		double start = mysecond();
-		this->cmp(dets, nboxes, img_index, classes);
+		ret = this->cmp(dets, nboxes, img_index, classes);
 
-		if (this->current_iteration++ % PRINT_INTERVAL == 0)
-			std::cout << "Seconds to compare: " << mysecond() - start
+		std::cout << "Seconds to compare: " << mysecond() - start
 					<< " s.\n";
 
 	}
+	return ret;
 }
 
 void DetectionGold::gen(detection *dets, int nboxes, int img_index,

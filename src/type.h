@@ -10,8 +10,11 @@
 
 #if REAL_TYPE == HALF
 
+#include <cuda_fp16.h>
+
 typedef float real_t;
-typedef real_t real_t_device;
+typedef half real_t_fp16;
+//typedef real_t real_t_device;
 
 #define FLT_MAX 1E+37
 
@@ -58,6 +61,15 @@ typedef struct __device_builtin__ {
 
 int fread_float_to_real_t(real_t* dst, size_t siz, size_t times, FILE* fp);
 
+#if REAL_TYPE == HALF
+void convert_and_push_3_arrays(float *d_a, float *d_b, float *d_c,
+		real_t_fp16 *a, int siz_a, real_t_fp16 *b, int siz_b, real_t_fp16 *c,
+		siz_c);
+
+void pop_and_convert_3_arrays(float *d_a, float *d_b, float *d_c,
+		real_t_fp16 *a, int siz_a, real_t_fp16 *b, int siz_b, real_t_fp16 *c,
+		siz_c);
+#endif
 //#ifdef __NVCC__
 //__device__ __forceinline__ real_t_device exp_real(real_t_device x);
 //__device__ __forceinline__ real_t_device floor_real(real_t_device x);

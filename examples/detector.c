@@ -722,6 +722,7 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 
 	//start the process
 	for (iteration = 0; iteration < max_it; iteration++) {
+		int last_errors = 0;
 		for (img = 0; img < plist_size; img++) {
 			layer l = net->layers[net->n - 1];
 
@@ -742,12 +743,17 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 
 			if (nms)
 				do_nms_sort(dets, nboxes, l.classes, nms);
-			if((iteration * img) % PRINT_INTERVAL == 0)
-				printf("Iteration %d Nboxes %d Predicted in %f seconds.\n",
-					iteration, nboxes, what_time_is_it_now() - time);
+
+			printf("Iteration %d img %d predicted in %f seconds.\n",
+					iteration, img, what_time_is_it_now() - time);
 
 			//Save or compare
-			run(gold, dets, nboxes, img, l.classes);
+			int curr_err = run(gold, dets, nboxes, img, l.classes);
+			if(last_errors && curr_err){
+				printf("IT IS LESS PROBLABLE THAT DARKNET GIVE US TWO ERRORS SEQUENTIALY, ABORTING\n");
+				exit(-1);
+			}
+			last_errors = curr_err;
 		}
 	}
 

@@ -133,7 +133,9 @@ void parse_data(char *data, real_t *a, int n) {
 		if (*next == '\0')
 			done = 1;
 		*next = '\0';
-		sscanf(curr, "%g", &a[i]);
+		float a_;
+		sscanf(curr, "%g", &a_);
+		a[i] = a_;
 		curr = next + 1;
 	}
 }

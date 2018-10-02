@@ -35,6 +35,65 @@ int fread_float_to_real_t(real_t* dst, size_t siz, size_t times, FILE* fp) {
 	return fread_result;
 
 }
+
+#if REAL_TYPE == HALF
+__global__ void cuda_f32_to_f16(real_t_device* input_f32, size_t size,
+		real_t_fp16 *output_f16) {
+	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+	if (idx < size)
+		output_f16[idx] = __float2half(input_f32[idx]);
+}
+
+__global__ void cuda_f16_to_f32(real_t_fp16* input_f16, size_t size,
+		float *output_f32) {
+	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+	if (idx < size)
+		output_f32[idx] = __half2float(input_f16[idx]);
+}
+
+void convert_and_push_3_arrays(float *d_a, float *d_b, float *d_c,
+		real_t_fp16 *a, int siz_a, real_t_fp16 *b, int siz_b, real_t_fp16 *c,
+		siz_c) {
+
+	check_error(cudaMalloc(a, sizeof(real_t_fp16) * siz_a));
+
+	check_error(cudaMalloc(b, sizeof(real_t_fp16) * siz_b));
+
+	check_error(cudaMalloc(c, sizeof(real_t_fp16) * siz_c));
+
+	cuda_f32_to_f16<<<siz_a / BLOCK + 1, BLOCK>>>(d_a, siz_a, a);
+	check_error(cudaPeekAtLastError());
+
+	cuda_f32_to_f16<<<siz_b / BLOCK + 1, BLOCK>>>(d_b, siz_b, b);
+	check_error(cudaPeekAtLastError());
+
+	cuda_f32_to_f16<<<siz_c / BLOCK + 1, BLOCK>>>(d_c, siz_c, c);
+	check_error(cudaPeekAtLastError());
+
+}
+
+void pop_and_convert_3_arrays(float *d_a, float *d_b, float *d_c,
+		real_t_fp16 *a, int siz_a, real_t_fp16 *b, int siz_b, real_t_fp16 *c,
+		siz_c) {
+	cuda_f16_to_f32<<<siz_a / BLOCK + 1, BLOCK>>>(a, siz_a, d_a);
+	check_error(cudaPeekAtLastError());
+
+	cuda_f16_to_f32<<<siz_b / BLOCK + 1, BLOCK>>>(b, siz_b, d_b);
+	check_error(cudaPeekAtLastError());
+
+	cuda_f16_to_f32<<<siz_c / BLOCK + 1, BLOCK>>>(c, siz_c, d_c);
+	check_error(cudaPeekAtLastError());
+
+	//free the three half arrays
+	check_error(cudaFree(a));
+
+	check_error(cudaFree(b));
+
+	check_error(cudaFree(c));
+
+}
+
+#endif
 //
 //#ifdef __NVCC__
 //
