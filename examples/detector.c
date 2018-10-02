@@ -672,6 +672,27 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile,
 	}
 }
 
+void load_all_images(image* imgs, image* sized_images, char** img_names,
+		int plist_size, int net_w, int net_h) {
+	int i;
+	imgs = (image*) malloc(sizeof(image) * plist_size);
+	sized_images = (image*) malloc(sizeof(image) * plist_size);
+	for (i = 0; i < plist_size; i++) {
+
+		imgs[i] = load_image_color(img_names[i], 0, 0);
+		sized_images[i] = letterbox_image(imgs[i], net_w, net_h);
+	}
+}
+
+void free_all_images(image *imgs, image* sized_images, int list_size) {
+	//          free_image(im);
+	int i;
+	for (i = 0; i < list_size; i++) {
+		free_image(imgs[i]);
+		free_image(sized_images[i]);
+	}
+}
+
 void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 		char *filename, real_t thresh, real_t hier_thresh, char *outfile,
 		int fullscreen) {
@@ -689,11 +710,14 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	real_t nms = .45;
 
 	char **nm = get_labels(filename);
-	int count = 10;
+	int images;
 
-	while (count--) {
-		if (nm[count]) {
-			strncpy(input, nm[count], 256);
+	image *imgs = NULL, *sized_images = NULL;
+	load_all_images(imgs, sized_images, nm, 10, net->w, net->h);
+
+	for (images = 0; images < 10; images++) {
+		if (nm[images]) {
+			strncpy(input, nm[images], 256);
 		} else {
 			printf("Enter Image Path: ");
 			fflush(stdout);
@@ -702,8 +726,8 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 				return;
 			strtok(input, "\n");
 		}
-		image im = load_image_color(input, 0, 0);
-		image sized = letterbox_image(im, net->w, net->h);
+		image im = imgs[images]; //load_image_color(input, 0, 0);
+		image sized = sized_images[images]; //letterbox_image(im, net->w, net->h);
 
 		layer l = net->layers[net->n - 1];
 
@@ -730,10 +754,12 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 #endif
 		}
 
-		free_image(im);
-		free_image(sized);
+//		free_image(im);
+//		free_image(sized);
 
 	}
+
+	free_all_images(imgs, sized_images, 10);
 }
 
 void run_detector(int argc, char **argv) {
@@ -790,8 +816,8 @@ void run_detector(int argc, char **argv) {
 				outfile, fullscreen);
 
 	else if (0 == strcmp(argv[2], "test_radiation"))
-		test_detector_radiation(datacfg, cfg, weights, filename, thresh, hier_thresh,
-				outfile, fullscreen);
+		test_detector_radiation(datacfg, cfg, weights, filename, thresh,
+				hier_thresh, outfile, fullscreen);
 
 	else if (0 == strcmp(argv[2], "train"))
 		train_detector(datacfg, cfg, weights, gpus, ngpus, clear);
