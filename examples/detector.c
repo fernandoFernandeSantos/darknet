@@ -742,7 +742,7 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 
 			if (nms)
 				do_nms_sort(dets, nboxes, l.classes, nms);
-			if(iteration % PRINT_INTERVAL == 0)
+			if((iteration * img) % PRINT_INTERVAL == 0)
 				printf("Iteration %d Nboxes %d Predicted in %f seconds.\n",
 					iteration, nboxes, what_time_is_it_now() - time);
 
