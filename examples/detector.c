@@ -714,7 +714,6 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	int iteration, img;
 	int max_it = get_iterations(gold);
 	int plist_size = get_img_num(gold);
-	printf("Number of it %d plist %d\n", max_it, plist_size);
 	//load images
 	image* images = (image*) malloc(sizeof(image) * plist_size);
 	image* sized_images = (image*) malloc(sizeof(image) * plist_size);
@@ -725,7 +724,6 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	for (iteration = 0; iteration < max_it; iteration++) {
 		for (img = 0; img < plist_size; img++) {
 			layer l = net->layers[net->n - 1];
-			printf("passou it %d\n", iteration);
 
 			image im = images[img];
 			image sized = sized_images[img];
@@ -733,11 +731,9 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 			real_t *X = sized.data;
 			time = what_time_is_it_now();
 
-			printf("started iteration \n");
 			//Run one iteration
 			start_iteration_wrapper(gold);
 			network_predict(net, X);
-			printf("ended iteration\n");
 			end_iteration_wrapper(gold);
 
 			int nboxes = 0;

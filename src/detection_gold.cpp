@@ -35,7 +35,7 @@ void DetectionGold::write_gold_header() {
 		gold << gold_header << std::endl;
 		gold.close();
 	} else {
-		std::cout << "ERROR ON OPENING GOLD OUTPUT FILE\n";
+		std::cerr << "ERROR ON OPENING GOLD OUTPUT FILE\n";
 		exit(-1);
 	}
 }
@@ -75,7 +75,7 @@ DetectionGold::DetectionGold(int argc, char **argv, real_t thresh,
 		if (gold_file.is_open()) {
 			getline(gold_file, line);
 		} else {
-			std::cout << "ERROR ON OPENING GOLD FILE\n";
+			std::cerr << "ERROR ON OPENING GOLD FILE\n";
 			exit(-1);
 		}
 
@@ -130,12 +130,10 @@ bool operator!=(const box& a, const box& b) {
 void DetectionGold::cmp(detection* found_dets, int nboxes, int img_index,
 		int classes) {
 	std::string img = this->gold_img_names[img_index];
-	std::cout << "DENTRO DO CMP\n";
 	std::vector<Detection> gold_dets = this->gold_hash_var[img];
 
 	int error_count = 0;
-	std::cout << " nboxes " << nboxes << " detections " << gold_dets.size()
-			<< "\n";
+
 
 	for (int nb = 0; nb < nboxes; nb++) {
 		Detection g_det = gold_dets[nb];
@@ -208,7 +206,6 @@ void DetectionGold::run(detection *dets, int nboxes, int img_index,
 	} else {
 		// To compare function
 		//detection is allways nboxes size
-		std::cout << "it is going to compare\n";
 		double start = mysecond();
 		this->cmp(dets, nboxes, img_index, classes);
 
@@ -251,7 +248,6 @@ void DetectionGold::load_gold_hash(std::ifstream& gold_file) {
 //allocate detector
 	this->gold_img_names = std::vector < std::string > (this->plist_size);
 	std::string line;
-	std::cout << "passou aqui \n";
 
 	for (int i = 0; i < this->plist_size; i++) {
 
@@ -299,7 +295,6 @@ void DetectionGold::load_gold_hash(std::ifstream& gold_file) {
 
 		this->gold_hash_var.put(this->gold_img_names[i], detections);
 	}
-	std::cout << "passou aqui 2\n";
 
 
 }
