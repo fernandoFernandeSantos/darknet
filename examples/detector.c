@@ -694,11 +694,11 @@ void free_all_images(image *imgs, image* sized_images, int list_size) {
 void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 		char *filename, real_t thresh, real_t hier_thresh, char *outfile,
 		int fullscreen) {
-	list *options = read_data_cfg(datacfg);
-	char *name_list = option_find_str(options, "names", "data/names.list");
-	char **names = get_labels(name_list);
+//	list *options = read_data_cfg(datacfg);
+//	char *name_list = option_find_str(options, "names", "data/names.list");
+//	char **names = get_labels(name_list);
 
-	image **alphabet = load_alphabet();
+//	image **alphabet = load_alphabet();
 	network *net = load_network(cfgfile, weightfile, 0);
 	set_batch_network(net, 1);
 	srand(2222222);
