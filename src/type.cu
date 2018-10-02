@@ -162,7 +162,7 @@ void run_cuda_gemm_half(int TA, int TB, int M, int N, int K, real_t ALPHA, real_
 	pop_and_convert_3_arrays(A_gpu, B_gpu, C_gpu,
 			a, M * K, b, K * N, c, M * N);
 
-	check_error(status);
+//	check_error(status);
 	cublasDestroy(handle);
 }
 
