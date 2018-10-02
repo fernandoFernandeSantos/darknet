@@ -714,7 +714,7 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	int iteration, images;
 	int max_it = get_iterations(gold);
 	int plist_size = get_img_num(gold);
-
+	printf("Number of it %d plist %d\n", max_it, plist_size);
 	//load images
 	image* imgs = (image*) malloc(sizeof(image) * plist_size);
 	image* sized_images = (image*) malloc(sizeof(image) * plist_size);
