@@ -721,48 +721,21 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	int max_it = 20000;
 	for (iterations = 0; iterations < max_it; iterations++) {
 		for (images = 0; images < 10; images++) {
-//		if (nm[images]) {
-//			strncpy(input, nm[images], 256);
-//		} else {
-//			printf("Enter Image Path: ");
-//			fflush(stdout);
-//			input = fgets(input, 256, stdin);
-//			if (!input)
-//				return;
-//			strtok(input, "\n");
-//		}
-			image im = imgs[images]; //load_image_color(input, 0, 0);
-			image sized = sized_images[images]; //letterbox_image(im, net->w, net->h);
-
 			layer l = net->layers[net->n - 1];
 
-			real_t *X = sized.data;
+			real_t *X = sized_images[images].data;
 			time = what_time_is_it_now();
 			network_predict(net, X);
 
 			int nboxes = 0;
-			detection *dets = get_network_boxes(net, im.w, im.h, thresh,
+			detection *dets = get_network_boxes(net, imgs[images].w, imgs[images].h, thresh,
 					hier_thresh, 0, 1, &nboxes);
 
 			if (nms)
 				do_nms_sort(dets, nboxes, l.classes, nms);
 
-			printf("Nboxes %d Predicted in %f seconds.\n", nboxes,
+			printf("Iteration %d Nboxes %d Predicted in %f seconds.\n", iteration, nboxes,
 					what_time_is_it_now() - time);
-//		draw_detections(im, dets, nboxes, thresh, names, alphabet, l.classes);
-//		free_detections(dets, nboxes);
-//		if (outfile) {
-//			save_image(im, outfile);
-//		} else {
-//			save_image(im, "predictions");
-//#ifdef OPENCV
-//			make_window("predictions", 512, 512, 0);
-//			show_image(im, "predictions", 0);
-//#endif
-//		}
-
-//		free_image(im);
-//		free_image(sized);
 
 		}
 	}
