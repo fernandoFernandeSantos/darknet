@@ -152,8 +152,8 @@ void run_cuda_gemm_half(int TA, int TB, int M, int N, int K, real_t ALPHA, real_
 	convert_and_push_3_arrays(A_gpu, B_gpu, C_gpu,
 			a, M * K, b, K * N, c, M * N);
 
-	real_t_fp16 alpha = real_t_fp16(ALPHA);
-	real_t_fp16 beta = real_t_fp16(BETA);
+//	real_t_fp16 alpha = real_t_fp16(ALPHA);
+//	real_t_fp16 beta = real_t_fp16(BETA);
 
 //	cudaError_t status = (cudaError_t) cublasHgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
 //			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &alpha, b, ldb,
