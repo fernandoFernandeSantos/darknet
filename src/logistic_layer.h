@@ -3,8 +3,6 @@
 #include "layer.h"
 #include "network.h"
 
-#include "type.h"
-
 layer make_logistic_layer(int batch, int inputs);
 void forward_logistic_layer(const layer l, network net);
 void backward_logistic_layer(const layer l, network net);

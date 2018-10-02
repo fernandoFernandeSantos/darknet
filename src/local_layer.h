@@ -6,7 +6,6 @@
 #include "activations.h"
 #include "layer.h"
 #include "network.h"
-#include "type.h"
 
 typedef layer local_layer;
 
@@ -19,16 +18,14 @@ void push_local_layer(local_layer layer);
 void pull_local_layer(local_layer layer);
 #endif
 
-local_layer make_local_layer(int batch, int h, int w, int c, int n, int size,
-		int stride, int pad, ACTIVATION activation);
+local_layer make_local_layer(int batch, int h, int w, int c, int n, int size, int stride, int pad, ACTIVATION activation);
 
 void forward_local_layer(const local_layer layer, network net);
 void backward_local_layer(local_layer layer, network net);
 void update_local_layer(local_layer layer, update_args a);
 
-void bias_output(real_t *output, real_t *biases, int batch, int n, int size);
-void backward_bias(real_t *bias_updates, real_t *delta, int batch, int n,
-		int size);
+void bias_output(float *output, float *biases, int batch, int n, int size);
+void backward_bias(float *bias_updates, float *delta, int batch, int n, int size);
 
 #endif
 

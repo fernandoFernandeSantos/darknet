@@ -3,6 +3,4 @@
 
 #include "image.h"
 
-#include "type.h"
-
 #endif
