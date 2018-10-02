@@ -717,9 +717,9 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 
 	load_all_images(imgs, sized_images, nm, plist_size, net->w, net->h);
 
-	int iterations, images;
+	int iteration, images;
 	int max_it = 20000;
-	for (iterations = 0; iterations < max_it; iterations++) {
+	for (iteration = 0; iteration < max_it; iteration++) {
 		for (images = 0; images < 10; images++) {
 			layer l = net->layers[net->n - 1];
 
