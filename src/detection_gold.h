@@ -18,7 +18,7 @@
 #include <tuple>
 #include <unordered_map>
 
-#define THRESHOLD_ERROR 1e10
+#define THRESHOLD_ERROR 1e-10
 #define STORE_PRECISION 12
 
 #define LAYER_GOLD "/var/radiation-benchmarks/data/"
