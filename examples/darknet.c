@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+typedef float real_t;
 //extern void predict_classifier(char *datacfg, char *cfgfile, char *weightfile,
 //		char *filename, int top);
 extern void test_detector(char *datacfg, char *cfgfile, char *weightfile,
@@ -46,19 +47,19 @@ void average(int argc, char *argv[]) {
 			layer out = sum->layers[j];
 			if (l.type == CONVOLUTIONAL) {
 				int num = l.n * l.c * l.size * l.size;
-				axpy_cpu(l.n, real_t(1), l.biases, 1, out.biases, 1);
-				axpy_cpu(num, real_t(1), l.weights, 1, out.weights, 1);
+				axpy_cpu(l.n, (1), l.biases, 1, out.biases, 1);
+				axpy_cpu(num, (1), l.weights, 1, out.weights, 1);
 				if (l.batch_normalize) {
-					axpy_cpu(l.n, real_t(1), l.scales, 1, out.scales, 1);
-					axpy_cpu(l.n, real_t(1), l.rolling_mean, 1,
+					axpy_cpu(l.n, (1), l.scales, 1, out.scales, 1);
+					axpy_cpu(l.n, (1), l.rolling_mean, 1,
 							out.rolling_mean, 1);
-					axpy_cpu(l.n, real_t(1), l.rolling_variance, 1,
+					axpy_cpu(l.n, (1), l.rolling_variance, 1,
 							out.rolling_variance, 1);
 				}
 			}
 			if (l.type == CONNECTED) {
-				axpy_cpu(l.outputs, real_t(1), l.biases, 1, out.biases, 1);
-				axpy_cpu(l.outputs * l.inputs, real_t(1), l.weights, 1,
+				axpy_cpu(l.outputs, (1), l.biases, 1, out.biases, 1);
+				axpy_cpu(l.outputs * l.inputs, (1), l.weights, 1,
 						out.weights, 1);
 			}
 		}
@@ -68,17 +69,17 @@ void average(int argc, char *argv[]) {
 		layer l = sum->layers[j];
 		if (l.type == CONVOLUTIONAL) {
 			int num = l.n * l.c * l.size * l.size;
-			scal_cpu(l.n, real_t(1. / n), l.biases, 1);
-			scal_cpu(num, real_t(1. / n), l.weights, 1);
+			scal_cpu(l.n, (1. / n), l.biases, 1);
+			scal_cpu(num, (1. / n), l.weights, 1);
 			if (l.batch_normalize) {
-				scal_cpu(l.n, real_t(1. / n), l.scales, 1);
-				scal_cpu(l.n, real_t(1. / n), l.rolling_mean, 1);
-				scal_cpu(l.n, real_t(1. / n), l.rolling_variance, 1);
+				scal_cpu(l.n, (1. / n), l.scales, 1);
+				scal_cpu(l.n, (1. / n), l.rolling_mean, 1);
+				scal_cpu(l.n, (1. / n), l.rolling_variance, 1);
 			}
 		}
 		if (l.type == CONNECTED) {
-			scal_cpu(l.outputs, real_t(1. / n), l.biases, 1);
-			scal_cpu(l.outputs * l.inputs, real_t(1. / n), l.weights, 1);
+			scal_cpu(l.outputs, (1. / n), l.biases, 1);
+			scal_cpu(l.outputs * l.inputs, (1. / n), l.weights, 1);
 		}
 	}
 	save_weights(sum, outfile);
@@ -152,8 +153,8 @@ void oneoff(char *cfgfile, char *weightfile, char *outfile) {
 	network *net = parse_network_cfg(cfgfile);
 	int oldn = net->layers[net->n - 2].n;
 	int c = net->layers[net->n - 2].c;
-	scal_cpu(oldn * c, real_t(.1), net->layers[net->n - 2].weights, 1);
-	scal_cpu(oldn, real_t(0), net->layers[net->n - 2].biases, 1);
+	scal_cpu(oldn * c, (.1), net->layers[net->n - 2].weights, 1);
+	scal_cpu(oldn, (0), net->layers[net->n - 2].biases, 1);
 	net->layers[net->n - 2].n = 11921;
 	net->layers[net->n - 2].biases += 5;
 	net->layers[net->n - 2].weights += 5 * c;
@@ -215,7 +216,7 @@ void rescale_net(char *cfgfile, char *weightfile, char *outfile) {
 	for (i = 0; i < net->n; ++i) {
 		layer l = net->layers[i];
 		if (l.type == CONVOLUTIONAL) {
-			rescale_weights(l, real_t(2), real_t(-.5));
+			rescale_weights(l, (2), (-.5));
 			break;
 		}
 	}
@@ -374,12 +375,12 @@ void mkimg(char *cfgfile, char *weightfile, int h, int w, int num,
 	int z;
 	for (z = 0; z < num; ++z) {
 		image im = make_image(h, w, 3);
-		fill_image(im, real_t(.5));
+		fill_image(im, (.5));
 		int i;
 		for (i = 0; i < 100; ++i) {
 			image r = copy_image(ims[rand() % n]);
 			rotate_image_cw(r, rand() % 4);
-			random_distort_image(r, real_t(1), real_t(1.5), real_t(1.5));
+			random_distort_image(r, (1), (1.5), (1.5));
 			int dx = rand() % (w - r.w);
 			int dy = rand() % (h - r.h);
 			ghost_image(r, im, dx, dy);
@@ -437,12 +438,12 @@ int main(int argc, char **argv) {
 	else if (0 == strcmp(argv[1], "detector")) {
 		run_detector(argc, argv);
 	} else if (0 == strcmp(argv[1], "detect")) {
-		real_t thresh = find_real_t_arg(argc, argv, "-thresh", real_t(.5));
+		real_t thresh = find_float_arg(argc, argv, "-thresh", (.5));
 		char *filename = (argc > 4) ? argv[4] : 0;
 		char *outfile = find_char_arg(argc, argv, "-out", 0);
 		int fullscreen = find_arg(argc, argv, "-fullscreen");
 		test_detector("cfg/coco.data", argv[2], argv[3], filename, thresh,
-				real_t(.5), outfile, fullscreen);
+				(.5), outfile, fullscreen);
 	}
 
 //	else if (0 == strcmp(argv[1], "cifar")) {
