@@ -29,7 +29,7 @@ OPTS=-Ofast
 LDFLAGS= -lm -pthread -lcublas 
 NVCCLDFLAGS =  -L/usr/local/cuda/lib64 -lcudart -lcublas -lcurand
 COMMON= -Iinclude/ -Isrc/
-CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -fPIC
+CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -Werror -fPIC
 
 NVCCFLAGS=  --std=c++11 
 #-disable-warnings 
@@ -79,7 +79,7 @@ im2col.o col2im.o blas.o crop_layer.o dropout_layer.o maxpool_layer.o softmax_la
 network.o connected_layer.o cost_layer.o parser.o option_list.o detection_layer.o route_layer.o upsample_layer.o \
 box.o normalization_layer.o avgpool_layer.o layer.o local_layer.o shortcut_layer.o logistic_layer.o activation_layer.o \
 rnn_layer.o gru_layer.o crnn_layer.o demo.o batchnorm_layer.o region_layer.o reorg_layer.o tree.o  lstm_layer.o \
-l2norm_layer.o yolo_layer.o iseg_layer.o #type.o
+l2norm_layer.o yolo_layer.o iseg_layer.o 
 
 # I removed those ones to save time
 # captcha.o lsd.o super.o art.o tag.o cifar.o go.o rnn.o segmenter.o regressor.o classifier.o coco.o nightmare.o instance-segmenter.o
@@ -88,7 +88,7 @@ EXECOBJA= yolo.o detector.o  darknet.o
 ifeq ($(GPU), 1) 
 LDFLAGS+= -lstdc++ 
 OBJ+=convolutional_kernels.o deconvolutional_kernels.o activation_kernels.o im2col_kernels.o col2im_kernels.o \
-blas_kernels.o crop_layer_kernels.o dropout_layer_kernels.o maxpool_layer_kernels.o avgpool_layer_kernels.o 
+blas_kernels.o crop_layer_kernels.o dropout_layer_kernels.o maxpool_layer_kernels.o avgpool_layer_kernels.o  type.o
 endif
 
 EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
@@ -131,3 +131,7 @@ detector:
 
 demo:
 	./darknet detector test cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/dog.jpg
+
+test:
+        ./darknet detector test cfg/coco.data cfg/yolov3.cfg data/yolov3.weights /home/ffsantos/fernando_rad_dir/radiation-benchmarks/data/networks_img_list/caltech.pedestrians.10.txt
+
