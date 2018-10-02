@@ -141,29 +141,66 @@ void inline pop_and_convert_3_arrays(real_t *d_a, real_t *d_b, real_t *d_c,
 	check_error(cudaFree(c));
 
 }
-
+//	run_cuda_gemm_half(TA, TB, M, N, K, ALPHA, A_gpu, lda, B_gpu, ldb, BETA, C_gpu, ldc);
 void run_cuda_gemm_half(int TA, int TB, int M, int N, int K, real_t ALPHA, real_t *A_gpu,
 		int lda, real_t *B_gpu, int ldb, real_t BETA, real_t *C_gpu, int ldc) {
 	cublasHandle_t handle;
 	cublasCreate(&handle);
 
-	real_t_fp16 *a = nullptr, *b = nullptr, *c = nullptr;
+	real_t_fp16 *a = nullptr;
+	real_t_fp16 *b = nullptr;
+	real_t_fp16 *c = nullptr;
 
-	convert_and_push_3_arrays(A_gpu, B_gpu, C_gpu,
-			a, M * K, b, K * N, c, M * N);
+	int siz_a = M * K;
+	int siz_b = K * N;
+	int siz_c = M * N;
 
-//	real_t_fp16 alpha = real_t_fp16(ALPHA);
-//	real_t_fp16 beta = real_t_fp16(BETA);
+//	convert_and_push_3_arrays(A_gpu, B_gpu, C_gpu,
+//			a, M * K, b, K * N, c, M * N);
+	check_error(cudaMalloc(&a, sizeof(real_t_fp16) * siz_a));
 
-//	cudaError_t status = (cudaError_t) cublasHgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
-//			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &alpha, b, ldb,
-//			a, lda, &beta, c, ldc);
+	check_error(cudaMalloc(&b, sizeof(real_t_fp16) * siz_b));
 
-	pop_and_convert_3_arrays(A_gpu, B_gpu, C_gpu,
-			a, M * K, b, K * N, c, M * N);
+	check_error(cudaMalloc(&c, sizeof(real_t_fp16) * siz_c));
 
-//	check_error(status);
-	cublasDestroy(handle);
+
+	cuda_f32_to_f16<<<cuda_gridsize(siz_a), BLOCK>>>(d_a, siz_a, a);
+	check_error(cudaPeekAtLastError());
+
+	cuda_f32_to_f16<<<cuda_gridsize(siz_b), BLOCK>>>(d_b, siz_b, b);
+	check_error(cudaPeekAtLastError());
+
+	cuda_f32_to_f16<<<cuda_gridsize(siz_c), BLOCK>>>(d_c, siz_c, c);
+	check_error(cudaPeekAtLastError());
+
+	real_t_fp16 alpha = real_t_fp16(ALPHA);
+	real_t_fp16 beta = real_t_fp16(BETA);
+
+	cudaError_t status = (cudaError_t) cublasHgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
+			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &alpha, b, ldb,
+			a, lda, &beta, c, ldc);
+
+//	pop_and_convert_3_arrays(A_gpu, B_gpu, C_gpu,
+//			a, M * K, b, K * N, c, M * N);
+	cuda_f16_to_f32<<<cuda_gridsize(siz_a), BLOCK>>>(a, siz_a, d_a);
+	check_error(cudaPeekAtLastError());
+
+	cuda_f16_to_f32<<<cuda_gridsize(siz_b), BLOCK>>>(b, siz_b, d_b);
+	check_error(cudaPeekAtLastError());
+
+	cuda_f16_to_f32<<<cuda_gridsize(siz_c), BLOCK>>>(c, siz_c, d_c);
+	check_error(cudaPeekAtLastError());
+
+	//free the three half arrays
+	check_error(cudaFree(a));
+
+	check_error(cudaFree(b));
+
+	check_error(cudaFree(c));
+
+
+	check_error(status);
+	//cublasDestroy(handle);
 }
 
 #endif

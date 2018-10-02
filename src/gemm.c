@@ -151,6 +151,8 @@ void gemm_gpu(int TA, int TB, int M, int N, int K, real_t ALPHA, real_t *A_gpu,
 		int lda, real_t *B_gpu, int ldb, real_t BETA, real_t *C_gpu, int ldc) {
 
 #if REAL_TYPE == HALF
+	//run_cuda_gemm_half(int TA, int TB, int M, int N, int K, real_t ALPHA, real_t *A_gpu,
+//	int lda, real_t *B_gpu, int ldb, real_t BETA, real_t *C_gpu, int ldc)
 	run_cuda_gemm_half(TA, TB, M, N, K, ALPHA, A_gpu, lda, B_gpu, ldb, BETA, C_gpu, ldc);
 #elif REAL_TYPE == FLOAT
 	cublasHandle_t handle = blas_handle();
