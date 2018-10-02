@@ -14,12 +14,6 @@
 #include <iostream>
 #include <cmath>
 
-static const char* ABFT_TYPES[] = { "none", "abft" };
-
-#ifdef LOGS
-#include "log_helper.h"
-#endif
-
 /**
  * Detection Gold class
  */
@@ -72,7 +66,7 @@ DetectionGold::DetectionGold(int argc, char **argv, real_t thresh,
 
 		//		Log(std::string gold, int save_layer, int abft, int iterations,
 		//				std::string app, unsigned char use_tensor_core_mode)
-		this->start_log(this->gold_inout, 0, 0, this->iterations,
+		this->app_log->start_log(this->gold_inout, 0, 0, this->iterations,
 				this->network_name, this->tensor_core_mode);
 
 		//	detection gold;
@@ -172,7 +166,7 @@ void DetectionGold::cmp(detection* found_dets, int nboxes, int img_index,
 					<< f_objectness << " sort_class_e: " << g_sort_class
 					<< " sort_class_r: " << f_sort_class;
 
-			this->log_error_info(error_info.str());
+			this->app_log->log_error_info(error_info.str());
 			error_count++;
 		}
 
@@ -189,13 +183,13 @@ void DetectionGold::cmp(detection* found_dets, int nboxes, int img_index,
 				error_info << "img: " << img << " detection: " << nb
 						<< " class: " << cl << " prob_e: " << g_prob
 						<< " prob_r: " << f_prob;
-				this->log_error_info(error_info.str());
+				this->app_log->log_error_info(error_info.str());
 				error_count++;
 			}
 		}
 	}
 
-	this->update_error_count(error_count);
+	this->app_log->update_error_count(error_count);
 }
 
 void DetectionGold::run(detection *dets, int nboxes, int img_index,
@@ -218,7 +212,7 @@ void DetectionGold::run(detection *dets, int nboxes, int img_index,
 		double start = mysecond();
 		this->cmp(dets, nboxes, img_index, classes);
 
-		if (this->current_iteration % PRINT_INTERVAL == 0)
+		if (this->current_iteration++ % PRINT_INTERVAL == 0)
 			std::cout << "Seconds to compare: " << mysecond() - start
 					<< " s.\n";
 
@@ -315,62 +309,64 @@ DetectionGold::~DetectionGold() {
 #ifdef LOGS
 		end_log_file();
 #endif
-	}
-}
-
-void DetectionGold::start_iteration() {
-	if (!this->generate) {
-#ifdef LOGS
-		start_iteration();
-#endif
-	}
-}
-
-void DetectionGold::end_iteration() {
-	if (!this->generate) {
-#ifdef LOGS
-		end_iteration();
-#endif
+		delete this->app_log;
 	}
 
-	this->current_iteration++;
 }
+//
+//void DetectionGold::start_iteration() {
+//	if (!this->generate) {
+//#ifdef LOGS
+//		start_iteration();
+//#endif
+//	}
+//}
+//
+//void DetectionGold::end_iteration() {
+//	if (!this->generate) {
+//#ifdef LOGS
+//		end_iteration();
+//#endif
+//	}
+//
+//	this->current_iteration++;
+//}
 
-void DetectionGold::start_log(std::string gold, int save_layer, int abft,
-		int iterations, std::string app, unsigned char use_tensor_core_mode) {
-#ifdef LOGS
-	std::string test_info = std::string("gold_file: ") + gold;
+//void DetectionGold::start_log(std::string gold, int save_layer, int abft,
+//		int iterations, std::string app, unsigned char use_tensor_core_mode) {
+//#ifdef LOGS
+//	std::string test_info = std::string("gold_file: ") + gold;
+//
+//	test_info += " save_layer: " + std::to_string(save_layer) + " abft_type: ";
+//
+//	test_info += std::string(ABFT_TYPES[abft]) + " iterations: "
+//	+ std::to_string(iterations);
+//
+//	test_info += " tensor_core_mode: "
+//	+ std::to_string(int(use_tensor_core_mode));
+//
+//	set_iter_interval_print(10);
+//
+//	start_log_file(const_cast<char*>(app.c_str()),
+//			const_cast<char*>(test_info.c_str()));
+//#endif
+//}
 
-	test_info += " save_layer: " + std::to_string(save_layer) + " abft_type: ";
+//void DetectionGold::update_timestamp_app() {
+//#ifdef LOGS
+//	update_timestamp();
+//#endif
+//}
 
-	test_info += std::string(ABFT_TYPES[abft]) + " iterations: "
-	+ std::to_string(iterations);
+//void DetectionGold::log_error_info(std::string error_detail) {
+//#ifdef LOGS
+//	log_error_detail(const_cast<char*>(error_detail.c_str()));
+//#endif
+//}
 
-	test_info += " tensor_core_mode: "
-	+ std::to_string(int(use_tensor_core_mode));
-
-	set_iter_interval_print(10);
-
-	start_log_file(const_cast<char*>(app.c_str()),
-			const_cast<char*>(test_info.c_str()));
-#endif
-}
-
-void DetectionGold::update_timestamp_app() {
-#ifdef LOGS
-	update_timestamp();
-#endif
-}
-
-void DetectionGold::log_error_info(std::string error_detail) {
-#ifdef LOGS
-	log_error_detail(const_cast<char*>(error_detail.c_str()));
-#endif
-}
-
-void DetectionGold::update_error_count(long error_count) {
-#ifdef LOGS
-	if(error_count)
-	log_error_count(error_count);
-#endif
-}
+//void DetectionGold::update_error_count(long error_count) {
+//#ifdef LOGS
+//	if(error_count)
+//	log_error_count(error_count);
+//#endif
+//}

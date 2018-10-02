@@ -9,7 +9,6 @@
 #include "detection_gold.h"
 #include "darknet.h"
 
-
 struct detection_gold {
 	void *obj;
 };
@@ -31,10 +30,11 @@ void destroy_detection_gold(detection_gold_t *m) {
 	if (m == NULL)
 		return;
 	delete static_cast<DetectionGold *>(m->obj);
-	free (m);
+	free(m);
 }
 
-void run(detection_gold_t *m, detection* dets, int nboxes, int img_index, int classes) {
+void run(detection_gold_t *m, detection* dets, int nboxes, int img_index,
+		int classes) {
 	DetectionGold *obj;
 	if (m == NULL)
 		return;
@@ -49,7 +49,7 @@ void start_iteration_wrapper(detection_gold_t *m) {
 		return;
 
 	obj = static_cast<DetectionGold *>(m->obj);
-	obj->start_iteration();
+	obj->app_log->start_iteration_app();
 	printf("passou no wrapper do start\n");
 }
 
@@ -59,7 +59,7 @@ void end_iteration_wrapper(detection_gold_t *m) {
 		return;
 
 	obj = static_cast<DetectionGold *>(m->obj);
-	obj->end_iteration();
+	obj->app_log->end_iteration_app();
 	printf("passou no wrapper do end\n");
 
 }

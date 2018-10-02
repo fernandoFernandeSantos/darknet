@@ -11,6 +11,7 @@
 #include "network.h" //save layer
 #include "layer.h" //save layer
 #include "box.h" //boxes
+#include "log_processing.h"
 
 #include <string>
 #include <vector>
@@ -99,6 +100,9 @@ struct DetectionGold {
 	//gold atribute
 	GoldHash gold_hash_var;
 
+
+	Log* app_log;
+
 	DetectionGold(int argc, char **argv, real_t thresh, real_t hier_thresh,
 			char *img_list_path, char *config_file, char *config_data,
 			char *model, char *weights);
@@ -119,18 +123,18 @@ struct DetectionGold {
 	void cmp(detection* dets, int nboxes, int img_index, int classes);
 
 	//log functions
-	void start_log(std::string gold, int save_layer, int abft, int iterations,
-			std::string app, unsigned char use_tensor_core_mode);
-
-	void end_iteration_app();
-
-	void start_iteration_app();
-
-	void update_timestamp_app();
-
-	void log_error_info(std::string error_detail);
-
-	void update_error_count(long error_count);
+//	void start_log(std::string gold, int save_layer, int abft, int iterations,
+//			std::string app, unsigned char use_tensor_core_mode);
+//
+//	void end_iteration_app();
+//
+//	void start_iteration_app();
+//
+//	void update_timestamp_app();
+//
+//	void log_error_info(std::string error_detail);
+//
+//	void update_error_count(long error_count);
 };
 
 #endif /* DETECTIONGOLD_H_ */

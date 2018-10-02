@@ -58,18 +58,18 @@ typedef struct __device_builtin__ {
 
 int fread_float_to_real_t(real_t* dst, size_t siz, size_t times, FILE* fp);
 
-#ifdef __NVCC__
-__device__ __forceinline__ real_t_device exp_real(real_t_device x);
-__device__ __forceinline__ real_t_device floor_real(real_t_device x);
-__device__ __forceinline__ real_t_device pow_real(real_t_device x,
-		real_t_device y);
-__device__ __forceinline__ real_t_device sqrt_real(real_t_device x);
-__device__ __forceinline__ real_t_device fabs_real(real_t_device x);
-__device__ __forceinline__ real_t_device log_real(real_t_device x);
-__device__ __forceinline__ real_t_device atomic_add_real(real_t_device *x,
-		real_t_device val);
-__device__ __forceinline__ real_t_device cos_real(real_t_device x);
-__device__ __forceinline__ real_t_device sin_real(real_t_device x);
-#endif
+//#ifdef __NVCC__
+//__device__ __forceinline__ real_t_device exp_real(real_t_device x);
+//__device__ __forceinline__ real_t_device floor_real(real_t_device x);
+//__device__ __forceinline__ real_t_device pow_real(real_t_device x,
+//		real_t_device y);
+//__device__ __forceinline__ real_t_device sqrt_real(real_t_device x);
+//__device__ __forceinline__ real_t_device fabs_real(real_t_device x);
+//__device__ __forceinline__ real_t_device log_real(real_t_device x);
+//__device__ __forceinline__ real_t_device atomic_add_real(real_t_device *x,
+//		real_t_device val);
+//__device__ __forceinline__ real_t_device cos_real(real_t_device x);
+//__device__ __forceinline__ real_t_device sin_real(real_t_device x);
+//#endif
 
 #endif /* TYPE_H_ */
