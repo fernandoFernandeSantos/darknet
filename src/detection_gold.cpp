@@ -20,7 +20,6 @@ static const char* ABFT_TYPES[] = { "none", "abft" };
 #include "log_helper.h"
 #endif
 
-
 /**
  * Detection Gold class
  */
@@ -100,8 +99,7 @@ DetectionGold::DetectionGold(int argc, char **argv, real_t thresh,
 
 		//allocate detector
 		this->load_gold_hash(gold_file);
-		std::cout << "Size of vector outside "
-				<< this->gold_hash_var[this->gold_img_names[0]].size() << "\n";
+
 		gold_file.close();
 
 	} else {
@@ -121,13 +119,8 @@ DetectionGold::DetectionGold(int argc, char **argv, real_t thresh,
 
 		this->write_gold_header();
 		this->iterations = 1;
+
 	}
-
-//	//check if iterations is bigger than img_list_size
-//	if (this->iterations < this->plist_size) {
-//		this->iterations = this->plist_size;
-//	}
-
 }
 
 bool operator!=(const box& a, const box& b) {
@@ -263,6 +256,7 @@ void DetectionGold::load_gold_hash(std::ifstream& gold_file) {
 //allocate detector
 	this->gold_img_names = std::vector < std::string > (this->plist_size);
 	std::string line;
+	std::cout << "passou aqui \n";
 
 	for (int i = 0; i < this->plist_size; i++) {
 
@@ -276,7 +270,6 @@ void DetectionGold::load_gold_hash(std::ifstream& gold_file) {
 		// Probarray creation
 
 		int nboxes = std::stoi(splited_line[1]);
-//		int classes = std::stoi(splited_line[2]);
 
 		std::vector<Detection> detections(nboxes, Detection());
 
@@ -311,6 +304,8 @@ void DetectionGold::load_gold_hash(std::ifstream& gold_file) {
 
 		this->gold_hash_var.put(this->gold_img_names[i], detections);
 	}
+	std::cout << "passou aqui 2\n";
+
 
 }
 
@@ -323,13 +318,20 @@ DetectionGold::~DetectionGold() {
 }
 
 void DetectionGold::start_iteration() {
-	if (!this->generate)
-		this->start_iteration_app();
+	if (!this->generate) {
+#ifdef LOGS
+		start_iteration();
+#endif
+	}
 }
 
 void DetectionGold::end_iteration() {
-	if (!this->generate)
-		this->end_iteration_app();
+	if (!this->generate) {
+#ifdef LOGS
+		end_iteration();
+#endif
+	}
+
 	this->current_iteration++;
 }
 
@@ -350,18 +352,6 @@ void DetectionGold::start_log(std::string gold, int save_layer, int abft,
 
 	start_log_file(const_cast<char*>(app.c_str()),
 			const_cast<char*>(test_info.c_str()));
-#endif
-}
-
-void DetectionGold::end_iteration_app() {
-#ifdef LOGS
-	end_iteration();
-#endif
-}
-
-void DetectionGold::start_iteration_app() {
-#ifdef LOGS
-	start_iteration();
 #endif
 }
 
