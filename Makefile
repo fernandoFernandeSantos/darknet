@@ -4,7 +4,9 @@ OPENCV?=0
 OPENMP=0
 DEBUG?=0
 REAL_TYPE?=float
+LOGS?=1
 
+RADIATIONDIR=/home/ffsantos/fernando_rad_dir/radiation-benchmarks/
 
 ARCH= -gencode arch=compute_60,code=sm_60 \
       -gencode arch=compute_61,code=sm_61 \
@@ -75,6 +77,12 @@ CFLAGS+= -DCUDNN
 LDFLAGS+= -lcudnn
 endif
 
+ifeq ($(LOGS), 1)
+COMMON += -DLOGS -I$(RADIATIONDIR)/src/include
+COMMON += -L$(RADIATIONDIR)/src/include -lLogHelper
+endif
+
+
 OBJ=gemm.o utils.o cuda.o deconvolutional_layer.o convolutional_layer.o list.o image.o activations.o \
 im2col.o col2im.o blas.o crop_layer.o dropout_layer.o maxpool_layer.o softmax_layer.o data.o matrix.o \
 network.o connected_layer.o cost_layer.o parser.o option_list.o detection_layer.o route_layer.o upsample_layer.o \
@@ -131,10 +139,10 @@ demo:
 
 generate:
 	./darknet detector test_radiation cfg/coco.data cfg/yolov3.cfg data/yolov3.weights \
-			/home/ffsantos/fernando_rad_dir/radiation-benchmarks/data/networks_img_list/caltech.pedestrians.10.txt \
+			$(RADIATIONDIR)/data/networks_img_list/caltech.pedestrians.10.txt \
 			-generate 1 -gold ./test.csv
 
 test:
 	./darknet detector test_radiation cfg/coco.data cfg/yolov3.cfg data/yolov3.weights \
-			/home/ffsantos/fernando_rad_dir/radiation-benchmarks/data/networks_img_list/caltech.pedestrians.10.txt \
+			$(RADIATIONDIR)/data/networks_img_list/caltech.pedestrians.10.txt \
 			-generate 0 -gold ./test.csv -iterations 200
