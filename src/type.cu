@@ -71,7 +71,7 @@ __global__ void cuda_f32_to_f16(real_t *X, size_t N, real_t_fp16 *Y) {
 __global__ void cuda_f16_to_f32(real_t_fp16 *X, size_t N, real_t *Y) {
 	size_t i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
 	if (i < N) {
-		X[i] = __half2float(Y[i]);
+		Y[i] = __half2float(X[i]);
 	}
 }
 //__global__ void cuda_f16_to_f32(real_t_fp16* input_f16, size_t size,
@@ -188,8 +188,8 @@ void run_cuda_gemm_half(int TA, int TB, int M, int N, int K, real_t ALPHA, real_
 //	cuda_f16_to_f32<<<cuda_gridsize(siz_b), BLOCK>>>(b, siz_b, B_gpu);
 //	check_error(cudaPeekAtLastError());
 //
-//	cuda_f16_to_f32<<<cuda_gridsize(siz_c), BLOCK>>>(c, siz_c, C_gpu);
-//	check_error(cudaPeekAtLastError());
+	cuda_f16_to_f32<<<cuda_gridsize(siz_c), BLOCK>>>(c, siz_c, C_gpu);
+	check_error(cudaPeekAtLastError());
 
 	//free the three half arrays
 	check_error(cudaFree(a));
