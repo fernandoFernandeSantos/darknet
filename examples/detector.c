@@ -702,7 +702,6 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	double time;
 	real_t nms = .45;
 
-
 	char **img_names = get_labels(filename);
 	/**
 	 * DetectionGold declaration
@@ -719,14 +718,19 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	//load images
 	image* images = (image*) malloc(sizeof(image) * plist_size);
 	image* sized_images = (image*) malloc(sizeof(image) * plist_size);
-	load_all_images(images, sized_images, img_names, plist_size, net->w, net->h);
+	load_all_images(images, sized_images, img_names, plist_size, net->w,
+			net->h);
 
 	//start the process
 	for (iteration = 0; iteration < max_it; iteration++) {
 		for (img = 0; img < plist_size; img++) {
 			layer l = net->layers[net->n - 1];
 			printf("passou it %d\n", iteration);
-			real_t *X = sized_images[img].data;
+
+			image im = images[img];
+			image sized = sized_images[img];
+
+			real_t *X = sized.data;
 			time = what_time_is_it_now();
 
 			printf("started iteration \n");
@@ -737,8 +741,8 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 			end_iteration_wrapper(gold);
 
 			int nboxes = 0;
-			detection *dets = get_network_boxes(net, images[img].w,
-					images[img].h, thresh, hier_thresh, 0, 1, &nboxes);
+			detection *dets = get_network_boxes(net, im.w, im.h, thresh,
+					hier_thresh, 0, 1, &nboxes);
 
 			if (nms)
 				do_nms_sort(dets, nboxes, l.classes, nms);
