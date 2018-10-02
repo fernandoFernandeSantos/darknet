@@ -2,7 +2,6 @@
 #include "detection_gold_w.h"
 #define PRINT_INTERVAL 10
 
-
 static int coco_ids[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17,
 		18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38,
 		39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
@@ -744,13 +743,21 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 			if (nms)
 				do_nms_sort(dets, nboxes, l.classes, nms);
 
-			printf("Iteration %d img %d predicted in %f seconds.\n",
-					iteration, img, what_time_is_it_now() - time);
-
 			//Save or compare
+			double start = what_time_is_it_now();
 			int curr_err = run(gold, dets, nboxes, img, l.classes);
-			if(last_errors && curr_err){
-				printf("IT IS LESS PROBLABLE THAT DARKNET GIVE US TWO ERRORS SEQUENTIALY, ABORTING\n");
+			double end = what_time_is_it_now();
+
+			if ((iteration * img) % PRINT_INTERVAL == 0) {
+				printf(
+						"Iteration %d img %d, %d objects predicted in %f seconds. % errors, coparisson took %s\n",
+						iteration, img, nboxes, what_time_is_it_now() - time,
+						curr_err, end - start);
+			}
+
+			if (last_errors && curr_err) {
+				printf(
+						"IT IS LESS PROBLABLE THAT DARKNET GIVE US TWO ERRORS SEQUENTIALY, ABORTING\n");
 				exit(-1);
 			}
 			last_errors = curr_err;

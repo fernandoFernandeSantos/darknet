@@ -20,7 +20,6 @@
 
 #define THRESHOLD_ERROR 1e10
 #define STORE_PRECISION 12
-#define PRINT_INTERVAL 10
 
 #define LAYER_GOLD "/var/radiation-benchmarks/data/"
 

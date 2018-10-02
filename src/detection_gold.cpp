@@ -207,12 +207,7 @@ int DetectionGold::run(detection *dets, int nboxes, int img_index,
 	} else {
 		// To compare function
 		//detection is allways nboxes size
-		double start = mysecond();
 		ret = this->cmp(dets, nboxes, img_index, classes);
-
-		std::cout << "Seconds to compare: " << mysecond() - start
-					<< " s.\n";
-
 	}
 	return ret;
 }
