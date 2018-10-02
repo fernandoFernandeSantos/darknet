@@ -1,5 +1,7 @@
 #include "darknet.h"
 #include "detection_gold_w.h"
+#define PRINT_INTERVAL 10
+
 
 static int coco_ids[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17,
 		18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38,
@@ -677,11 +679,9 @@ void load_all_images(image* imgs, image* sized_images, char** img_names,
 		int plist_size, int net_w, int net_h) {
 	int i;
 	for (i = 0; i < plist_size; i++) {
-		printf("%d\n", i);
 		imgs[i] = load_image_color(img_names[i], 0, 0);
 		sized_images[i] = letterbox_image(imgs[i], net_w, net_h);
 	}
-	printf("passou depois\n");
 }
 
 void free_all_images(image *imgs, image* sized_images, int list_size) {
@@ -742,8 +742,8 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 
 			if (nms)
 				do_nms_sort(dets, nboxes, l.classes, nms);
-
-			printf("Iteration %d Nboxes %d Predicted in %f seconds.\n",
+			if(iteration % PRINT_INTERVAL == 0)
+				printf("Iteration %d Nboxes %d Predicted in %f seconds.\n",
 					iteration, nboxes, what_time_is_it_now() - time);
 
 			//Save or compare
