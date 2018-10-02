@@ -675,8 +675,6 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile,
 void load_all_images(image* imgs, image* sized_images, char** img_names,
 		int plist_size, int net_w, int net_h) {
 	int i;
-	imgs = (image*) malloc(sizeof(image) * plist_size);
-	sized_images = (image*) malloc(sizeof(image) * plist_size);
 	for (i = 0; i < plist_size; i++) {
 
 		imgs[i] = load_image_color(img_names[i], 0, 0);
@@ -691,8 +689,6 @@ void free_all_images(image *imgs, image* sized_images, int list_size) {
 		free_image(imgs[i]);
 		free_image(sized_images[i]);
 	}
-	free(imgs);
-	free(sized_images);
 }
 
 void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
@@ -713,9 +709,12 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 
 	char **nm = get_labels(filename);
 	int images;
+	int plist_size = 10;
 
-	image *imgs = NULL, *sized_images = NULL;
-	load_all_images(imgs, sized_images, nm, 10, net->w, net->h);
+	image* imgs = (image*) malloc(sizeof(image) * plist_size);
+	image* sized_images = (image*) malloc(sizeof(image) * plist_size);
+
+	load_all_images(imgs, sized_images, nm, plist_size, net->w, net->h);
 
 	for (images = 0; images < 10; images++) {
 //		if (nm[images]) {
@@ -763,6 +762,8 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	}
 
 	free_all_images(imgs, sized_images, 10);
+	free(imgs);
+	free(sized_images);
 }
 
 void run_detector(int argc, char **argv) {
