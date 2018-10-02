@@ -133,5 +133,5 @@ demo:
 	./darknet detector test cfg/coco.data cfg/yolov3-spp.cfg data/yolov3-spp.weights data/dog.jpg
 
 test:
-        ./darknet detector test cfg/coco.data cfg/yolov3.cfg data/yolov3.weights /home/ffsantos/fernando_rad_dir/radiation-benchmarks/data/networks_img_list/caltech.pedestrians.10.txt
+	./darknet detector test_radiation cfg/coco.data cfg/yolov3.cfg data/yolov3.weights /home/ffsantos/fernando_rad_dir/radiation-benchmarks/data/networks_img_list/caltech.pedestrians.10.txt
 
