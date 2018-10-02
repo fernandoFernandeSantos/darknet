@@ -694,19 +694,13 @@ void free_all_images(image *imgs, image* sized_images, int list_size) {
 
 void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 		char *filename, real_t thresh, real_t hier_thresh, char *outfile,
-		int fullscreen) {
-//	list *options = read_data_cfg(datacfg);
-//	char *name_list = option_find_str(options, "names", "data/names.list");
-//	char **names = get_labels(name_list);
-
-//	image **alphabet = load_alphabet();
+		int fullscreen, int argc, char** argv) {
 	network *net = load_network(cfgfile, weightfile, 0);
 	set_batch_network(net, 1);
 	srand(2222222);
 	double time;
-//	char buff[256];
-//	char *input = buff;
 	real_t nms = .45;
+
 
 	char **nm = get_labels(filename);
 
@@ -716,6 +710,14 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	image* sized_images = (image*) malloc(sizeof(image) * plist_size);
 
 	load_all_images(imgs, sized_images, nm, plist_size, net->w, net->h);
+
+	/**
+	 * DetectionGold declaration
+	 */
+	detection_gold_t *gold = create_detection_gold(argc, argv, thresh,
+			hier_thresh, filename, cfgfile, datacfg, "detector", weightfile);
+
+	//--------------------------
 
 	int iteration, images;
 	int max_it = 20000;
@@ -728,14 +730,14 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 			network_predict(net, X);
 
 			int nboxes = 0;
-			detection *dets = get_network_boxes(net, imgs[images].w, imgs[images].h, thresh,
-					hier_thresh, 0, 1, &nboxes);
+			detection *dets = get_network_boxes(net, imgs[images].w,
+					imgs[images].h, thresh, hier_thresh, 0, 1, &nboxes);
 
 			if (nms)
 				do_nms_sort(dets, nboxes, l.classes, nms);
 
-			printf("Iteration %d Nboxes %d Predicted in %f seconds.\n", iteration, nboxes,
-					what_time_is_it_now() - time);
+			printf("Iteration %d Nboxes %d Predicted in %f seconds.\n",
+					iteration, nboxes, what_time_is_it_now() - time);
 
 		}
 	}
@@ -800,7 +802,7 @@ void run_detector(int argc, char **argv) {
 
 	else if (0 == strcmp(argv[2], "test_radiation"))
 		test_detector_radiation(datacfg, cfg, weights, filename, thresh,
-				hier_thresh, outfile, fullscreen);
+				hier_thresh, outfile, fullscreen, argc, argv);
 
 	else if (0 == strcmp(argv[2], "train"))
 		train_detector(datacfg, cfg, weights, gpus, ngpus, clear);
