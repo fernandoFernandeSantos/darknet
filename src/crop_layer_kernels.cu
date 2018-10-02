@@ -11,8 +11,8 @@ extern "C" {
 
 }
 
-__device__ real_t3 make_real_t3(real_t_device x, real_t_device y,
-		real_t_device z) {
+__device__ real_t3 make_real_t3(real_t x, real_t y,
+		real_t z) {
 	real_t3 mem;
 	mem.x = x;
 	mem.y = y;

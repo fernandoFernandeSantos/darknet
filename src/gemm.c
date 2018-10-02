@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
+#include <time.h>
 
 void gemm_bin(int M, int N, int K, real_t ALPHA, char *A, int lda, real_t *B,
 		int ldb, real_t *C, int ldc) {
@@ -145,49 +147,33 @@ void gemm_cpu(int TA, int TB, int M, int N, int K, real_t ALPHA, real_t *A,
 
 #ifdef GPU
 
-#include <math.h>
-
 void gemm_gpu(int TA, int TB, int M, int N, int K, real_t ALPHA, real_t *A_gpu,
 		int lda, real_t *B_gpu, int ldb, real_t BETA, real_t *C_gpu, int ldc) {
-	cublasHandle_t handle = blas_handle();
 
 #if REAL_TYPE == HALF
-	real_t *a, *b, *c;
-
-	convert_and_push_3_arrays(A_gpu, B_gpu, C_gpu,
-			a, M * K, b, K * N, c, M * N);
-
-	real_t_fp16 alpha = real_t_fp16(ALPHA);
-	real_t_fp16 beta = real_t_fp16(BETA);
-
-	cudaError_t status = (cudaError_t) cublasHgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
-			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &alpha, b, ldb,
-			a, lda, &beta, c, ldc);
-
-	pop_and_convert_3_arrays(A_gpu, B_gpu, C_gpu,
-			a, M * K, b, K * N, c, M * N)
-
+	run_cuda_gemm_half(TA, TB, M, N, K, ALPHA, A_gpu, lda, B_gpu, ldb, BETA, C_gpu, ldc);
 #elif REAL_TYPE == FLOAT
+	cublasHandle_t handle = blas_handle();
+
 	cudaError_t status = (cudaError_t) cublasSgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
 			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &ALPHA, B_gpu, ldb,
 			A_gpu, lda, &BETA, C_gpu, ldc);
+	check_error(status);
 #elif REAL_TYPE == DOUBLE
+	cublasHandle_t handle = blas_handle();
+
 	cudaError_t status = (cudaError_t) cublasDgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
 			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &ALPHA, B_gpu, ldb,
 			A_gpu, lda, &BETA, C_gpu, ldc);
+	check_error(status);
 #endif
 
 //	cublasHandle_t handle = blas_handle();
 //	cudaError_t status = cublasSgemm(handle, (TB ? CUBLAS_OP_T : CUBLAS_OP_N),
 //			(TA ? CUBLAS_OP_T : CUBLAS_OP_N), N, M, K, &ALPHA, B_gpu, ldb,
 //			A_gpu, lda, &BETA, C_gpu, ldc);
-	check_error(status);
-}
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+}
 
 void time_gpu_random_matrix(int TA, int TB, int m, int k, int n) {
 	real_t *a;

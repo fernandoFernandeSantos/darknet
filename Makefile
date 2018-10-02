@@ -29,9 +29,9 @@ AR=ar
 ARFLAGS=rcs
 OPTS=-Ofast
 LDFLAGS= -lm -pthread -lcublas 
-NVCCLDFLAGS =  -L/usr/local/cuda/lib64 -lcudart -lcublas -lcurand
+LDFLAGS +=  -L/usr/local/cuda/lib64 -lcudart -lcublas -lcurand
 COMMON= -Iinclude/ -Isrc/
-CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -Werror -fPIC
+CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-write-strings -Werror -fPIC 
 
 NVCCFLAGS=  --std=c++11 
 #-disable-warnings 

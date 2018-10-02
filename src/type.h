@@ -10,18 +10,15 @@
 
 #if REAL_TYPE == HALF
 
-#include <cuda_fp16.h>
 
 typedef float real_t;
-typedef half real_t_fp16;
-//typedef real_t real_t_device;
 
 #define FLT_MAX 1E+37
 
 //#define REAL_INFINITY 0x7C00
 #define REAL_INFINITY 0x7F800000
 
-void transform_float_to_half_array(real_t_device* dst, float* src, size_t n);
+//void transform_float_to_half_array(real_t_device* dst, float* src, size_t n);
 
 //---------------------------------------------------------------------------------------------------
 
@@ -52,9 +49,9 @@ typedef real_t real_t_device;
 #endif
 
 typedef struct __device_builtin__ {
-	real_t_device x;
-	real_t_device y;
-	real_t_device z;
+	real_t x;
+	real_t y;
+	real_t z;
 } real_t3;
 
 #define REAL_RAND_MAX FLT_MAX
@@ -62,13 +59,12 @@ typedef struct __device_builtin__ {
 int fread_float_to_real_t(real_t* dst, size_t siz, size_t times, FILE* fp);
 
 #if REAL_TYPE == HALF
-void convert_and_push_3_arrays(float *d_a, float *d_b, float *d_c,
-		real_t_fp16 *a, int siz_a, real_t_fp16 *b, int siz_b, real_t_fp16 *c,
-		siz_c);
 
-void pop_and_convert_3_arrays(float *d_a, float *d_b, float *d_c,
-		real_t_fp16 *a, int siz_a, real_t_fp16 *b, int siz_b, real_t_fp16 *c,
-		siz_c);
+#ifdef __cplusplus
+extern "C"
+#endif
+void run_cuda_gemm_half(int TA, int TB, int M, int N, int K, real_t ALPHA, real_t *A_gpu,
+		int lda, real_t *B_gpu, int ldb, real_t BETA, real_t *C_gpu, int ldc);
 #endif
 //#ifdef __NVCC__
 //__device__ __forceinline__ real_t_device exp_real(real_t_device x);
