@@ -743,6 +743,8 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 			printf("Iteration %d Nboxes %d Predicted in %f seconds.\n",
 					iteration, nboxes, what_time_is_it_now() - time);
 
+			//Save or compare
+			run(gold, dets, nboxes, images, l.classes);
 		}
 	}
 
