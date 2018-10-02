@@ -729,9 +729,9 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 			time = what_time_is_it_now();
 
 			//Run one iteration
-			start_iteration(gold);
+			start_iteration_wrapper(gold);
 			network_predict(net, X);
-			end_iteration(gold);
+			end_iteration_wrapper(gold);
 
 			int nboxes = 0;
 			detection *dets = get_network_boxes(net, imgs[images].w,

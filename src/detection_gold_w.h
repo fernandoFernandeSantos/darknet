@@ -26,8 +26,8 @@ void destroy_detection_gold(detection_gold_t *m);
 
 void run(detection_gold_t *m, detection* dets, int nboxes, int img_index, int classes);
 
-void start_iteration(detection_gold_t *m);
-void end_iteration(detection_gold_t *m);
+void start_iteration_wrapper(detection_gold_t *m);
+void end_iteration_wrapper(detection_gold_t *m);
 
 int get_iterations(detection_gold_t *m);
 

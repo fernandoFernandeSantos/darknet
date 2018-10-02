@@ -43,7 +43,7 @@ void run(detection_gold_t *m, detection* dets, int nboxes, int img_index, int cl
 	obj->run(dets, nboxes, img_index, classes);
 }
 
-void start_iteration(detection_gold_t *m) {
+void start_iteration_wrapper(detection_gold_t *m) {
 	DetectionGold *obj;
 	if (m == NULL)
 		return;
@@ -52,7 +52,7 @@ void start_iteration(detection_gold_t *m) {
 	obj->start_iteration();
 }
 
-void end_iteration(detection_gold_t *m) {
+void end_iteration_wrapper(detection_gold_t *m) {
 	DetectionGold *obj;
 	if (m == NULL)
 		return;
