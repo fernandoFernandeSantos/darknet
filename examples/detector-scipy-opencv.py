@@ -12,7 +12,7 @@ def array_to_image(arr):
     h = arr.shape[1]
     w = arr.shape[2]
     arr = (arr/255.0).flatten()
-    data = dn.c_array(dn.c_float, arr)
+    data = dn.c_array(dn.c_real_t, arr)
     im = dn.IMAGE(w,h,c,data)
     return im
 
