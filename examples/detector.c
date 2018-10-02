@@ -691,6 +691,8 @@ void free_all_images(image *imgs, image* sized_images, int list_size) {
 		free_image(imgs[i]);
 		free_image(sized_images[i]);
 	}
+	free(imgs);
+	free(sized_images);
 }
 
 void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
@@ -716,20 +718,21 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	load_all_images(imgs, sized_images, nm, 10, net->w, net->h);
 
 	for (images = 0; images < 10; images++) {
-		if (nm[images]) {
-			strncpy(input, nm[images], 256);
-		} else {
-			printf("Enter Image Path: ");
-			fflush(stdout);
-			input = fgets(input, 256, stdin);
-			if (!input)
-				return;
-			strtok(input, "\n");
-		}
+//		if (nm[images]) {
+//			strncpy(input, nm[images], 256);
+//		} else {
+//			printf("Enter Image Path: ");
+//			fflush(stdout);
+//			input = fgets(input, 256, stdin);
+//			if (!input)
+//				return;
+//			strtok(input, "\n");
+//		}
 		image im = imgs[images]; //load_image_color(input, 0, 0);
 		image sized = sized_images[images]; //letterbox_image(im, net->w, net->h);
 
 		layer l = net->layers[net->n - 1];
+		printf("passou\n");
 
 		real_t *X = sized.data;
 		time = what_time_is_it_now();
