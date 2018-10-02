@@ -164,14 +164,14 @@ void run_cuda_gemm_half(int TA, int TB, int M, int N, int K, real_t ALPHA, real_
 	check_error(cudaMalloc((void**)&c, sizeof(real_t_fp16) * siz_c));
 
 
-//	cuda_f32_to_f16<<<cuda_gridsize(siz_a), BLOCK>>>(A_gpu, siz_a, a);
-//	check_error(cudaPeekAtLastError());
-//
-//	cuda_f32_to_f16<<<cuda_gridsize(siz_b), BLOCK>>>(B_gpu, siz_b, b);
-//	check_error(cudaPeekAtLastError());
-//
-//	cuda_f32_to_f16<<<cuda_gridsize(siz_c), BLOCK>>>(C_gpu, siz_c, c);
-//	check_error(cudaPeekAtLastError());
+	cuda_f32_to_f16<<<cuda_gridsize(siz_a), BLOCK>>>(A_gpu, siz_a, a);
+	check_error(cudaPeekAtLastError());
+
+	cuda_f32_to_f16<<<cuda_gridsize(siz_b), BLOCK>>>(B_gpu, siz_b, b);
+	check_error(cudaPeekAtLastError());
+
+	cuda_f32_to_f16<<<cuda_gridsize(siz_c), BLOCK>>>(C_gpu, siz_c, c);
+	check_error(cudaPeekAtLastError());
 
 	real_t_fp16 alpha = real_t_fp16(ALPHA);
 	real_t_fp16 beta = real_t_fp16(BETA);
