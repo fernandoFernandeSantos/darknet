@@ -788,6 +788,11 @@ void run_detector(int argc, char **argv) {
 	if (0 == strcmp(argv[2], "test"))
 		test_detector(datacfg, cfg, weights, filename, thresh, hier_thresh,
 				outfile, fullscreen);
+
+	else if (0 == strcmp(argv[2], "test_radiation"))
+		test_detector_radiation(datacfg, cfg, weights, filename, thresh, hier_thresh,
+				outfile, fullscreen);
+
 	else if (0 == strcmp(argv[2], "train"))
 		train_detector(datacfg, cfg, weights, gpus, ngpus, clear);
 	else if (0 == strcmp(argv[2], "valid"))
