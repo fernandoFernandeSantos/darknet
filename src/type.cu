@@ -17,7 +17,6 @@ extern "C" {
 
 typedef half real_t_fp16;
 
-
 void check_error(cudaError_t status) {
 	//cudaDeviceSynchronize();
 	cudaError_t status2 = cudaGetLastError();
@@ -39,7 +38,7 @@ void check_error(cudaError_t status) {
 	}
 }
 
-dim3 cuda_gridsize(size_t n) {
+dim3 cuda_gridsize(size_t n){
 	unsigned k = (n - 1) / BLOCK + 1;
 	unsigned x = k;
 	unsigned y = 1;
@@ -55,30 +54,30 @@ dim3 cuda_gridsize(size_t n) {
 	return d;
 }
 
-__global__ void cuda_f32_to_f16(real_t *X, size_t N, real_t_fp16 *Y) {
-	size_t i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
-	if (i < N)
-	Y[i] = __float2half(X[i]);
-}
-
-//__global__ void cuda_f32_to_f16(real_t* input_f32, size_t size,
-//		real_t_fp16 *output_f16) {
-//	int idx = blockIdx.x * blockDim.x + threadIdx.x;
-//	if (idx < size)
-//	output_f16[idx] = __float2half(input_f32[idx]);
+//__global__ void cuda_f32_to_f16(real_t *X, size_t N, real_t_fp16 *Y) {
+//	size_t i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
+//	if (i < N)
+//	Y[i] = __float2half(X[i]);
 //}
 
-__global__ void cuda_f16_to_f32(real_t_fp16 *X, size_t N, real_t *Y) {
-	size_t i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
-	if (i < N)
-	X[i] = __half2float(Y[i]);
+__global__ void cuda_f32_to_f16(real_t* input_f32, size_t size,
+		real_t_fp16 *output_f16) {
+	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+	if (idx < size)
+	output_f16[idx] = __float2half(input_f32[idx]);
 }
-//__global__ void cuda_f16_to_f32(real_t_fp16* input_f16, size_t size,
-//		float *output_f32) {
-//	int idx = blockIdx.x * blockDim.x + threadIdx.x;
-//	if (idx < size)
-//	output_f32[idx] = __half2float(input_f16[idx]);
+
+//__global__ void cuda_f16_to_f32(real_t_fp16 *X, size_t N, real_t *Y) {
+//	size_t i = (blockIdx.x + blockIdx.y * gridDim.x) * blockDim.x + threadIdx.x;
+//	if (i < N)
+//	X[i] = __half2float(Y[i]);
 //}
+__global__ void cuda_f16_to_f32(real_t_fp16* input_f16, size_t size,
+		float *output_f32) {
+	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+	if (idx < size)
+	output_f32[idx] = __half2float(input_f16[idx]);
+}
 
 void inline convert_and_push_3_arrays(real_t *d_a, real_t *d_b, real_t *d_c,
 		real_t_fp16 *a, int siz_a, real_t_fp16 *b, int siz_b, real_t_fp16 *c, int siz_c) {
@@ -91,29 +90,46 @@ void inline convert_and_push_3_arrays(real_t *d_a, real_t *d_b, real_t *d_c,
 
 	//old division
 	//siz_b / BLOCK + 1, BLOCK
-
-	cuda_f32_to_f16<<<cuda_gridsize(siz_a), BLOCK>>>(d_a, siz_a, a);
+	cuda_f32_to_f16<<<siz_b / BLOCK + 1, BLOCK>>>(d_a, siz_a, a);
 	check_error(cudaPeekAtLastError());
 
-	cuda_f32_to_f16<<<cuda_gridsize(siz_b), BLOCK>>>(d_b, siz_b, b);
+	cuda_f32_to_f16<<<siz_b / BLOCK + 1, BLOCK>>>(d_b, siz_b, b);
 	check_error(cudaPeekAtLastError());
 
-	cuda_f32_to_f16<<<cuda_gridsize(siz_c), BLOCK>>>(d_c, siz_c, c);
+	cuda_f32_to_f16<<<siz_b / BLOCK + 1, BLOCK>>>(d_c, siz_c, c);
 	check_error(cudaPeekAtLastError());
+
+//	cuda_f32_to_f16<<<cuda_gridsize(siz_a), BLOCK>>>(d_a, siz_a, a);
+//	check_error(cudaPeekAtLastError());
+//
+//	cuda_f32_to_f16<<<cuda_gridsize(siz_b), BLOCK>>>(d_b, siz_b, b);
+//	check_error(cudaPeekAtLastError());
+//
+//	cuda_f32_to_f16<<<cuda_gridsize(siz_c), BLOCK>>>(d_c, siz_c, c);
+//	check_error(cudaPeekAtLastError());
 
 }
 
 void inline pop_and_convert_3_arrays(real_t *d_a, real_t *d_b, real_t *d_c,
 		real_t_fp16 *a, int siz_a, real_t_fp16 *b, int siz_b, real_t_fp16 *c, int siz_c) {
 
-	cuda_f16_to_f32<<<cuda_gridsize(siz_a), BLOCK>>>(a, siz_a, d_a);
+	cuda_f16_to_f32<<<siz_b / BLOCK + 1, BLOCK>>>(a, siz_a, d_a);
 	check_error(cudaPeekAtLastError());
 
-	cuda_f16_to_f32<<<cuda_gridsize(siz_b), BLOCK>>>(b, siz_b, d_b);
+	cuda_f16_to_f32<<<siz_b / BLOCK + 1, BLOCK>>>(b, siz_b, d_b);
 	check_error(cudaPeekAtLastError());
 
-	cuda_f16_to_f32<<<cuda_gridsize(siz_c), BLOCK>>>(c, siz_c, d_c);
+	cuda_f16_to_f32<<<siz_b / BLOCK + 1, BLOCK>>>(c, siz_c, d_c);
 	check_error(cudaPeekAtLastError());
+
+//	cuda_f16_to_f32<<<cuda_gridsize(siz_a), BLOCK>>>(a, siz_a, d_a);
+//	check_error(cudaPeekAtLastError());
+//
+//	cuda_f16_to_f32<<<cuda_gridsize(siz_b), BLOCK>>>(b, siz_b, d_b);
+//	check_error(cudaPeekAtLastError());
+//
+//	cuda_f16_to_f32<<<cuda_gridsize(siz_c), BLOCK>>>(c, siz_c, d_c);
+//	check_error(cudaPeekAtLastError());
 
 	//free the three half arrays
 	check_error(cudaFree(a));
