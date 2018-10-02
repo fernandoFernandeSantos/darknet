@@ -677,7 +677,7 @@ void load_all_images(image* imgs, image* sized_images, char** img_names,
 		int plist_size, int net_w, int net_h) {
 	int i;
 	for (i = 0; i < plist_size; i++) {
-
+		printf("%d\n", i);
 		imgs[i] = load_image_color(img_names[i], 0, 0);
 		sized_images[i] = letterbox_image(imgs[i], net_w, net_h);
 	}
@@ -702,7 +702,7 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	real_t nms = .45;
 
 
-	char **nm = get_labels(filename);
+	char **img_names = get_labels(filename);
 	/**
 	 * DetectionGold declaration
 	 */
@@ -711,21 +711,21 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 
 	//--------------------------
 
-	int iteration, images;
+	int iteration, img;
 	int max_it = get_iterations(gold);
 	int plist_size = get_img_num(gold);
 	printf("Number of it %d plist %d\n", max_it, plist_size);
 	//load images
-	image* imgs = (image*) malloc(sizeof(image) * plist_size);
+	image* images = (image*) malloc(sizeof(image) * plist_size);
 	image* sized_images = (image*) malloc(sizeof(image) * plist_size);
-	load_all_images(imgs, sized_images, nm, plist_size, net->w, net->h);
+	load_all_images(images, sized_images, img_names, plist_size, net->w, net->h);
 
 	//start the process
 	for (iteration = 0; iteration < max_it; iteration++) {
-		for (images = 0; images < plist_size; images++) {
+		for (img = 0; img < plist_size; img++) {
 			layer l = net->layers[net->n - 1];
 
-			real_t *X = sized_images[images].data;
+			real_t *X = sized_images[img].data;
 			time = what_time_is_it_now();
 
 			//Run one iteration
@@ -734,8 +734,8 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 			end_iteration_wrapper(gold);
 
 			int nboxes = 0;
-			detection *dets = get_network_boxes(net, imgs[images].w,
-					imgs[images].h, thresh, hier_thresh, 0, 1, &nboxes);
+			detection *dets = get_network_boxes(net, images[img].w,
+					images[img].h, thresh, hier_thresh, 0, 1, &nboxes);
 
 			if (nms)
 				do_nms_sort(dets, nboxes, l.classes, nms);
@@ -744,13 +744,13 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 					iteration, nboxes, what_time_is_it_now() - time);
 
 			//Save or compare
-			run(gold, dets, nboxes, images, l.classes);
+			run(gold, dets, nboxes, img, l.classes);
 		}
 	}
 
 	destroy_detection_gold(gold);
-	free_all_images(imgs, sized_images, 10);
-	free(imgs);
+	free_all_images(images, sized_images, 10);
+	free(images);
 	free(sized_images);
 }
 
