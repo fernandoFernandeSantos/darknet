@@ -17,9 +17,9 @@ void update_convolutional_layer_gpu(convolutional_layer layer, update_args a);
 void push_convolutional_layer(convolutional_layer layer);
 void pull_convolutional_layer(convolutional_layer layer);
 
-void add_bias_gpu(float *output, float *biases, int batch, int n, int size);
-void backward_bias_gpu(float *bias_updates, float *delta, int batch, int n, int size);
-void adam_update_gpu(float *w, float *d, float *m, float *v, float B1, float B2, float eps, float decay, float rate, int n, int batch, int t);
+void add_bias_gpu(real_t *output, real_t *biases, int batch, int n, int size);
+void backward_bias_gpu(real_t *bias_updates, real_t *delta, int batch, int n, int size);
+void adam_update_gpu(real_t *w, real_t *d, real_t *m, real_t *v, real_t B1, real_t B2, real_t eps, real_t decay, real_t rate, int n, int batch, int t);
 #ifdef CUDNN
 void cudnn_convolutional_setup(layer *l);
 #endif
@@ -30,14 +30,14 @@ void resize_convolutional_layer(convolutional_layer *layer, int w, int h);
 void forward_convolutional_layer(const convolutional_layer layer, network net);
 void update_convolutional_layer(convolutional_layer layer, update_args a);
 image *visualize_convolutional_layer(convolutional_layer layer, char *window, image *prev_weights);
-void binarize_weights(float *weights, int n, int size, float *binary);
+void binarize_weights(real_t *weights, int n, int size, real_t *binary);
 void swap_binary(convolutional_layer *l);
-void binarize_weights2(float *weights, int n, int size, char *binary, float *scales);
+void binarize_weights2(real_t *weights, int n, int size, char *binary, real_t *scales);
 
 void backward_convolutional_layer(convolutional_layer layer, network net);
 
-void add_bias(float *output, float *biases, int batch, int n, int size);
-void backward_bias(float *bias_updates, float *delta, int batch, int n, int size);
+void add_bias(real_t *output, real_t *biases, int batch, int n, int size);
+void backward_bias(real_t *bias_updates, real_t *delta, int batch, int n, int size);
 
 image get_convolutional_image(convolutional_layer layer);
 image get_convolutional_delta(convolutional_layer layer);

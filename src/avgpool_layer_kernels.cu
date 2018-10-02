@@ -7,7 +7,7 @@ extern "C" {
 #include "cuda.h"
 }
 
-__global__ void forward_avgpool_layer_kernel(int n, int w, int h, int c, float *input, float *output)
+__global__ void forward_avgpool_layer_kernel(int n, int w, int h, int c, real_t *input, real_t *output)
 {
     int id = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
     if(id >= n) return;
@@ -26,7 +26,7 @@ __global__ void forward_avgpool_layer_kernel(int n, int w, int h, int c, float *
     output[out_index] /= w*h;
 }
 
-__global__ void backward_avgpool_layer_kernel(int n, int w, int h, int c, float *in_delta, float *out_delta)
+__global__ void backward_avgpool_layer_kernel(int n, int w, int h, int c, real_t *in_delta, real_t *out_delta)
 {
     int id = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
     if(id >= n) return;

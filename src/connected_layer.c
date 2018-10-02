@@ -29,21 +29,21 @@ layer make_connected_layer(int batch, int inputs, int outputs, ACTIVATION activa
     l.out_w = 1;
     l.out_c = outputs;
 
-    l.output = calloc(batch*outputs, sizeof(float));
-    l.delta = calloc(batch*outputs, sizeof(float));
+    l.output = calloc(batch*outputs, sizeof(real_t));
+    l.delta = calloc(batch*outputs, sizeof(real_t));
 
-    l.weight_updates = calloc(inputs*outputs, sizeof(float));
-    l.bias_updates = calloc(outputs, sizeof(float));
+    l.weight_updates = calloc(inputs*outputs, sizeof(real_t));
+    l.bias_updates = calloc(outputs, sizeof(real_t));
 
-    l.weights = calloc(outputs*inputs, sizeof(float));
-    l.biases = calloc(outputs, sizeof(float));
+    l.weights = calloc(outputs*inputs, sizeof(real_t));
+    l.biases = calloc(outputs, sizeof(real_t));
 
     l.forward = forward_connected_layer;
     l.backward = backward_connected_layer;
     l.update = update_connected_layer;
 
-    //float scale = 1./sqrt(inputs);
-    float scale = sqrt(2./inputs);
+    //real_t scale = 1./sqrt(inputs);
+    real_t scale = sqrt(2./inputs);
     for(i = 0; i < outputs*inputs; ++i){
         l.weights[i] = scale*rand_uniform(-1, 1);
     }
@@ -53,30 +53,30 @@ layer make_connected_layer(int batch, int inputs, int outputs, ACTIVATION activa
     }
 
     if(adam){
-        l.m = calloc(l.inputs*l.outputs, sizeof(float));
-        l.v = calloc(l.inputs*l.outputs, sizeof(float));
-        l.bias_m = calloc(l.outputs, sizeof(float));
-        l.scale_m = calloc(l.outputs, sizeof(float));
-        l.bias_v = calloc(l.outputs, sizeof(float));
-        l.scale_v = calloc(l.outputs, sizeof(float));
+        l.m = calloc(l.inputs*l.outputs, sizeof(real_t));
+        l.v = calloc(l.inputs*l.outputs, sizeof(real_t));
+        l.bias_m = calloc(l.outputs, sizeof(real_t));
+        l.scale_m = calloc(l.outputs, sizeof(real_t));
+        l.bias_v = calloc(l.outputs, sizeof(real_t));
+        l.scale_v = calloc(l.outputs, sizeof(real_t));
     }
     if(batch_normalize){
-        l.scales = calloc(outputs, sizeof(float));
-        l.scale_updates = calloc(outputs, sizeof(float));
+        l.scales = calloc(outputs, sizeof(real_t));
+        l.scale_updates = calloc(outputs, sizeof(real_t));
         for(i = 0; i < outputs; ++i){
             l.scales[i] = 1;
         }
 
-        l.mean = calloc(outputs, sizeof(float));
-        l.mean_delta = calloc(outputs, sizeof(float));
-        l.variance = calloc(outputs, sizeof(float));
-        l.variance_delta = calloc(outputs, sizeof(float));
+        l.mean = calloc(outputs, sizeof(real_t));
+        l.mean_delta = calloc(outputs, sizeof(real_t));
+        l.variance = calloc(outputs, sizeof(real_t));
+        l.variance_delta = calloc(outputs, sizeof(real_t));
 
-        l.rolling_mean = calloc(outputs, sizeof(float));
-        l.rolling_variance = calloc(outputs, sizeof(float));
+        l.rolling_mean = calloc(outputs, sizeof(real_t));
+        l.rolling_variance = calloc(outputs, sizeof(real_t));
 
-        l.x = calloc(batch*outputs, sizeof(float));
-        l.x_norm = calloc(batch*outputs, sizeof(float));
+        l.x = calloc(batch*outputs, sizeof(real_t));
+        l.x_norm = calloc(batch*outputs, sizeof(real_t));
     }
 
 #ifdef GPU
@@ -131,9 +131,9 @@ layer make_connected_layer(int batch, int inputs, int outputs, ACTIVATION activa
 
 void update_connected_layer(layer l, update_args a)
 {
-    float learning_rate = a.learning_rate*l.learning_rate_scale;
-    float momentum = a.momentum;
-    float decay = a.decay;
+    real_t learning_rate = a.learning_rate*l.learning_rate_scale;
+    real_t momentum = a.momentum;
+    real_t decay = a.decay;
     int batch = a.batch;
     axpy_cpu(l.outputs, learning_rate/batch, l.bias_updates, 1, l.biases, 1);
     scal_cpu(l.outputs, momentum, l.bias_updates, 1);
@@ -154,9 +154,9 @@ void forward_connected_layer(layer l, network net)
     int m = l.batch;
     int k = l.inputs;
     int n = l.outputs;
-    float *a = net.input;
-    float *b = l.weights;
-    float *c = l.output;
+    real_t *a = net.input;
+    real_t *b = l.weights;
+    real_t *c = l.output;
     gemm(0,1,m,n,k,1,a,k,b,k,1,c,n);
     if(l.batch_normalize){
         forward_batchnorm_layer(l, net);
@@ -179,9 +179,9 @@ void backward_connected_layer(layer l, network net)
     int m = l.outputs;
     int k = l.batch;
     int n = l.inputs;
-    float *a = l.delta;
-    float *b = net.input;
-    float *c = l.weight_updates;
+    real_t *a = l.delta;
+    real_t *b = net.input;
+    real_t *c = l.weight_updates;
     gemm(1,0,m,n,k,1,a,m,b,n,1,c,n);
 
     m = l.batch;
@@ -200,7 +200,7 @@ void denormalize_connected_layer(layer l)
 {
     int i, j;
     for(i = 0; i < l.outputs; ++i){
-        float scale = l.scales[i]/sqrt(l.rolling_variance[i] + .000001);
+        real_t scale = l.scales[i]/sqrt(l.rolling_variance[i] + .000001);
         for(j = 0; j < l.inputs; ++j){
             l.weights[i*l.inputs + j] *= scale;
         }
@@ -260,9 +260,9 @@ void push_connected_layer(layer l)
 
 void update_connected_layer_gpu(layer l, update_args a)
 {
-    float learning_rate = a.learning_rate*l.learning_rate_scale;
-    float momentum = a.momentum;
-    float decay = a.decay;
+    real_t learning_rate = a.learning_rate*l.learning_rate_scale;
+    real_t momentum = a.momentum;
+    real_t decay = a.decay;
     int batch = a.batch;
     if(a.adam){
         adam_update_gpu(l.weights_gpu, l.weight_updates_gpu, l.m_gpu, l.v_gpu, a.B1, a.B2, a.eps, decay, learning_rate, l.inputs*l.outputs, batch, a.t);
@@ -292,9 +292,9 @@ void forward_connected_layer_gpu(layer l, network net)
     int m = l.batch;
     int k = l.inputs;
     int n = l.outputs;
-    float * a = net.input_gpu;
-    float * b = l.weights_gpu;
-    float * c = l.output_gpu;
+    real_t * a = net.input_gpu;
+    real_t * b = l.weights_gpu;
+    real_t * c = l.output_gpu;
     gemm_gpu(0,1,m,n,k,1,a,k,b,k,1,c,n);
 
     if (l.batch_normalize) {
@@ -318,9 +318,9 @@ void backward_connected_layer_gpu(layer l, network net)
     int m = l.outputs;
     int k = l.batch;
     int n = l.inputs;
-    float * a = l.delta_gpu;
-    float * b = net.input_gpu;
-    float * c = l.weight_updates_gpu;
+    real_t * a = l.delta_gpu;
+    real_t * b = net.input_gpu;
+    real_t * c = l.weight_updates_gpu;
     gemm_gpu(1,0,m,n,k,1,a,m,b,n,1,c,n);
 
     m = l.batch;

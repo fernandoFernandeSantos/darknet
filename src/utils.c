@@ -4,12 +4,13 @@
 #include <math.h>
 #include <assert.h>
 #include <unistd.h>
-#include <float.h>
+//#include <real_t.h>
 #include <limits.h>
 #include <time.h>
 #include <sys/time.h>
 
 #include "utils.h"
+#include "type.h"
 
 
 /*
@@ -49,7 +50,7 @@ int *read_intlist(char *gpu_list, int *ngpus, int d)
             gpu_list = strchr(gpu_list, ',')+1;
         }
     } else {
-        gpus = calloc(1, sizeof(float));
+        gpus = calloc(1, sizeof(real_t));
         *gpus = d;
         *ngpus = 1;
     }
@@ -145,7 +146,7 @@ int find_int_arg(int argc, char **argv, char *arg, int def)
     return def;
 }
 
-float find_float_arg(int argc, char **argv, char *arg, float def)
+real_t find_real_t_arg(int argc, char **argv, char *arg, real_t def)
 {
     int i;
     for(i = 0; i < argc-1; ++i){
@@ -200,7 +201,7 @@ char int_to_alphanum(int i)
     return (i < 10) ? i + 48 : i + 87;
 }
 
-void pm(int M, int N, float *A)
+void pm(int M, int N, real_t *A)
 {
     int i,j;
     for(i =0 ; i < M; ++i){
@@ -229,12 +230,12 @@ void find_replace(char *str, char *orig, char *rep, char *output)
     sprintf(output, "%s%s%s", buffer, rep, p+strlen(orig));
 }
 
-float sec(clock_t clocks)
+real_t sec(clock_t clocks)
 {
-    return (float)clocks/CLOCKS_PER_SEC;
+    return (real_t)clocks/CLOCKS_PER_SEC;
 }
 
-void top_k(float *a, int n, int k, int *index)
+void top_k(real_t *a, int n, int k, int *index)
 {
     int i,j;
     for(j = 0; j < k; ++j) index[j] = -1;
@@ -456,9 +457,9 @@ int count_fields(char *line)
     return count;
 }
 
-float *parse_fields(char *line, int n)
+real_t *parse_fields(char *line, int n)
 {
-    float *field = calloc(n, sizeof(float));
+    real_t *field = calloc(n, sizeof(real_t));
     char *c, *p, *end;
     int count = 0;
     int done = 0;
@@ -476,24 +477,24 @@ float *parse_fields(char *line, int n)
     return field;
 }
 
-float sum_array(float *a, int n)
+real_t sum_array(real_t *a, int n)
 {
     int i;
-    float sum = 0;
+    real_t sum = 0;
     for(i = 0; i < n; ++i) sum += a[i];
     return sum;
 }
 
-float mean_array(float *a, int n)
+real_t mean_array(real_t *a, int n)
 {
     return sum_array(a,n)/n;
 }
 
-void mean_arrays(float **a, int n, int els, float *avg)
+void mean_arrays(real_t **a, int n, int els, real_t *avg)
 {
     int i;
     int j;
-    memset(avg, 0, els*sizeof(float));
+    memset(avg, 0, els*sizeof(real_t));
     for(j = 0; j < n; ++j){
         for(i = 0; i < els; ++i){
             avg[i] += a[j][i];
@@ -504,20 +505,20 @@ void mean_arrays(float **a, int n, int els, float *avg)
     }
 }
 
-void print_statistics(float *a, int n)
+void print_statistics(real_t *a, int n)
 {
-    float m = mean_array(a, n);
-    float v = variance_array(a, n);
+    real_t m = mean_array(a, n);
+    real_t v = variance_array(a, n);
     printf("MSE: %.6f, Mean: %.6f, Variance: %.6f\n", mse_array(a, n), m, v);
 }
 
-float variance_array(float *a, int n)
+real_t variance_array(real_t *a, int n)
 {
     int i;
-    float sum = 0;
-    float mean = mean_array(a, n);
+    real_t sum = 0;
+    real_t mean = mean_array(a, n);
     for(i = 0; i < n; ++i) sum += (a[i] - mean)*(a[i]-mean);
-    float variance = sum/n;
+    real_t variance = sum/n;
     return variance;
 }
 
@@ -528,34 +529,34 @@ int constrain_int(int a, int min, int max)
     return a;
 }
 
-float constrain(float min, float max, float a)
+real_t constrain(real_t min, real_t max, real_t a)
 {
     if (a < min) return min;
     if (a > max) return max;
     return a;
 }
 
-float dist_array(float *a, float *b, int n, int sub)
+real_t dist_array(real_t *a, real_t *b, int n, int sub)
 {
     int i;
-    float sum = 0;
+    real_t sum = 0;
     for(i = 0; i < n; i += sub) sum += pow(a[i]-b[i], 2);
     return sqrt(sum);
 }
 
-float mse_array(float *a, int n)
+real_t mse_array(real_t *a, int n)
 {
     int i;
-    float sum = 0;
+    real_t sum = 0;
     for(i = 0; i < n; ++i) sum += a[i]*a[i];
     return sqrt(sum/n);
 }
 
-void normalize_array(float *a, int n)
+void normalize_array(real_t *a, int n)
 {
     int i;
-    float mu = mean_array(a,n);
-    float sigma = sqrt(variance_array(a,n));
+    real_t mu = mean_array(a,n);
+    real_t sigma = sqrt(variance_array(a,n));
     for(i = 0; i < n; ++i){
         a[i] = (a[i] - mu)/sigma;
     }
@@ -563,7 +564,7 @@ void normalize_array(float *a, int n)
     sigma = sqrt(variance_array(a,n));
 }
 
-void translate_array(float *a, int n, float s)
+void translate_array(real_t *a, int n, real_t s)
 {
     int i;
     for(i = 0; i < n; ++i){
@@ -571,17 +572,17 @@ void translate_array(float *a, int n, float s)
     }
 }
 
-float mag_array(float *a, int n)
+real_t mag_array(real_t *a, int n)
 {
     int i;
-    float sum = 0;
+    real_t sum = 0;
     for(i = 0; i < n; ++i){
         sum += a[i]*a[i];   
     }
     return sqrt(sum);
 }
 
-void scale_array(float *a, int n, float s)
+void scale_array(real_t *a, int n, real_t s)
 {
     int i;
     for(i = 0; i < n; ++i){
@@ -589,11 +590,11 @@ void scale_array(float *a, int n, float s)
     }
 }
 
-int sample_array(float *a, int n)
+int sample_array(real_t *a, int n)
 {
-    float sum = sum_array(a, n);
+    real_t sum = sum_array(a, n);
     scale_array(a, n, 1./sum);
-    float r = rand_uniform(0, 1);
+    real_t r = rand_uniform(0, 1);
     int i;
     for(i = 0; i < n; ++i){
         r = r - a[i];
@@ -616,11 +617,11 @@ int max_int_index(int *a, int n)
     return max_i;
 }
 
-int max_index(float *a, int n)
+int max_index(real_t *a, int n)
 {
     if(n <= 0) return -1;
     int i, max_i = 0;
-    float max = a[0];
+    real_t max = a[0];
     for(i = 1; i < n; ++i){
         if(a[i] > max){
             max = a[i];
@@ -651,7 +652,7 @@ int rand_int(int min, int max)
 }
 
 // From http://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
-float rand_normal()
+real_t rand_normal()
 {
     static int haveSpare = 0;
     static double rand1, rand2;
@@ -673,12 +674,12 @@ float rand_normal()
 }
 
 /*
-   float rand_normal()
+   real_t rand_normal()
    {
    int n = 12;
    int i;
-   float sum= 0;
-   for(i = 0; i < n; ++i) sum += (float)rand()/RAND_MAX;
+   real_t sum= 0;
+   for(i = 0; i < n; ++i) sum += (real_t)rand()/RAND_MAX;
    return sum-n/2.;
    }
  */
@@ -695,29 +696,29 @@ size_t rand_size_t()
         ((size_t)(rand()&0xff) << 0);
 }
 
-float rand_uniform(float min, float max)
+real_t rand_uniform(real_t min, real_t max)
 {
     if(max < min){
-        float swap = min;
+        real_t swap = min;
         min = max;
         max = swap;
     }
-    return ((float)rand()/RAND_MAX * (max - min)) + min;
+    return ((real_t)rand()/RAND_MAX * (max - min)) + min;
 }
 
-float rand_scale(float s)
+real_t rand_scale(real_t s)
 {
-    float scale = rand_uniform(1, s);
+    real_t scale = rand_uniform(1, s);
     if(rand()%2) return scale;
     return 1./scale;
 }
 
-float **one_hot_encode(float *a, int n, int k)
+real_t **one_hot_encode(real_t *a, int n, int k)
 {
     int i;
-    float **t = calloc(n, sizeof(float*));
+    real_t **t = calloc(n, sizeof(real_t*));
     for(i = 0; i < n; ++i){
-        t[i] = calloc(k, sizeof(float));
+        t[i] = calloc(k, sizeof(real_t));
         int index = (int)a[i];
         t[i][index] = 1;
     }

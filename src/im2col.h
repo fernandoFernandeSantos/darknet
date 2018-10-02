@@ -1,15 +1,18 @@
 #ifndef IM2COL_H
 #define IM2COL_H
 
-void im2col_cpu(float* data_im,
+#include "type.h"
+
+
+void im2col_cpu(real_t* data_im,
         int channels, int height, int width,
-        int ksize, int stride, int pad, float* data_col);
+        int ksize, int stride, int pad, real_t* data_col);
 
 #ifdef GPU
 
-void im2col_gpu(float *im,
+void im2col_gpu(real_t *im,
          int channels, int height, int width,
-         int ksize, int stride, int pad,float *data_col);
+         int ksize, int stride, int pad,real_t *data_col);
 
 #endif
 #endif

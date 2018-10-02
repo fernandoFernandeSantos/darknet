@@ -5,6 +5,8 @@
 #include "darknet.h"
 #include "list.h"
 
+
+
 #define TIME(a) \
     do { \
     double start = what_time_is_it_now(); \
@@ -36,17 +38,17 @@ char *fgetl(FILE *fp);
 list *parse_csv_line(char *line);
 char *copy_string(char *s);
 int count_fields(char *line);
-float *parse_fields(char *line, int n);
-void translate_array(float *a, int n, float s);
-float constrain(float min, float max, float a);
+real_t *parse_fields(char *line, int n);
+void translate_array(real_t *a, int n, real_t s);
+real_t constrain(real_t min, real_t max, real_t a);
 int constrain_int(int a, int min, int max);
-float rand_scale(float s);
+real_t rand_scale(real_t s);
 int rand_int(int min, int max);
-void mean_arrays(float **a, int n, int els, float *avg);
-float dist_array(float *a, float *b, int n, int sub);
-float **one_hot_encode(float *a, int n, int k);
-float sec(clock_t clocks);
-void print_statistics(float *a, int n);
+void mean_arrays(real_t **a, int n, int els, real_t *avg);
+real_t dist_array(real_t *a, real_t *b, int n, int sub);
+real_t **one_hot_encode(real_t *a, int n, int k);
+real_t sec(clock_t clocks);
+void print_statistics(real_t *a, int n);
 int int_index(int *a, int val, int n);
 
 #endif

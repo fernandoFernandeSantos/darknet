@@ -18,8 +18,8 @@ layer make_activation_layer(int batch, int inputs, ACTIVATION activation)
     l.outputs = inputs;
     l.batch=batch;
 
-    l.output = calloc(batch*inputs, sizeof(float*));
-    l.delta = calloc(batch*inputs, sizeof(float*));
+    l.output = calloc(batch*inputs, sizeof(real_t*));
+    l.delta = calloc(batch*inputs, sizeof(real_t*));
 
     l.forward = forward_activation_layer;
     l.backward = backward_activation_layer;

@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef float real_t;
 //extern void predict_classifier(char *datacfg, char *cfgfile, char *weightfile,
 //		char *filename, int top);
 extern void test_detector(char *datacfg, char *cfgfile, char *weightfile,
@@ -438,7 +437,7 @@ int main(int argc, char **argv) {
 	else if (0 == strcmp(argv[1], "detector")) {
 		run_detector(argc, argv);
 	} else if (0 == strcmp(argv[1], "detect")) {
-		real_t thresh = find_float_arg(argc, argv, "-thresh", (.5));
+		real_t thresh = find_real_t_arg(argc, argv, "-thresh", (.5));
 		char *filename = (argc > 4) ? argv[4] : 0;
 		char *outfile = find_char_arg(argc, argv, "-out", 0);
 		int fullscreen = find_arg(argc, argv, "-fullscreen");

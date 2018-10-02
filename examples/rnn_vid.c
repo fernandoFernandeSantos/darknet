@@ -4,25 +4,25 @@
 image get_image_from_stream(CvCapture *cap);
 image ipl_to_image(IplImage* src);
 
-void reconstruct_picture(network net, float *features, image recon, image update, float rate, float momentum, float lambda, int smooth_size, int iters);
+void reconstruct_picture(network net, real_t *features, image recon, image update, real_t rate, real_t momentum, real_t lambda, int smooth_size, int iters);
 
 
 typedef struct {
-    float *x;
-    float *y;
-} float_pair;
+    real_t *x;
+    real_t *y;
+} real_t_pair;
 
-float_pair get_rnn_vid_data(network net, char **files, int n, int batch, int steps)
+real_t_pair get_rnn_vid_data(network net, char **files, int n, int batch, int steps)
 {
     int b;
     assert(net.batch == steps + 1);
     image out_im = get_network_image(net);
     int output_size = out_im.w*out_im.h*out_im.c;
     printf("%d %d %d\n", out_im.w, out_im.h, out_im.c);
-    float *feats = calloc(net.batch*batch*output_size, sizeof(float));
+    real_t *feats = calloc(net.batch*batch*output_size, sizeof(real_t));
     for(b = 0; b < batch; ++b){
         int input_size = net.w*net.h*net.c;
-        float *input = calloc(input_size*net.batch, sizeof(float));
+        real_t *input = calloc(input_size*net.batch, sizeof(real_t));
         char *filename = files[rand()%n];
         CvCapture *cap = cvCaptureFromFile(filename);
         int frames = cvGetCaptureProperty(cap, CV_CAP_PROP_FRAME_COUNT);
@@ -44,23 +44,23 @@ float_pair get_rnn_vid_data(network net, char **files, int n, int batch, int ste
             image re = resize_image(im, net.w, net.h);
             //show_image(re, "loaded");
             //cvWaitKey(10);
-            memcpy(input + i*input_size, re.data, input_size*sizeof(float));
+            memcpy(input + i*input_size, re.data, input_size*sizeof(real_t));
             free_image(im);
             free_image(re);
         }
-        float *output = network_predict(net, input);
+        real_t *output = network_predict(net, input);
 
         free(input);
 
         for(i = 0; i < net.batch; ++i){
-            memcpy(feats + (b + i*batch)*output_size, output + i*output_size, output_size*sizeof(float));
+            memcpy(feats + (b + i*batch)*output_size, output + i*output_size, output_size*sizeof(real_t));
         }
 
         cvReleaseCapture(&cap);
     }
 
     //printf("%d %d %d\n", out_im.w, out_im.h, out_im.c);
-    float_pair p = {0};
+    real_t_pair p = {0};
     p.x = feats;
     p.y = feats + output_size*batch; //+ out_im.w*out_im.h*out_im.c;
 
@@ -75,7 +75,7 @@ void train_vid_rnn(char *cfgfile, char *weightfile)
     srand(time(0));
     char *base = basecfg(cfgfile);
     printf("%s\n", base);
-    float avg_loss = -1;
+    real_t avg_loss = -1;
     network net = parse_network_cfg(cfgfile);
     if(weightfile){
         load_weights(&net, weightfile);
@@ -97,11 +97,11 @@ void train_vid_rnn(char *cfgfile, char *weightfile)
     while(get_current_batch(net) < net.max_batches){
         i += 1;
         time=clock();
-        float_pair p = get_rnn_vid_data(extractor, paths, N, batch, steps);
+        real_t_pair p = get_rnn_vid_data(extractor, paths, N, batch, steps);
 
         copy_cpu(net.inputs*net.batch, p.x, 1, net.input, 1);
         copy_cpu(net.truths*net.batch, p.y, 1, net.truth, 1);
-        float loss = train_network_datum(net) / (net.batch);
+        real_t loss = train_network_datum(net) / (net.batch);
 
 
         free(p.x);
@@ -126,7 +126,7 @@ void train_vid_rnn(char *cfgfile, char *weightfile)
 }
 
 
-image save_reconstruction(network net, image *init, float *feat, char *name, int i)
+image save_reconstruction(network net, image *init, real_t *feat, char *name, int i)
 {
     image recon;
     if (init) {
@@ -158,8 +158,8 @@ void generate_vid_rnn(char *cfgfile, char *weightfile)
 
     int i;
     CvCapture *cap = cvCaptureFromFile("/extra/vid/ILSVRC2015/Data/VID/snippets/val/ILSVRC2015_val_00007030.mp4");
-    float *feat;
-    float *next;
+    real_t *feat;
+    real_t *next;
     image last;
     for(i = 0; i < 25; ++i){
         image im = get_image_from_stream(cap);

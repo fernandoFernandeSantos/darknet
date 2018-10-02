@@ -12,8 +12,8 @@ typedef struct{
 int read_option(char *s, list *options);
 void option_insert(list *l, char *key, char *val);
 char *option_find(list *l, char *key);
-float option_find_float(list *l, char *key, float def);
-float option_find_float_quiet(list *l, char *key, float def);
+real_t option_find_real_t(list *l, char *key, real_t def);
+real_t option_find_real_t_quiet(list *l, char *key, real_t def);
 void option_unused(list *l);
 
 #endif
