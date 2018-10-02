@@ -157,11 +157,11 @@ void run_cuda_gemm_half(int TA, int TB, int M, int N, int K, real_t ALPHA, real_
 
 //	convert_and_push_3_arrays(A_gpu, B_gpu, C_gpu,
 //			a, M * K, b, K * N, c, M * N);
-	check_error(cudaMalloc(&a, sizeof(real_t_fp16) * siz_a));
+	check_error(cudaMalloc((void**)&a, sizeof(real_t_fp16) * siz_a));
 
-	check_error(cudaMalloc(&b, sizeof(real_t_fp16) * siz_b));
+	check_error(cudaMalloc((void**)&b, sizeof(real_t_fp16) * siz_b));
 
-	check_error(cudaMalloc(&c, sizeof(real_t_fp16) * siz_c));
+	check_error(cudaMalloc((void**)&c, sizeof(real_t_fp16) * siz_c));
 
 
 	cuda_f32_to_f16<<<cuda_gridsize(siz_a), BLOCK>>>(A_gpu, siz_a, a);
