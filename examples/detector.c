@@ -750,7 +750,7 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 
 			if ((iteration * img) % PRINT_INTERVAL == 0) {
 				printf(
-						"Iteration %d img %d, %d objects predicted in %f seconds. % errors, coparisson took %s\n",
+						"Iteration %d img %d, %d objects predicted in %f seconds. %d errors, coparisson took %lfs\n",
 						iteration, img, nboxes, what_time_is_it_now() - time,
 						curr_err, end - start);
 			}
