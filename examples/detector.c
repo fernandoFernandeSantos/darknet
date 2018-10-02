@@ -745,6 +745,7 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 		if (nms)
 			do_nms_sort(dets, nboxes, l.classes, nms);
 
+		printf("NBOXES %d\n", nboxes);
 //		draw_detections(im, dets, nboxes, thresh, names, alphabet, l.classes);
 //		free_detections(dets, nboxes);
 //		if (outfile) {
