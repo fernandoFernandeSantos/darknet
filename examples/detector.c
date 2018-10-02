@@ -703,8 +703,8 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	set_batch_network(net, 1);
 	srand(2222222);
 	double time;
-	char buff[256];
-	char *input = buff;
+//	char buff[256];
+//	char *input = buff;
 	real_t nms = .45;
 
 	char **nm = get_labels(filename);
