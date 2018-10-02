@@ -708,7 +708,7 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	real_t nms = .45;
 
 	char **nm = get_labels(filename);
-	int images;
+
 	int plist_size = 10;
 
 	image* imgs = (image*) malloc(sizeof(image) * plist_size);
@@ -716,7 +716,10 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 
 	load_all_images(imgs, sized_images, nm, plist_size, net->w, net->h);
 
-	for (images = 0; images < 10; images++) {
+	int iterations, images;
+	int max_it = 20000;
+	for (iterations = 0; iterations < max_it; iterations++) {
+		for (images = 0; images < 10; images++) {
 //		if (nm[images]) {
 //			strncpy(input, nm[images], 256);
 //		} else {
@@ -727,25 +730,25 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 //				return;
 //			strtok(input, "\n");
 //		}
-		image im = imgs[images]; //load_image_color(input, 0, 0);
-		image sized = sized_images[images]; //letterbox_image(im, net->w, net->h);
+			image im = imgs[images]; //load_image_color(input, 0, 0);
+			image sized = sized_images[images]; //letterbox_image(im, net->w, net->h);
 
-		layer l = net->layers[net->n - 1];
-		printf("passou\n");
+			layer l = net->layers[net->n - 1];
+			printf("passou\n");
 
-		real_t *X = sized.data;
-		time = what_time_is_it_now();
-		network_predict(net, X);
-		printf("%s: Predicted in %f seconds.\n", input,
-				what_time_is_it_now() - time);
-		int nboxes = 0;
-		detection *dets = get_network_boxes(net, im.w, im.h, thresh,
-				hier_thresh, 0, 1, &nboxes);
+			real_t *X = sized.data;
+			time = what_time_is_it_now();
+			network_predict(net, X);
 
-		if (nms)
-			do_nms_sort(dets, nboxes, l.classes, nms);
+			int nboxes = 0;
+			detection *dets = get_network_boxes(net, im.w, im.h, thresh,
+					hier_thresh, 0, 1, &nboxes);
 
-		printf("NBOXES %d\n", nboxes);
+			if (nms)
+				do_nms_sort(dets, nboxes, l.classes, nms);
+
+			printf("Nboxes %d Predicted in %f seconds.\n", nboxes,
+					what_time_is_it_now() - time);
 //		draw_detections(im, dets, nboxes, thresh, names, alphabet, l.classes);
 //		free_detections(dets, nboxes);
 //		if (outfile) {
@@ -761,6 +764,7 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 //		free_image(im);
 //		free_image(sized);
 
+		}
 	}
 
 	free_all_images(imgs, sized_images, 10);
