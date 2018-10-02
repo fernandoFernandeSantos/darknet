@@ -703,14 +703,6 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 
 
 	char **nm = get_labels(filename);
-
-	int plist_size = 10;
-
-	image* imgs = (image*) malloc(sizeof(image) * plist_size);
-	image* sized_images = (image*) malloc(sizeof(image) * plist_size);
-
-	load_all_images(imgs, sized_images, nm, plist_size, net->w, net->h);
-
 	/**
 	 * DetectionGold declaration
 	 */
@@ -720,14 +712,26 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	//--------------------------
 
 	int iteration, images;
-	int max_it = 20000;
+	int max_it = get_iterations(gold);
+	int plist_size = get_img_num(gold);
+
+	//load images
+	image* imgs = (image*) malloc(sizeof(image) * plist_size);
+	image* sized_images = (image*) malloc(sizeof(image) * plist_size);
+	load_all_images(imgs, sized_images, nm, plist_size, net->w, net->h);
+
+	//start the process
 	for (iteration = 0; iteration < max_it; iteration++) {
-		for (images = 0; images < 10; images++) {
+		for (images = 0; images < plist_size; images++) {
 			layer l = net->layers[net->n - 1];
 
 			real_t *X = sized_images[images].data;
 			time = what_time_is_it_now();
+
+			//Run one iteration
+			start_iteration(gold);
 			network_predict(net, X);
+			end_iteration(gold);
 
 			int nboxes = 0;
 			detection *dets = get_network_boxes(net, imgs[images].w,
@@ -742,6 +746,7 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 		}
 	}
 
+	destroy_detection_gold(gold);
 	free_all_images(imgs, sized_images, 10);
 	free(imgs);
 	free(sized_images);

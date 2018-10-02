@@ -22,12 +22,16 @@ detection_gold_t* create_detection_gold(int argc, char **argv, real_t thresh, re
 			char *img_list_path, char *config_file, char *config_data,
 			char *model, char *weights);
 
-void destroy_detection_gold(detection_gold_t *m, detection_gold_t* det);
+void destroy_detection_gold(detection_gold_t *m);
 
 void run(detection_gold_t *m, detection* dets, int nboxes, int img_index, int classes);
 
 void start_iteration(detection_gold_t *m);
 void end_iteration(detection_gold_t *m);
+
+int get_iterations(detection_gold_t *m);
+
+int get_img_num(detection_gold_t *m);
 
 #ifdef __cplusplus
 }

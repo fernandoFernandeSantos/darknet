@@ -27,7 +27,7 @@ detection_gold_t* create_detection_gold(int argc, char **argv, real_t thresh,
 	return m;
 }
 
-void destroy_detection_gold(detection_gold_t *m, detection_gold_t* det) {
+void destroy_detection_gold(detection_gold_t *m) {
 	if (m == NULL)
 		return;
 	delete static_cast<DetectionGold *>(m->obj);
@@ -60,4 +60,24 @@ void end_iteration(detection_gold_t *m) {
 	obj = static_cast<DetectionGold *>(m->obj);
 	obj->end_iteration();
 
+}
+
+int get_iterations(detection_gold_t *m) {
+	DetectionGold *obj;
+	if (m == NULL)
+		return 0;
+
+	obj = static_cast<DetectionGold *>(m->obj);
+	int it = obj->iterations;
+	return it;
+}
+
+int get_img_num(detection_gold_t *m) {
+	DetectionGold *obj;
+	if (m == NULL)
+		return 0;
+
+	obj = static_cast<DetectionGold *>(m->obj);
+	int it = obj->plist_size;
+	return it;
 }
