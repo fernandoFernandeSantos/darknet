@@ -681,6 +681,7 @@ void load_all_images(image* imgs, image* sized_images, char** img_names,
 		imgs[i] = load_image_color(img_names[i], 0, 0);
 		sized_images[i] = letterbox_image(imgs[i], net_w, net_h);
 	}
+	printf("passou depois\n");
 }
 
 void free_all_images(image *imgs, image* sized_images, int list_size) {
@@ -724,13 +725,15 @@ void test_detector_radiation(char *datacfg, char *cfgfile, char *weightfile,
 	for (iteration = 0; iteration < max_it; iteration++) {
 		for (img = 0; img < plist_size; img++) {
 			layer l = net->layers[net->n - 1];
-
+			printf("passou it %d\n", iteration);
 			real_t *X = sized_images[img].data;
 			time = what_time_is_it_now();
 
+			printf("started iteration \n");
 			//Run one iteration
 			start_iteration_wrapper(gold);
 			network_predict(net, X);
+			printf("ended iteration\n");
 			end_iteration_wrapper(gold);
 
 			int nboxes = 0;
